@@ -25,7 +25,7 @@ class Product:
     """
 
     name: Final[str] = "Lake Terminal"
-    version: Final[str] = "1.0.0"
+    version: Final[str] = "1.0.1"
     command: Final[str] = "lake"
     module: Final[str] = "lake_terminal"
     state_directory: Final[str] = ".lake_terminal"
