@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#080b10" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>Devin Remote</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/app.css" />
+    <script src="/assets/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <svg class="icon-sprite" aria-hidden="true">
+      <symbol id="i-home" viewBox="0 0 24 24">
+        <path d="m3 11 9-8 9 8v9h-6v-6H9v6H3z" />
+      </symbol>
+      <symbol id="i-agent" viewBox="0 0 24 24">
+        <path d="M12 3.5 19 7.5v9L12 20.5l-7-4v-9z" />
+        <path d="M8.5 10.5h.01M15.5 10.5h.01M9 15c1.8 1 4.2 1 6 0" />
+      </symbol>
+      <symbol id="i-files" viewBox="0 0 24 24">
+        <path d="M3.5 6.5h6l2 2h9v10h-17z" />
+      </symbol>
+      <symbol id="i-diff" viewBox="0 0 24 24">
+        <path d="M8 4v16M4 8h8M16 7h4M16 17h4" />
+      </symbol>
+      <symbol id="i-terminal" viewBox="0 0 24 24">
+        <path d="m4 6 5 5-5 5M11 18h9" />
+      </symbol>
+      <symbol id="i-more" viewBox="0 0 24 24">
+        <circle cx="5" cy="12" r="1" />
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="19" cy="12" r="1" />
+      </symbol>
+      <symbol id="i-back" viewBox="0 0 24 24">
+        <path d="m15 5-7 7 7 7" />
+      </symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" />
+      </symbol>
+      <symbol id="i-send" viewBox="0 0 24 24">
+        <path d="m4 11 16-7-7 16-2-7z" />
+      </symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24">
+        <path d="M19 7V3l-3 3a8 8 0 1 0 2 10" />
+      </symbol>
+      <symbol id="i-folder" viewBox="0 0 24 24">
+        <path d="M3 7h7l2 2h9v10H3z" />
+      </symbol>
+      <symbol id="i-file" viewBox="0 0 24 24">
+        <path d="M6 3h8l4 4v14H6zM14 3v5h5" />
+      </symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24">
+        <path d="m9 6 6 6-6 6" />
+      </symbol>
+      <symbol id="i-save" viewBox="0 0 24 24">
+        <path d="M5 4h12l2 2v14H5zM8 4v6h8V4M8 20v-7h8v7" />
+      </symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24">
+        <path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13" />
+      </symbol>
+      <symbol id="i-edit" viewBox="0 0 24 24">
+        <path d="m4 17-.5 3.5L7 20l11-11-3-3zM13.5 7.5l3 3" />
+      </symbol>
+      <symbol id="i-git" viewBox="0 0 24 24">
+        <circle cx="6" cy="5" r="2" />
+        <circle cx="18" cy="19" r="2" />
+        <circle cx="6" cy="19" r="2" />
+        <path d="M6 7v10M8 7c6 0 4 10 8 10" />
+      </symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3" />
+        <path
+          d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"
+        />
+      </symbol>
+      <symbol id="i-copy" viewBox="0 0 24 24">
+        <rect x="8" y="8" width="11" height="11" rx="2" />
+        <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" />
+      </symbol>
+      <symbol id="i-external" viewBox="0 0 24 24">
+        <path d="M14 4h6v6M20 4l-9 9M18 13v7H4V6h7" />
+      </symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24">
+        <rect x="6" y="6" width="12" height="12" rx="2" />
+      </symbol>
+      <symbol id="i-archive" viewBox="0 0 24 24">
+        <path d="M4 6h16v4H4zM6 10v10h12V10M10 14h4" />
+      </symbol>
+      <symbol id="i-provider" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" />
+      </symbol>
+      <symbol id="i-usage" viewBox="0 0 24 24">
+        <path d="M5 19V9M12 19V5M19 19v-7" />
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="10.5" cy="10.5" r="6.5" />
+        <path d="m15.5 15.5 5 5" />
+      </symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24">
+        <path
+          d="m12 2 1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5zM19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7z"
+        />
+      </symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24">
+        <path d="M3 12V5h7l10 10-7 7z" />
+        <circle cx="8" cy="9" r="1.3" />
+      </symbol>
+      <symbol id="i-attach" viewBox="0 0 24 24">
+        <path d="m8 12 7-7a4 4 0 0 1 6 6l-9 9a6 6 0 0 1-9-9l9-9" />
+      </symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24">
+        <path d="M12 16V4M7 9l5-5 5 5M4 18v2h16v-2" />
+      </symbol>
+      <symbol id="i-download" viewBox="0 0 24 24">
+        <path d="M12 4v12M7 11l5 5 5-5M4 20h16" />
+      </symbol>
+      <symbol id="i-play" viewBox="0 0 24 24">
+        <path d="m8 5 11 7-11 7z" />
+      </symbol>
+      <symbol id="i-branch" viewBox="0 0 24 24">
+        <circle cx="7" cy="5" r="2" />
+        <circle cx="7" cy="19" r="2" />
+        <circle cx="17" cy="9" r="2" />
+        <path d="M7 7v10M9 17c5 0 8-3 8-6" />
+      </symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l4 2" />
+      </symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="M12 3 20 6v5c0 5-3.2 8.2-8 10-4.8-1.8-8-5-8-10V6z" />
+      </symbol>
+      <symbol id="i-warning" viewBox="0 0 24 24">
+        <path d="m12 3 10 18H2z" />
+        <path d="M12 9v5M12 18h.01" />
+      </symbol>
+      <symbol id="i-bookmark" viewBox="0 0 24 24">
+        <path d="M6 4h12v17l-6-4-6 4z" />
+      </symbol>
+      <symbol id="i-code" viewBox="0 0 24 24">
+        <path d="m9 6-6 6 6 6M15 6l6 6-6 6M14 4l-4 16" />
+      </symbol>
+    </svg>
+    <main id="main" class="app-shell">
+      <section
+        class="pair-screen"
+        data-view="pair"
+        aria-labelledby="pair-title"
+      >
+        <div class="brand-mark" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <span class="product-kicker">Devin Remote</span>
+        <h1 id="pair-title">Your project, from anywhere.</h1>
+        <p>
+          Enter the one-time pairing code from VS Code. Credentials never leave
+          your workstation.
+        </p>
+        <form class="pair-form" data-form="pair">
+          <label for="pair-code">Pairing code</label
+          ><input
+            id="pair-code"
+            name="code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            maxlength="6"
+            pattern="[0-9]{6}"
+            placeholder="000000"
+            required
+          /><button type="submit" class="button primary">
+            Connect securely
+          </button>
+        </form>
+        <output
+          class="inline-status"
+          data-slot="pair-status"
+          aria-live="polite"
+        ></output>
+        <div class="pair-security">
+          <svg class="icon"><use href="#i-shield"></use></svg
+          ><span>Project-scoped · HttpOnly session · CSRF protected</span>
+        </div>
+      </section>
+      <section class="workspace" data-view="workspace" hidden>
+        <header class="topbar">
+          <button
+            type="button"
+            class="project-switch"
+            data-action="project-switch"
+            aria-label="Switch project"
+          >
+            <div class="brand-mark compact" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="project-copy">
+              <strong data-slot="project-name">Project</strong
+              ><span data-slot="project-meta">Connecting…</span>
+            </div>
+            <svg class="icon chevron"><use href="#i-chevron"></use></svg>
+          </button>
+          <div class="topbar-actions">
+            <button
+              type="button"
+              class="icon-button"
+              data-action="command-palette"
+              aria-label="Command palette"
+            >
+              <svg class="icon"><use href="#i-search"></use></svg>
+            </button>
+            <button
+              type="button"
+              class="icon-button"
+              data-action="refresh"
+              aria-label="Refresh"
+            >
+              <svg class="icon"><use href="#i-refresh"></use></svg>
+            </button>
+            <button
+              type="button"
+              class="icon-button"
+              data-action="settings"
+              aria-label="Project settings"
+            >
+              <svg class="icon"><use href="#i-settings"></use></svg>
+            </button>
+          </div>
+        </header>
+        <div class="project-statusbar" aria-label="Project status">
+          <button type="button" data-nav="diff">
+            <svg class="icon"><use href="#i-branch"></use></svg
+            ><span data-slot="status-branch">HEAD</span>
+          </button>
+          <button type="button" data-nav="agents">
+            <svg class="icon"><use href="#i-agent"></use></svg
+            ><span data-slot="status-agents">0 active</span>
+          </button>
+          <button type="button" data-action="show-problems">
+            <svg class="icon"><use href="#i-warning"></use></svg
+            ><span data-slot="status-problems">0 problems</span>
+          </button>
+        </div>
+        <div class="content-stack" data-slot="content">
+          <section
+            class="screen active dashboard-screen"
+            data-screen="dashboard"
+            aria-labelledby="dashboard-heading"
+          >
+            <div class="dashboard-hero">
+              <div>
+                <p class="section-kicker">Remote workspace</p>
+                <h1 id="dashboard-heading">Keep development moving.</h1>
+                <p>
+                  Agents, code, source control and runtime in one project-scoped
+                  mobile console.
+                </p>
+              </div>
+              <button
+                type="button"
+                class="button primary"
+                data-action="new-agent"
+              >
+                <svg class="icon"><use href="#i-plus"></use></svg>New agent
+              </button>
+            </div>
+            <div class="metric-grid dashboard-metrics">
+              <article>
+                <strong data-slot="metric-active">0</strong
+                ><span>Active agents</span><small>live now</small>
+              </article>
+              <article>
+                <strong data-slot="metric-acu">0.00</strong><span>ACU used</span
+                ><small>all sessions</small>
+              </article>
+              <article>
+                <strong data-slot="metric-changes">0</strong
+                ><span>Git changes</span
+                ><small data-slot="dashboard-branch">working tree</small>
+              </article>
+              <article>
+                <strong data-slot="metric-problems">0</strong
+                ><span>Problems</span><small>VS Code diagnostics</small>
+              </article>
+            </div>
+            <div class="quick-grid" aria-label="Quick actions">
+              <button type="button" data-action="new-agent">
+                <svg class="icon"><use href="#i-agent"></use></svg
+                ><span>Start agent</span>
+              </button>
+              <button type="button" data-action="workspace-search">
+                <svg class="icon"><use href="#i-search"></use></svg
+                ><span>Search code</span>
+              </button>
+              <button type="button" data-action="new-terminal">
+                <svg class="icon"><use href="#i-terminal"></use></svg
+                ><span>Terminal</span>
+              </button>
+              <button type="button" data-action="file-create-menu">
+                <svg class="icon"><use href="#i-plus"></use></svg
+                ><span>New file</span>
+              </button>
+            </div>
+            <div class="dashboard-grid">
+              <section class="surface">
+                <div class="section-title">
+                  <div>
+                    <h2>Active agents</h2>
+                    <span>Live project work</span>
+                  </div>
+                  <button type="button" class="link-button" data-nav="agents">
+                    See all
+                  </button>
+                </div>
+                <div class="compact-list" data-slot="dashboard-agents"></div>
+              </section>
+              <section class="surface">
+                <div class="section-title">
+                  <div>
+                    <h2>Working tree</h2>
+                    <span data-slot="dashboard-git-subtitle"
+                      >Source control</span
+                    >
+                  </div>
+                  <button type="button" class="link-button" data-nav="diff">
+                    Review
+                  </button>
+                </div>
+                <div class="compact-list" data-slot="dashboard-changes"></div>
+              </section>
+              <section class="surface">
+                <div class="section-title">
+                  <div>
+                    <h2>Run a task</h2>
+                    <span>Detected project commands</span>
+                  </div>
+                  <button type="button" class="link-button" data-nav="terminal">
+                    Runtime
+                  </button>
+                </div>
+                <div
+                  class="task-list compact"
+                  data-slot="dashboard-tasks"
+                ></div>
+              </section>
+              <section class="surface">
+                <div class="section-title">
+                  <div>
+                    <h2>Recent activity</h2>
+                    <span>Remote operations</span>
+                  </div>
+                  <button
+                    type="button"
+                    class="link-button"
+                    data-action="settings"
+                  >
+                    Details
+                  </button>
+                </div>
+                <div
+                  class="activity-list compact"
+                  data-slot="dashboard-activity"
+                ></div>
+              </section>
+            </div>
+          </section>
+          <section
+            class="screen"
+            data-screen="agents"
+            aria-labelledby="agents-heading"
+          >
+            <div class="screen-heading">
+              <div>
+                <p class="section-kicker">Devin</p>
+                <h1 id="agents-heading">Agents</h1>
+                <p data-slot="agent-summary">Live sessions</p>
+              </div>
+              <button
+                type="button"
+                class="button compact primary"
+                data-action="new-agent"
+              >
+                <svg class="icon"><use href="#i-plus"></use></svg>New
+              </button>
+            </div>
+            <div class="overview-strip">
+              <div>
+                <strong data-slot="metric-active">0</strong><span>Active</span>
+              </div>
+              <div>
+                <strong data-slot="metric-acu">0.00</strong><span>ACU</span>
+              </div>
+              <div>
+                <strong data-slot="metric-changes">0</strong
+                ><span>Changes</span>
+              </div>
+              <div>
+                <strong data-slot="metric-files">—</strong><span>Files</span>
+              </div>
+            </div>
+            <label class="search-field"
+              ><svg class="icon"><use href="#i-search"></use></svg
+              ><span class="sr-only">Search agents</span
+              ><input
+                type="search"
+                data-slot="agent-search"
+                placeholder="Search sessions, IDs and tasks"
+            /></label>
+            <div class="segmented" role="tablist" aria-label="Agent filter">
+              <button
+                type="button"
+                class="selected"
+                data-agent-filter="project"
+              >
+                Project</button
+              ><button type="button" data-agent-filter="running">Running</button
+              ><button type="button" data-agent-filter="waiting">Waiting</button
+              ><button type="button" data-agent-filter="all">All</button>
+            </div>
+            <div class="agent-list" data-slot="agents"></div>
+          </section>
+          <section
+            class="screen detail-screen"
+            data-screen="chat"
+            aria-labelledby="chat-heading"
+          >
+            <div class="detail-heading">
+              <button
+                type="button"
+                class="icon-button"
+                data-action="close-chat"
+                aria-label="Back"
+              >
+                <svg class="icon"><use href="#i-back"></use></svg>
+              </button>
+              <div class="detail-copy">
+                <h1 id="chat-heading" data-slot="chat-title">Agent</h1>
+                <p data-slot="chat-state">Loading…</p>
+              </div>
+              <button
+                type="button"
+                class="icon-button"
+                data-action="agent-menu"
+                aria-label="Agent actions"
+              >
+                <svg class="icon"><use href="#i-more"></use></svg>
+              </button>
+            </div>
+            <div class="agent-toolbar">
+              <button
+                type="button"
+                class="selected"
+                data-action="agent-show-chat"
+              >
+                Conversation</button
+              ><button type="button" data-action="agent-show-details">
+                Session
+              </button>
+            </div>
+            <aside
+              class="agent-detail-panel"
+              data-slot="agent-details"
+              hidden
+              aria-label="Agent session details"
+            ></aside>
+            <div
+              class="message-list"
+              data-slot="messages"
+              aria-live="polite"
+            ></div>
+            <form class="composer" data-form="agent-message">
+              <label class="sr-only" for="agent-message">Message Devin</label
+              ><textarea
+                id="agent-message"
+                name="message"
+                rows="1"
+                placeholder="Message Devin…"
+                required
+              ></textarea
+              ><button type="submit" class="send-button" aria-label="Send">
+                <svg class="icon"><use href="#i-send"></use></svg>
+              </button>
+            </form>
+          </section>
+          <section
+            class="screen code-screen"
+            data-screen="files"
+            aria-labelledby="files-heading"
+          >
+            <div class="screen-heading">
+              <div>
+                <p class="section-kicker">Workspace</p>
+                <h1 id="files-heading">Explorer</h1>
+                <p>Full project file management and code access</p>
+              </div>
+            </div>
+            <div class="code-command-grid" aria-label="File management">
+              <button
+                type="button"
+                class="command-tile"
+                data-action="file-create-menu"
+              >
+                <svg class="icon"><use href="#i-plus"></use></svg
+                ><span
+                  ><strong>Create</strong><small>File or folder</small></span
+                >
+              </button>
+              <button
+                type="button"
+                class="command-tile"
+                data-action="upload-file"
+              >
+                <svg class="icon"><use href="#i-upload"></use></svg
+                ><span
+                  ><strong>Upload</strong><small>Binary or text</small></span
+                >
+              </button>
+              <button
+                type="button"
+                class="command-tile"
+                data-action="workspace-search"
+              >
+                <svg class="icon"><use href="#i-search"></use></svg
+                ><span
+                  ><strong>Search</strong><small>Entire workspace</small></span
+                >
+              </button>
+              <button type="button" class="command-tile" data-action="refresh">
+                <svg class="icon"><use href="#i-refresh"></use></svg
+                ><span><strong>Refresh</strong><small>Reload tree</small></span>
+              </button>
+            </div>
+            <div class="explorer-shell">
+              <aside class="explorer-sidebar" aria-label="Project explorer">
+                <div class="explorer-title">
+                  <strong>Project files</strong
+                  ><span data-slot="explorer-count"></span>
+                </div>
+                <label class="search-field"
+                  ><svg class="icon"><use href="#i-search"></use></svg
+                  ><span class="sr-only">Filter files</span
+                  ><input
+                    type="search"
+                    data-slot="file-search"
+                    placeholder="Filter files and folders"
+                /></label>
+                <div class="breadcrumbs" data-slot="breadcrumbs"></div>
+                <div class="file-tree" data-slot="file-tree"></div>
+              </aside>
+              <section
+                class="explorer-context"
+                aria-label="Workspace intelligence"
+              >
+                <div class="context-heading">
+                  <div>
+                    <strong>Workspace intelligence</strong
+                    ><span
+                      >Recent files, bookmarks, diagnostics and search</span
+                    >
+                  </div>
+                  <button
+                    type="button"
+                    class="link-button"
+                    data-action="workspace-search"
+                  >
+                    Search all
+                  </button>
+                </div>
+                <div class="context-tabs" role="tablist">
+                  <button
+                    type="button"
+                    class="selected"
+                    data-code-context="recent"
+                  >
+                    Recent
+                  </button>
+                  <button type="button" data-code-context="bookmarks">
+                    Bookmarks <b data-slot="bookmark-count">0</b>
+                  </button>
+                  <button type="button" data-code-context="problems">
+                    Problems <b data-slot="problem-count">0</b>
+                  </button>
+                </div>
+                <div class="context-panel" data-context-panel="recent">
+                  <div class="recent-files" data-slot="recent-files"></div>
+                </div>
+                <div
+                  class="context-panel"
+                  data-context-panel="bookmarks"
+                  hidden
+                >
+                  <div class="bookmark-list" data-slot="bookmarks"></div>
+                </div>
+                <div class="context-panel" data-context-panel="problems" hidden>
+                  <div class="problem-toolbar">
+                    <span data-slot="problem-summary">No diagnostics</span
+                    ><button
+                      type="button"
+                      class="link-button"
+                      data-action="refresh-diagnostics"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                  <div class="problem-list" data-slot="problems"></div>
+                </div>
+                <div
+                  class="workspace-search-results"
+                  data-slot="workspace-search-results"
+                  hidden
+                ></div>
+                <div class="explorer-help">
+                  <svg class="icon"><use href="#i-code"></use></svg>
+                  <div>
+                    <strong>Project-aware workspace</strong>
+                    <p>
+                      Browse, search, diagnose, bookmark and edit files without
+                      losing your project context.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </section>
+          <section
+            class="screen detail-screen editor-screen"
+            data-screen="editor"
+            aria-labelledby="editor-heading"
+          >
+            <div class="detail-heading editor-heading">
+              <button
+                type="button"
+                class="icon-button"
+                data-action="close-editor"
+                aria-label="Back to explorer"
+              >
+                <svg class="icon"><use href="#i-back"></use></svg>
+              </button>
+              <div class="detail-copy">
+                <h1 id="editor-heading" data-slot="editor-title">File</h1>
+                <p data-slot="editor-meta">Loading…</p>
+              </div>
+              <div class="heading-actions">
+                <button
+                  type="button"
+                  class="icon-button"
+                  data-action="toggle-bookmark"
+                  aria-label="Bookmark file"
+                >
+                  <svg class="icon"><use href="#i-bookmark"></use></svg></button
+                ><button
+                  type="button"
+                  class="icon-button"
+                  data-action="open-vscode"
+                  aria-label="Open in VS Code"
+                >
+                  <svg class="icon"><use href="#i-external"></use></svg></button
+                ><button
+                  type="button"
+                  class="button compact primary"
+                  data-action="save-file"
+                >
+                  <svg class="icon"><use href="#i-save"></use></svg>Save
+                </button>
+              </div>
+            </div>
+            <div
+              class="open-file-tabs"
+              data-slot="open-file-tabs"
+              aria-label="Recent editor tabs"
+            ></div>
+            <div class="editor-tabs" role="tablist">
+              <button type="button" class="selected" data-editor-mode="preview">
+                Code</button
+              ><button type="button" data-editor-mode="edit">Edit</button
+              ><button type="button" data-action="file-inspect">Outline</button
+              ><button type="button" data-action="file-blame">Blame</button
+              ><button type="button" data-action="file-history">History</button>
+            </div>
+            <div class="file-inspector" data-slot="file-inspector" hidden></div>
+            <div class="editor-workbench">
+              <div
+                class="code-preview"
+                data-slot="code-preview"
+                tabindex="0"
+              ></div>
+              <label class="editor-input" data-slot="editor-input" hidden
+                ><span class="sr-only">Edit file</span
+                ><textarea spellcheck="false"></textarea>
+              </label>
+            </div>
+            <div class="editor-statusbar" data-slot="editor-statusbar"></div>
+            <div class="editor-actions">
+              <button
+                type="button"
+                class="button secondary"
+                data-action="download-file"
+              >
+                <svg class="icon"><use href="#i-download"></use></svg
+                >Download</button
+              ><button
+                type="button"
+                class="button secondary"
+                data-action="rename-file"
+              >
+                <svg class="icon"><use href="#i-edit"></use></svg>Rename</button
+              ><button
+                type="button"
+                class="button secondary"
+                data-action="duplicate-file"
+              >
+                <svg class="icon"><use href="#i-copy"></use></svg
+                >Duplicate</button
+              ><button
+                type="button"
+                class="button danger"
+                data-action="delete-file"
+              >
+                <svg class="icon"><use href="#i-trash"></use></svg>Delete
+              </button>
+            </div>
+          </section>
+          <section
+            class="screen"
+            data-screen="diff"
+            aria-labelledby="diff-heading"
+          >
+            <div class="screen-heading">
+              <div>
+                <p class="section-kicker">Source control</p>
+                <h1 id="diff-heading">Changes</h1>
+                <p data-slot="git-summary">Working tree</p>
+              </div>
+              <span class="branch-chip" data-slot="branch">—</span>
+            </div>
+            <div class="segmented git-tabs" role="tablist">
+              <button type="button" class="selected" data-git-mode="changes">
+                Changes</button
+              ><button type="button" data-git-mode="history">History</button
+              ><button type="button" data-git-mode="branches">Branches</button
+              ><button type="button" data-git-mode="stashes">Stashes</button
+              ><button type="button" data-git-mode="compare">Compare</button>
+            </div>
+            <div
+              class="git-review-summary"
+              data-slot="git-review-summary"
+            ></div>
+            <div class="git-actions">
+              <button
+                type="button"
+                class="button compact"
+                data-action="git-stage-all"
+              >
+                Stage all</button
+              ><button
+                type="button"
+                class="button compact"
+                data-action="git-unstage-all"
+              >
+                Unstage</button
+              ><button
+                type="button"
+                class="button compact primary"
+                data-action="git-commit"
+              >
+                Commit</button
+              ><button
+                type="button"
+                class="button compact"
+                data-action="git-stash"
+              >
+                Stash</button
+              ><button
+                type="button"
+                class="button compact"
+                data-action="git-pull"
+              >
+                Pull</button
+              ><button
+                type="button"
+                class="button compact"
+                data-action="git-push"
+              >
+                Push
+              </button>
+            </div>
+            <div class="change-list" data-slot="git-changes">
+              <div data-slot="changes"></div>
+            </div>
+            <div class="history-list" data-slot="git-history" hidden></div>
+            <div class="branch-list" data-slot="git-branches" hidden></div>
+            <div class="stash-list" data-slot="git-stashes" hidden></div>
+            <div class="compare-panel" data-slot="git-compare" hidden>
+              <div class="compare-form">
+                <label
+                  >Base<input
+                    type="text"
+                    data-slot="compare-base"
+                    placeholder="main"
+                /></label>
+                <label
+                  >Head<input type="text" data-slot="compare-head" value="HEAD"
+                /></label>
+                <button
+                  type="button"
+                  class="button primary"
+                  data-action="git-compare"
+                >
+                  Compare revisions
+                </button>
+              </div>
+              <pre class="compare-stat" data-slot="compare-stat"></pre>
+              <div
+                class="diff-view compare-diff"
+                data-slot="compare-diff"
+              ></div>
+            </div>
+            <button
+              type="button"
+              class="button secondary full-width branch-create"
+              data-action="git-branch-new"
+            >
+              Create branch
+            </button>
+          </section>
+          <section
+            class="screen detail-screen diff-review-screen"
+            data-screen="diff-detail"
+            aria-labelledby="diff-detail-heading"
+          >
+            <div class="detail-heading">
+              <button
+                type="button"
+                class="icon-button"
+                data-action="close-diff"
+                aria-label="Back to changes"
+              >
+                <svg class="icon"><use href="#i-back"></use></svg>
+              </button>
+              <div class="detail-copy">
+                <h1 id="diff-detail-heading" data-slot="diff-title">
+                  Diff review
+                </h1>
+                <p data-slot="diff-meta">Loading…</p>
+              </div>
+              <button
+                type="button"
+                class="button compact primary"
+                data-action="toggle-stage"
+              >
+                Stage
+              </button>
+            </div>
+            <div class="diff-toolbar">
+              <div class="segmented compact-segment">
+                <button
+                  type="button"
+                  class="selected"
+                  data-diff-layout="unified"
+                >
+                  Unified</button
+                ><button type="button" data-diff-layout="split">
+                  Side by side
+                </button>
+              </div>
+              <span>Review changes before staging</span>
+            </div>
+            <div class="diff-view" data-slot="diff-view" tabindex="0"></div>
+            <div class="editor-actions">
+              <button
+                type="button"
+                class="button danger"
+                data-action="git-discard"
+              >
+                <svg class="icon"><use href="#i-trash"></use></svg>Discard local
+                changes
+              </button>
+            </div>
+          </section>
+          <section
+            class="screen terminal-screen"
+            data-screen="terminal"
+            aria-labelledby="terminal-heading"
+          >
+            <div class="screen-heading">
+              <div>
+                <p class="section-kicker">Runtime</p>
+                <h1 id="terminal-heading">Terminal & tasks</h1>
+                <p data-slot="terminal-meta">Project shell</p>
+              </div>
+              <button
+                type="button"
+                class="button compact primary"
+                data-action="new-terminal"
+              >
+                <svg class="icon"><use href="#i-plus"></use></svg>New shell
+              </button>
+            </div>
+            <div class="runtime-summary" data-slot="runtime-summary"></div>
+            <div class="terminal-tabs" data-slot="terminal-tabs"></div>
+            <div class="terminal-tools">
+              <button
+                type="button"
+                class="button compact"
+                data-action="interrupt-terminal"
+              >
+                Ctrl-C</button
+              ><button
+                type="button"
+                class="button compact"
+                data-action="clear-terminal"
+              >
+                Clear</button
+              ><button
+                type="button"
+                class="button compact danger"
+                data-action="close-terminal"
+              >
+                Close
+              </button>
+            </div>
+            <div
+              class="terminal-quickbar"
+              data-slot="terminal-quickbar"
+              aria-label="Quick terminal commands"
+            >
+              <button
+                type="button"
+                data-terminal-command="git status --short --branch"
+              >
+                git status</button
+              ><button type="button" data-terminal-command="git diff --stat">
+                diff stat</button
+              ><button type="button" data-terminal-command="pwd">pwd</button
+              ><button type="button" data-terminal-command="ls -la">ls</button>
+            </div>
+            <pre
+              class="terminal-output"
+              data-slot="terminal-output"
+              tabindex="0"
+              aria-live="polite"
+            ></pre>
+            <form class="terminal-composer" data-form="terminal-input">
+              <label class="terminal-prompt" for="terminal-input">$</label
+              ><input
+                id="terminal-input"
+                name="input"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="command"
+              /><button type="submit" class="send-button" aria-label="Send">
+                <svg class="icon"><use href="#i-send"></use></svg>
+              </button>
+            </form>
+            <section class="surface task-panel">
+              <div class="section-title">
+                <div>
+                  <h2>Detected tasks</h2>
+                  <span>Run in active shell</span>
+                </div>
+              </div>
+              <div class="task-list" data-slot="tasks"></div>
+            </section>
+          </section>
+          <section
+            class="screen"
+            data-screen="more"
+            aria-labelledby="more-heading"
+          >
+            <div class="screen-heading">
+              <div>
+                <p class="section-kicker">Control center</p>
+                <h1 id="more-heading">Project settings</h1>
+                <p>Projects, models, security and diagnostics</p>
+              </div>
+            </div>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Open projects</h2>
+                  <span>One server, isolated endpoints</span>
+                </div>
+              </div>
+              <div class="project-list" data-slot="projects"></div>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Workspace</h2>
+                  <span>Repository profile</span>
+                </div>
+              </div>
+              <div class="workspace-stats" data-slot="workspace-stats"></div>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>LLM providers</h2>
+                  <span>Independent project assistant</span>
+                </div>
+              </div>
+              <div class="provider-list" data-slot="providers"></div>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Usage</h2>
+                  <span>Gateway lifetime</span>
+                </div>
+              </div>
+              <div class="usage-grid" data-slot="usage"></div>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Problems</h2>
+                  <span>Live VS Code diagnostics</span>
+                </div>
+                <button
+                  type="button"
+                  class="link-button"
+                  data-action="show-problems"
+                >
+                  Open
+                </button>
+              </div>
+              <div
+                class="problem-summary-cards"
+                data-slot="problem-summary-cards"
+              ></div>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Repository</h2>
+                  <span data-slot="repo-state">Local project</span>
+                </div>
+              </div>
+              <dl class="project-facts" data-slot="project-facts"></dl>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Ask a model</h2>
+                  <span>Optional code-aware context</span>
+                </div>
+              </div>
+              <form class="llm-form" data-form="llm">
+                <select data-slot="llm-provider" aria-label="Provider"></select
+                ><input
+                  name="model"
+                  type="text"
+                  placeholder="Optional model override"
+                  aria-label="Optional model override"
+                /><textarea
+                  name="prompt"
+                  rows="3"
+                  placeholder="Ask about this project…"
+                  required
+                ></textarea
+                ><button type="submit" class="button primary">Send</button>
+              </form>
+              <div
+                class="llm-response"
+                data-slot="llm-response"
+                aria-live="polite"
+              ></div>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Remote activity</h2>
+                  <span>Auditable project actions</span>
+                </div>
+                <button
+                  type="button"
+                  class="link-button"
+                  data-action="refresh-activity"
+                >
+                  Refresh
+                </button>
+              </div>
+              <div class="activity-list" data-slot="activity"></div>
+            </section>
+            <section class="settings-section">
+              <div class="section-title">
+                <div>
+                  <h2>Paired devices</h2>
+                  <span>Project-scoped access</span>
+                </div>
+                <button
+                  type="button"
+                  class="link-button"
+                  data-action="refresh-security"
+                >
+                  Refresh
+                </button>
+              </div>
+              <div class="device-list" data-slot="paired-devices"></div>
+              <button
+                type="button"
+                class="button secondary"
+                data-action="enable-notifications"
+              >
+                Enable agent notifications
+              </button>
+            </section>
+          </section>
+        </div>
+        <nav class="bottom-nav" aria-label="Primary">
+          <button type="button" class="selected" data-nav="dashboard">
+            <svg class="icon"><use href="#i-home"></use></svg
+            ><span>Dashboard</span>
+          </button>
+          <button type="button" data-nav="agents">
+            <svg class="icon"><use href="#i-agent"></use></svg
+            ><span>Agents</span><b data-badge="agents"></b>
+          </button>
+          <button type="button" data-nav="files">
+            <svg class="icon"><use href="#i-files"></use></svg
+            ><span>Explorer</span>
+          </button>
+          <button type="button" data-nav="diff">
+            <svg class="icon"><use href="#i-diff"></use></svg><span>Review</span
+            ><b data-badge="changes"></b>
+          </button>
+          <button type="button" data-nav="terminal">
+            <svg class="icon"><use href="#i-terminal"></use></svg
+            ><span>Console</span>
+          </button>
+        </nav>
+      </section>
+    </main>
+    <dialog class="modal" data-slot="modal">
+      <form method="dialog">
+        <header>
+          <h2 data-slot="modal-title">Action</h2>
+          <button
+            type="submit"
+            value="cancel"
+            class="icon-button"
+            aria-label="Close"
+          >
+            <svg class="icon"><use href="#i-back"></use></svg>
+          </button>
+        </header>
+        <div data-slot="modal-body"></div>
+        <footer data-slot="modal-actions"></footer>
+      </form>
+    </dialog>
+    <div
+      class="toast-region"
+      data-slot="toasts"
+      aria-live="polite"
+      aria-atomic="false"
+    ></div>
+  </body>
+</html>

@@ -1,0 +1,144 @@
+{
+  "name": "devin-remote-control",
+  "displayName": "Devin Remote Control",
+  "description": "Secure phone-first remote IDE and Devin operations console for VS Code.",
+  "version": "5.0.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "devin",
+    "remote",
+    "ngrok",
+    "agents",
+    "mobile",
+    "terminal",
+    "git",
+    "ide",
+    "pwa"
+  ],
+  "main": "./extension/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:devinRemote.openProjectPanel"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "devinRemote.openProjectPanel",
+        "title": "Devin Remote: Open Project Control"
+      },
+      {
+        "command": "devinRemote.startGateway",
+        "title": "Devin Remote: Start Gateway"
+      },
+      {
+        "command": "devinRemote.stopGateway",
+        "title": "Devin Remote: Stop Gateway"
+      },
+      {
+        "command": "devinRemote.setDevinCredentials",
+        "title": "Devin Remote: Set Devin Credentials"
+      },
+      {
+        "command": "devinRemote.setProviderCredentials",
+        "title": "Devin Remote: Set LLM Provider Credentials"
+      },
+      {
+        "command": "devinRemote.setNgrokToken",
+        "title": "Devin Remote: Set ngrok Authtoken"
+      }
+    ],
+    "configuration": {
+      "title": "Devin Remote Control",
+      "properties": {
+        "devinRemote.gateway.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Start the local shared gateway when a workspace opens."
+        },
+        "devinRemote.gateway.port": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "maximum": 65535,
+          "description": "Local gateway port. 0 chooses a free port."
+        },
+        "devinRemote.ngrok.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Start one ngrok tunnel for the shared gateway."
+        },
+        "devinRemote.ngrok.command": {
+          "type": "string",
+          "default": "ngrok",
+          "description": "Path or command name for the ngrok executable."
+        },
+        "devinRemote.devin.organizationId": {
+          "type": "string",
+          "default": "",
+          "description": "Devin organization ID (org-...). The service-user token is stored in SecretStorage."
+        },
+        "devinRemote.files.maxBytes": {
+          "type": "number",
+          "default": 4194304,
+          "minimum": 1024,
+          "description": "Maximum file size readable/editable from the remote UI."
+        },
+        "devinRemote.files.excludes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".git",
+            ".DS_Store",
+            ".venv",
+            "__pycache__",
+            "node_modules",
+            ".pytest_cache",
+            ".ruff_cache"
+          ],
+          "description": "Basenames hidden from the remote file tree."
+        },
+        "devinRemote.terminal.shell": {
+          "type": "string",
+          "default": "",
+          "description": "Shell executable used by the remote terminal. Empty uses the platform default."
+        },
+        "devinRemote.security.sessionHours": {
+          "type": "number",
+          "default": 12,
+          "minimum": 1,
+          "maximum": 72,
+          "description": "Lifetime of a paired phone session."
+        },
+        "devinRemote.providers.openAICompatible.baseUrl": {
+          "type": "string",
+          "default": "https://api.openai.com/v1",
+          "description": "OpenAI-compatible API base URL."
+        },
+        "devinRemote.providers.openAICompatible.model": {
+          "type": "string",
+          "default": "",
+          "description": "Default model for the OpenAI-compatible project chat."
+        },
+        "devinRemote.providers.anthropic.model": {
+          "type": "string",
+          "default": "",
+          "description": "Default Anthropic model for the project chat."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "check": "node tools/check.mjs",
+    "test": "node --test test/*.test.mjs",
+    "package": "node tools/package.mjs"
+  }
+}

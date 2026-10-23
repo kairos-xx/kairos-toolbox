@@ -1,0 +1,3563 @@
+@layer reset, tokens, base, layout, components, utilities, responsive;
+@layer tokens {
+  :root {
+    --base-app-typography-inter-ui-sans-serif-apple-system-blinkma:
+      Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
+    --base-app-typography-sfmono-regular-consolas-liberation-mono:
+      "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --base-app-measure-0-6875rem: 0.6875rem;
+    --base-app-measure-0-75rem: 0.75rem;
+    --base-app-measure-0-8125rem: 0.8125rem;
+    --base-app-measure-0-9375rem: 0.9375rem;
+    --base-app-measure-1-0625rem: 1.0625rem;
+    --base-app-measure-1-375rem: 1.375rem;
+    --base-app-measure-1-875rem: 1.875rem;
+    --base-app-measure-clamp-2rem-9vw-3-25rem: clamp(2rem, 9vw, 3.25rem);
+    --base-app-measure-1-08-n: 1.08;
+    --base-app-measure-1-35-n: 1.35;
+    --base-app-measure-1-55-n: 1.55;
+    --base-app-measure-450-n: 450;
+    --base-app-measure-560-n: 560;
+    --base-app-measure-650-n: 650;
+    --base-app-measure-740-n: 740;
+    --base-app-measure-0-025em: -0.025em;
+    --base-app-measure-0-055em: 0.055em;
+    --base-app-measure-0-n: 0;
+    --base-app-measure-0-25rem: 0.25rem;
+    --base-app-measure-0-5rem: 0.5rem;
+    --base-app-measure-1rem: 1rem;
+    --base-app-measure-1-25rem: 1.25rem;
+    --base-app-measure-1-5rem: 1.5rem;
+    --base-app-measure-2rem: 2rem;
+    --base-app-measure-2-5rem: 2.5rem;
+    --base-app-measure-3rem: 3rem;
+    --base-app-border-0-45rem: 0.45rem;
+    --base-app-border-0-7rem: 0.7rem;
+    --base-app-border-0-95rem: 0.95rem;
+    --base-app-border-1-2rem: 1.2rem;
+    --base-app-border-1-6rem: 1.6rem;
+    --base-app-border-999rem: 999rem;
+    --base-app-border-0-0625rem: 0.0625rem;
+    --base-app-measure-1-15rem: 1.15rem;
+    --base-app-measure-1-35rem: 1.35rem;
+    --base-app-measure-2-75rem: 2.75rem;
+    --base-app-measure-4-75rem: 4.75rem;
+    --base-app-measure-4-1rem: 4.1rem;
+    --base-app-measure-72rem: 72rem;
+    --base-app-measure-24rem: 24rem;
+    --base-app-measure-18rem: 18rem;
+    --base-app-measure-31rem: 31rem;
+    --base-app-measure-46rem: 46rem;
+    --base-app-measure-20-n: 20;
+    --base-app-measure-50-n: 50;
+    --base-app-measure-60-n: 60;
+    --base-app-motion-120ms: 120ms;
+    --base-app-motion-180ms: 180ms;
+    --base-app-motion-ease-0-2-0-8-0-2-1-n: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --base-app-color-c080b10: light-dark(#f6f8fbff, #080b10ff);
+    --base-app-color-c0d1118: light-dark(#ffffffff, #0d1118ff);
+    --base-app-color-c111722: light-dark(#ffffffff, #111722ff);
+    --base-app-color-c151c28: light-dark(#f1f4f8ff, #151c28ff);
+    --base-app-color-c1a2332: light-dark(#e8edf4ff, #1a2332ff);
+    --base-app-color-c1d2838: light-dark(#e9eef6ff, #1d2838ff);
+    --base-app-color-rgb-8-11-16-88-n: light-dark(
+      rgb(246 248 251 / 90%),
+      rgb(8 11 16 / 88%)
+    );
+    --base-app-color-cf5f7fb: light-dark(#111722ff, #f5f7fbff);
+    --base-app-color-cb2bdcb: light-dark(#455164ff, #b2bdcbff);
+    --base-app-color-c778393: light-dark(#748095ff, #778393ff);
+    --base-app-color-c263041: light-dark(#d8e0eaff, #263041ff);
+    --base-app-color-c1b2431: light-dark(#e7ebf0ff, #1b2431ff);
+    --base-app-color-c2f81f7: #2f81f7ff;
+    --base-app-color-c4593ff: #4593ffff;
+    --base-app-color-rgb-47-129-247-13-n: light-dark(
+      rgb(47 129 247 / 10%),
+      rgb(47 129 247 / 13%)
+    );
+    --base-app-color-c35d07f: #35d07fff;
+    --base-app-color-rgb-53-208-127-13-n: light-dark(
+      rgb(33 171 103 / 10%),
+      rgb(53 208 127 / 13%)
+    );
+    --base-app-color-ce4b84f: #e4b84fff;
+    --base-app-color-rgb-228-184-79-13-n: light-dark(
+      rgb(183 133 25 / 10%),
+      rgb(228 184 79 / 13%)
+    );
+    --base-app-color-cf06767: #f06767ff;
+    --base-app-color-rgb-240-103-103-13-n: light-dark(
+      rgb(221 65 65 / 10%),
+      rgb(240 103 103 / 13%)
+    );
+    --base-app-color-c9a7cff: #9a7cffff;
+    --base-app-color-rgb-154-124-255-13-n: light-dark(
+      rgb(117 84 226 / 10%),
+      rgb(154 124 255 / 13%)
+    );
+    --base-app-color-c55c7e9: #55c7e9ff;
+    --base-app-effect-0-0-3rem-0-8rem-rgb-0-0-0-18-n: light-dark(
+      0 0.3rem 0.8rem rgb(25 40 65 / 8%),
+      0 0.3rem 0.8rem rgb(0 0 0 / 18%)
+    );
+    --base-app-effect-0-1-5rem-4rem-rgb-0-0-0-34-n: light-dark(
+      0 1.5rem 4rem rgb(25 40 65 / 16%),
+      0 1.5rem 4rem rgb(0 0 0 / 34%)
+    );
+    --base-app-measure-env-safe-area-inset-top-0rem: env(
+      safe-area-inset-top,
+      0rem
+    );
+    --base-app-measure-env-safe-area-inset-bottom-0rem: env(
+      safe-area-inset-bottom,
+      0rem
+    );
+    --base-app-measure-0-375rem: 0.375rem;
+    --base-app-measure-17rem: 17rem;
+    --base-app-measure-0-2rem: 0.2rem;
+    --base-app-color-0-0-0-0-125rem-rgb-47-129-247-13-n: 0 0 0 0.125rem
+      rgb(47 129 247 / 13%);
+    --base-app-color-dark: dark;
+    --base-app-color-light: light;
+    --base-app-measure-border-box: border-box;
+    --base-app-color-100-n: 100%;
+    --base-app-measure-block: block;
+    --base-app-measure-none: none;
+    --base-app-measure-100dvh: 100dvh;
+    --base-app-measure-hidden: hidden;
+    --base-app-color-transparent: transparent;
+    --base-app-cursor-pointer: pointer;
+    --base-app-color-0-0625rem-solid-c263041: light-dark(
+      0.0625rem solid #d8e0eaff,
+      0.0625rem solid #263041ff
+    );
+    --base-app-border-calc-0-0625rem-2-solid-c2f81f7: calc(0.0625rem * 2) solid
+      #2f81f7ff;
+    --base-app-border-calc-0-0625rem-2-n: calc(0.0625rem * 2);
+    --base-app-measure-vertical: vertical;
+    --base-app-color-cffffff: #ffffffff;
+    --base-app-measure-sticky: sticky;
+    --base-app-measure-flex: flex;
+    --base-app-measure-center: center;
+    --base-app-measure-space-between: space-between;
+    --base-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem: calc(
+      4.1rem + env(safe-area-inset-top, 0rem)
+    );
+    --base-app-measure-calc-0-75rem-env-safe-area-inset-top-0re: calc(
+        0.75rem + env(safe-area-inset-top, 0rem)
+      )
+      1rem 0.75rem;
+    --base-app-color-0-0625rem-solid-c1b2431: light-dark(
+      0.0625rem solid #e7ebf0ff,
+      0.0625rem solid #1b2431ff
+    );
+    --base-app-effect-blur-1-25rem-saturate-140-n: blur(1.25rem) saturate(140%);
+    --base-app-measure-min-100-72rem: min(100%, 72rem);
+    --base-app-measure-auto: auto;
+    --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom: calc(
+      4.75rem + env(safe-area-inset-bottom, 0rem) + 1.25rem
+    );
+    --base-app-measure-1-25rem-1rem-2-5rem: 1.25rem 1rem 2.5rem;
+    --base-app-motion-screen-in-180ms-ease-0-2-0-8-0-2-1-n: screen-in 180ms
+      cubic-bezier(0.2, 0.8, 0.2, 1);
+    --base-app-measure-calc-100dvh-4-1rem-4-75rem: calc(
+      100dvh - 4.1rem - 4.75rem
+    );
+    --base-app-measure-grid: grid;
+    --base-app-measure-repeat-2-minmax-0-1fr: repeat(2, minmax(0, 1fr));
+    --base-app-measure-repeat-4-minmax-0-1fr: repeat(4, minmax(0, 1fr));
+    --base-app-measure-1-n: 1;
+    --base-app-measure-absolute: absolute;
+    --base-app-color-currentcolor: currentColor;
+    --base-app-color-1-8-n: 1.8;
+    --base-app-color-round: round;
+    --base-app-measure-fixed: fixed;
+    --base-app-effect-translatey-200-n: translateY(-200%);
+    --base-app-measure-0-5rem-0-75rem: 0.5rem 0.75rem;
+    --base-app-effect-translatey-0-n: translateY(0);
+    --base-app-measure-repeat-2-0-62rem: repeat(2, 0.62rem);
+    --base-app-measure-0-16rem: 0.16rem;
+    --base-app-measure-max-content: max-content;
+    --base-app-color-0-18rem: 0.18rem;
+    --base-app-effect-0-0-0-85rem-rgb-47-129-247-42-n: 0 0 0.85rem
+      rgb(47 129 247 / 42%);
+    --base-app-measure-repeat-2-0-45rem: repeat(2, 0.45rem);
+    --base-app-measure-0-12rem: 0.12rem;
+    --base-app-color-uppercase: uppercase;
+    --base-app-measure-start: start;
+    --base-app-measure-34rem: 34rem;
+    --base-app-measure-calc-2-5rem-env-safe-area-inset-top-0rem: calc(
+        2.5rem + env(safe-area-inset-top, 0rem)
+      )
+      1.5rem calc(2.5rem + env(safe-area-inset-bottom, 0rem));
+    --base-app-measure-12ch: 12ch;
+    --base-app-measure-4-25rem: 4.25rem;
+    --base-app-typography-0-45em: 0.45em;
+    --base-app-color-ellipsis: ellipsis;
+    --base-app-measure-nowrap: nowrap;
+    --base-app-measure-90deg: 90deg;
+    --base-app-measure-repeat-5-minmax-0-1fr: repeat(5, minmax(0, 1fr));
+    --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom-b: calc(
+      4.75rem + env(safe-area-inset-bottom, 0rem)
+    );
+    --base-app-measure-0-5rem-0-5rem-calc-0-5rem-env-safe-area: 0.5rem 0.5rem
+      calc(0.5rem + env(safe-area-inset-bottom, 0rem));
+    --base-app-effect-blur-1-3rem-saturate-140-n: blur(1.3rem) saturate(140%);
+    --base-app-measure-relative: relative;
+    --base-app-measure-22-n: 22%;
+    --base-app-typography-0-6rem: 0.6rem;
+    --base-app-measure-calc-20-1-n: calc(20 - 1);
+    --base-app-measure-calc-1-25rem-1-calc-1rem-1-0-75rem: calc(1.25rem * -1)
+      calc(1rem * -1) 0.75rem;
+    --base-app-measure-0-75rem-1rem: 0.75rem 1rem;
+    --base-app-effect-blur-1-2rem: blur(1.2rem);
+    --base-app-color-radial-gradient-circle-at-100-0-rgb-47-1-n: light-dark(
+      radial-gradient(
+        circle at 100% 0%,
+        rgb(47 129 247 / 20%),
+        transparent 35%
+      ),
+      linear-gradient(145deg, #f1f4f8ff, #ffffffff),
+      radial-gradient(
+        circle at 100% 0%,
+        rgb(47 129 247 / 20%),
+        transparent 35%
+      ),
+      linear-gradient(145deg, #151c28ff, #111722ff)
+    );
+    --base-app-measure-13ch: 13ch;
+    --base-app-typography-clamp-1-9rem-8vw-3-4rem: clamp(1.9rem, 8vw, 3.4rem);
+    --base-app-measure-42rem: 42rem;
+    --base-app-measure-5-2rem: 5.2rem;
+    --base-app-measure-0-1rem: 0.1rem;
+    --base-app-measure-0-25rem-0-5rem: 0.25rem 0.5rem;
+    --base-app-measure-inline-flex: inline-flex;
+    --base-app-color-rgb-240-103-103-40-n: rgb(240 103 103 / 40%);
+    --base-app-measure-2-25rem: 2.25rem;
+    --base-app-measure-1-0-auto: 1 0 auto;
+    --base-app-measure-2-2rem: 2.2rem;
+    --base-app-motion-border-color-120ms-transform-120ms:
+      border-color 120ms, transform 120ms;
+    --base-app-effect-translatey-0-06rem: translateY(-0.06rem);
+    --base-app-measure-webkit-box: -webkit-box;
+    --base-app-color-2-n: 2;
+    --base-app-measure-flex-start: flex-start;
+    --base-app-measure-wrap: wrap;
+    --base-app-measure-1-55rem: 1.55rem;
+    --base-app-measure-auto-1fr-auto: auto 1fr auto;
+    --base-app-measure-repeat-4-1fr: repeat(4, 1fr);
+    --base-app-measure-40dvh: 40dvh;
+    --base-app-measure-7rem: 7rem;
+    --base-app-measure-92-n: 92%;
+    --base-app-measure-end: end;
+    --base-app-color-rgb-47-129-247-32-n: rgb(47 129 247 / 32%);
+    --base-app-measure-pre-wrap: pre-wrap;
+    --base-app-measure-anywhere: anywhere;
+    --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom-c: calc(
+      4.75rem + env(safe-area-inset-bottom, 0rem) + 0.5rem
+    );
+    --base-app-measure-1fr-auto: 1fr auto;
+    --base-app-effect-blur-1rem: blur(1rem);
+    --base-app-measure-9rem: 9rem;
+    --base-app-measure-0-0-auto: 0 0 auto;
+    --base-app-measure-3-2rem: 3.2rem;
+    --base-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem-b: calc(
+      4.1rem + env(safe-area-inset-top, 0rem) + 4.1rem
+    );
+    --base-app-measure-calc-20-2-n: calc(20 - 2);
+    --base-app-measure-repeat-3-1fr: repeat(3, 1fr);
+    --base-app-color-c090c11: #090c11ff;
+    --base-app-color-cdfe7f2: #dfe7f2ff;
+    --base-app-color-1-65-n: 1.65;
+    --base-app-measure-pre: pre;
+    --base-app-color-cff7ab2: #ff7ab2ff;
+    --base-app-color-ca8dd80: #a8dd80ff;
+    --base-app-color-cd9a8ff: #d9a8ffff;
+    --base-app-color-c657184: #657184ff;
+    --base-app-color-c82aaff: #82aaffff;
+    --base-app-color-rgb-53-208-127-14-n: rgb(53 208 127 / 14%);
+    --base-app-color-caee9c9: #aee9c9ff;
+    --base-app-color-rgb-240-103-103-14-n: rgb(240 103 103 / 14%);
+    --base-app-color-cffc0c0: #ffc0c0ff;
+    --base-app-color-c91b4ff: #91b4ffff;
+    --base-app-color-rgb-47-129-247-10-n: rgb(47 129 247 / 10%);
+    --base-app-color-cb78cff: #b78cffff;
+    --base-app-measure-52dvh: 52dvh;
+    --base-app-typography-run: "Run";
+    --base-app-measure-minmax-6rem-auto-1fr: minmax(6rem, auto) 1fr;
+    --base-app-measure-0-5rem-1rem: 0.5rem 1rem;
+    --base-app-measure-2rem-1rem: 2rem 1rem;
+    --base-app-measure-1-7rem: 1.7rem;
+    --base-app-measure-min-calc-100-1-5rem-31rem: min(
+      calc(100% - 1.5rem),
+      31rem
+    );
+    --base-app-measure-80dvh: 80dvh;
+    --base-app-color-rgb-0-0-0-62-n: rgb(0 0 0 / 62%);
+    --base-app-effect-blur-0-2rem: blur(0.2rem);
+    --base-app-measure-flex-end: flex-end;
+    --base-app-measure-56dvh: 56dvh;
+    --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom-d: calc(
+      4.75rem + env(safe-area-inset-bottom, 0rem) + 1rem
+    );
+    --base-app-measure-0-0625rem: -0.0625rem;
+    --base-app-effect-inset-50-n: inset(50%);
+    --base-app-measure-5-5rem-1fr: 5.5rem 1fr;
+    --base-app-measure-auto-1fr: auto 1fr;
+    --base-app-measure-1-1-n: 1 / -1;
+    --base-app-measure-0-auto: 0 auto;
+    --base-app-measure-5-5rem: 5.5rem;
+    --base-app-measure-1fr: 1fr;
+    --base-app-measure-repeat-5-5rem: repeat(5, 5rem);
+    --base-app-measure-calc-5-5rem-1rem: calc(5.5rem + 1rem);
+    --base-app-motion-0s: 0s;
+    --base-app-color-0-0625rem-solid-canvastext: 0.0625rem solid CanvasText;
+    --base-app-effect-0-n: 0%;
+    --base-app-effect-translatey-0-25rem: translateY(0.25rem);
+    --base-app-measure-50dvh: 50dvh;
+    --base-app-measure-inline-block: inline-block;
+    --base-app-measure-4-4rem: 4.4rem;
+    --base-app-measure-1-4rem: 1.4rem;
+    --base-app-measure-3-1rem: 3.1rem;
+    --base-app-measure-0-15rem: 0.15rem;
+    --base-app-measure-0-75rem-0-5rem: 0.75rem 0.5rem;
+    --base-app-color-0-7rem-0-7rem-0-0-n: 0.7rem 0.7rem 0 0;
+    --base-app-color-0-95rem-0-95rem-0-0-n: 0.95rem 0.95rem 0 0;
+    --base-app-color-0-0-0-95rem-0-95rem: 0 0 0.95rem 0.95rem;
+    --base-app-measure-repeat-3-minmax-0-1fr: repeat(3, minmax(0, 1fr));
+    --base-app-measure-minmax-0-1fr-minmax-0-1fr: minmax(0, 1fr) minmax(0, 1fr);
+    --base-app-color-0-0625rem-solid-rgb-255-255-255-3-5-n: 0.0625rem solid
+      rgb(255 255 255 / 3.5%);
+    --base-app-measure-3rem-minmax-0-1fr: 3rem minmax(0, 1fr);
+    --base-app-measure-1-65rem: 1.65rem;
+    --base-app-color-0-0625rem-solid-rgb-255-255-255-8-n: 0.0625rem solid
+      rgb(255 255 255 / 8%);
+    --base-app-color-rgb-255-255-255-2-5-n: rgb(255 255 255 / 2.5%);
+    --base-app-measure-minmax-18rem-0-9fr-minmax-18rem-1-1fr: minmax(
+        18rem,
+        0.9fr
+      )
+      minmax(18rem, 1.1fr);
+    --base-app-measure-32rem: 32rem;
+    --base-app-color-0-999rem-999rem-0-n: 0 999rem 999rem 0;
+    --base-app-typography-value: "";
+    --base-app-effect-inset-0-2rem-0-0-c2f81f7: inset 0.2rem 0 0 #2f81f7ff;
+    --base-app-measure-baseline: baseline;
+    --base-app-typography-0-75rem-1-55-sfmono-regular-consolas-lib:
+      0.75rem/1.55 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --base-app-color-0-45rem-0-45rem-0-0-n: 0.45rem 0.45rem 0 0;
+    --base-app-measure-minmax-15rem-17rem-minmax-0-1fr: minmax(15rem, 17rem)
+      minmax(0, 1fr);
+    --base-app-measure-calc-4-1rem-1rem: calc(4.1rem + 1rem);
+    --base-app-measure-calc-100dvh-4-1rem-4-75rem-2-5rem: calc(
+      100dvh - 4.1rem - 4.75rem - 2.5rem
+    );
+    --base-app-measure-minmax-0-1fr-minmax-0-1fr-auto: minmax(0, 1fr)
+      minmax(0, 1fr) auto;
+    --catalog-app-typography-font-ui: var(
+      --base-app-typography-inter-ui-sans-serif-apple-system-blinkma
+    );
+    --catalog-app-typography-font-code: var(
+      --base-app-typography-sfmono-regular-consolas-liberation-mono
+    );
+    --catalog-app-measure-fs-micro: var(--base-app-measure-0-6875rem);
+    --catalog-app-measure-fs-tiny: var(--base-app-measure-0-75rem);
+    --catalog-app-measure-fs-small: var(--base-app-measure-0-8125rem);
+    --catalog-app-measure-fs-medium: var(--base-app-measure-0-9375rem);
+    --catalog-app-measure-fs-large: var(--base-app-measure-1-0625rem);
+    --catalog-app-measure-fs-jumbo: var(--base-app-measure-1-375rem);
+    --catalog-app-measure-fs-double-jumbo: var(--base-app-measure-1-875rem);
+    --catalog-app-measure-fs-hero: var(
+      --base-app-measure-clamp-2rem-9vw-3-25rem
+    );
+    --catalog-app-measure-lh-tight: var(--base-app-measure-1-08-n);
+    --catalog-app-measure-lh-ui: var(--base-app-measure-1-35-n);
+    --catalog-app-measure-lh-body: var(--base-app-measure-1-55-n);
+    --catalog-app-measure-weight-regular: var(--base-app-measure-450-n);
+    --catalog-app-measure-weight-medium: var(--base-app-measure-560-n);
+    --catalog-app-measure-weight-semibold: var(--base-app-measure-650-n);
+    --catalog-app-measure-weight-bold: var(--base-app-measure-740-n);
+    --catalog-app-measure-tracking-tight: var(--base-app-measure-0-025em);
+    --catalog-app-measure-tracking-label: var(--base-app-measure-0-055em);
+    --catalog-app-measure-sp-0: var(--base-app-measure-0-n);
+    --catalog-app-measure-sp-1: var(--base-app-measure-0-25rem);
+    --catalog-app-measure-sp-2: var(--base-app-measure-0-5rem);
+    --catalog-app-measure-sp-3: var(--base-app-measure-0-75rem);
+    --catalog-app-measure-sp-4: var(--base-app-measure-1rem);
+    --catalog-app-measure-sp-5: var(--base-app-measure-1-25rem);
+    --catalog-app-measure-sp-6: var(--base-app-measure-1-5rem);
+    --catalog-app-measure-sp-7: var(--base-app-measure-2rem);
+    --catalog-app-measure-sp-8: var(--base-app-measure-2-5rem);
+    --catalog-app-measure-sp-9: var(--base-app-measure-3rem);
+    --catalog-app-border-radius-tiny: var(--base-app-border-0-45rem);
+    --catalog-app-border-radius-small: var(--base-app-border-0-7rem);
+    --catalog-app-border-radius-medium: var(--base-app-border-0-95rem);
+    --catalog-app-border-radius-large: var(--base-app-border-1-2rem);
+    --catalog-app-border-radius-jumbo: var(--base-app-border-1-6rem);
+    --catalog-app-border-radius-round: var(--base-app-border-999rem);
+    --catalog-app-border-border-w: var(--base-app-border-0-0625rem);
+    --catalog-app-measure-icon-small: var(--base-app-measure-1rem);
+    --catalog-app-measure-icon-medium: var(--base-app-measure-1-15rem);
+    --catalog-app-measure-icon-large: var(--base-app-measure-1-35rem);
+    --catalog-app-measure-tap: var(--base-app-measure-2-75rem);
+    --catalog-app-measure-nav-h: var(--base-app-measure-4-75rem);
+    --catalog-app-measure-topbar-h: var(--base-app-measure-4-1rem);
+    --catalog-app-measure-content-max: var(--base-app-measure-72rem);
+    --catalog-app-measure-editor-min: var(--base-app-measure-24rem);
+    --catalog-app-measure-terminal-min: var(--base-app-measure-18rem);
+    --catalog-app-measure-modal-max: var(--base-app-measure-31rem);
+    --catalog-app-measure-panel-max: var(--base-app-measure-46rem);
+    --catalog-app-measure-z-nav: var(--base-app-measure-20-n);
+    --catalog-app-measure-z-modal: var(--base-app-measure-50-n);
+    --catalog-app-measure-z-toast: var(--base-app-measure-60-n);
+    --catalog-app-motion-motion-fast: var(--base-app-motion-120ms);
+    --catalog-app-motion-motion: var(--base-app-motion-180ms);
+    --catalog-app-motion-ease: var(--base-app-motion-ease-0-2-0-8-0-2-1-n);
+    --catalog-app-color-bg: var(--base-app-color-c080b10);
+    --catalog-app-color-bg-raised: var(--base-app-color-c0d1118);
+    --catalog-app-color-surface: var(--base-app-color-c111722);
+    --catalog-app-color-surface-2: var(--base-app-color-c151c28);
+    --catalog-app-color-surface-3: var(--base-app-color-c1a2332);
+    --catalog-app-color-surface-hover: var(--base-app-color-c1d2838);
+    --catalog-app-color-glass: var(--base-app-color-rgb-8-11-16-88-n);
+    --catalog-app-color-text: var(--base-app-color-cf5f7fb);
+    --catalog-app-color-text-2: var(--base-app-color-cb2bdcb);
+    --catalog-app-color-text-3: var(--base-app-color-c778393);
+    --catalog-app-color-border: var(--base-app-color-c263041);
+    --catalog-app-color-border-soft: var(--base-app-color-c1b2431);
+    --catalog-app-color-accent: var(--base-app-color-c2f81f7);
+    --catalog-app-color-accent-strong: var(--base-app-color-c4593ff);
+    --catalog-app-color-accent-soft: var(--base-app-color-rgb-47-129-247-13-n);
+    --catalog-app-color-green: var(--base-app-color-c35d07f);
+    --catalog-app-color-green-soft: var(--base-app-color-rgb-53-208-127-13-n);
+    --catalog-app-color-yellow: var(--base-app-color-ce4b84f);
+    --catalog-app-color-yellow-soft: var(--base-app-color-rgb-228-184-79-13-n);
+    --catalog-app-color-red: var(--base-app-color-cf06767);
+    --catalog-app-color-red-soft: var(--base-app-color-rgb-240-103-103-13-n);
+    --catalog-app-color-purple: var(--base-app-color-c9a7cff);
+    --catalog-app-color-purple-soft: var(--base-app-color-rgb-154-124-255-13-n);
+    --catalog-app-color-cyan: var(--base-app-color-c55c7e9);
+    --catalog-app-effect-shadow-small: var(
+      --base-app-effect-0-0-3rem-0-8rem-rgb-0-0-0-18-n
+    );
+    --catalog-app-effect-shadow-large: var(
+      --base-app-effect-0-1-5rem-4rem-rgb-0-0-0-34-n
+    );
+    --catalog-app-measure-safe-t: var(
+      --base-app-measure-env-safe-area-inset-top-0rem
+    );
+    --catalog-app-measure-safe-b: var(
+      --base-app-measure-env-safe-area-inset-bottom-0rem
+    );
+    --catalog-app-measure-sp-half: var(--base-app-measure-0-375rem);
+    --catalog-app-measure-control-h: var(--base-app-measure-2-5rem);
+    --catalog-app-color-panel-line: var(--base-app-border-0-0625rem);
+    --catalog-app-measure-rail-w: var(--base-app-measure-17rem);
+    --catalog-app-measure-problem-mark: var(--base-app-measure-0-2rem);
+    --catalog-app-color-code-focus: var(--base-app-measure-2rem);
+    --catalog-app-color-shadow-focus: var(
+      --base-app-color-0-0-0-0-125rem-rgb-47-129-247-13-n
+    );
+    --catalog-app-color-dark: var(--base-app-color-dark);
+    --catalog-app-color-light: var(--base-app-color-light);
+    --catalog-app-measure-border-box: var(--base-app-measure-border-box);
+    --catalog-app-color-100: var(--base-app-color-100-n);
+    --catalog-app-measure-block: var(--base-app-measure-block);
+    --catalog-app-measure-none: var(--base-app-measure-none);
+    --catalog-app-measure-100dvh: var(--base-app-measure-100dvh);
+    --catalog-app-measure-hidden: var(--base-app-measure-hidden);
+    --catalog-app-color-transparent: var(--base-app-color-transparent);
+    --catalog-app-cursor-pointer: var(--base-app-cursor-pointer);
+    --catalog-app-measure-100: var(--base-app-color-100-n);
+    --catalog-app-color-0-0625rem-solid-c263041: var(
+      --base-app-color-0-0625rem-solid-c263041
+    );
+    --catalog-app-border-none: var(--base-app-measure-none);
+    --catalog-app-border-calc-0-0625rem-2-solid-c2f81f7: var(
+      --base-app-border-calc-0-0625rem-2-solid-c2f81f7
+    );
+    --catalog-app-border-calc-0-0625rem-2: var(
+      --base-app-border-calc-0-0625rem-2-n
+    );
+    --catalog-app-measure-vertical: var(--base-app-measure-vertical);
+    --catalog-app-color-cffffff: var(--base-app-color-cffffff);
+    --catalog-app-measure-sticky: var(--base-app-measure-sticky);
+    --catalog-app-measure-0: var(--base-app-measure-0-n);
+    --catalog-app-measure-flex: var(--base-app-measure-flex);
+    --catalog-app-measure-center: var(--base-app-measure-center);
+    --catalog-app-measure-space-between: var(--base-app-measure-space-between);
+    --catalog-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem: var(
+      --base-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem
+    );
+    --catalog-app-measure-calc-0-75rem-env-safe-area-inset-top-0re: var(
+      --base-app-measure-calc-0-75rem-env-safe-area-inset-top-0re
+    );
+    --catalog-app-color-0-0625rem-solid-c1b2431: var(
+      --base-app-color-0-0625rem-solid-c1b2431
+    );
+    --catalog-app-effect-blur-1-25rem-saturate-140: var(
+      --base-app-effect-blur-1-25rem-saturate-140-n
+    );
+    --catalog-app-measure-min-100-72rem: var(--base-app-measure-min-100-72rem);
+    --catalog-app-measure-auto: var(--base-app-measure-auto);
+    --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom: var(
+      --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom
+    );
+    --catalog-app-measure-1-25rem-1rem-2-5rem: var(
+      --base-app-measure-1-25rem-1rem-2-5rem
+    );
+    --catalog-app-motion-screen-in-180ms-ease-0-2-0-8-0-2-1: var(
+      --base-app-motion-screen-in-180ms-ease-0-2-0-8-0-2-1-n
+    );
+    --catalog-app-measure-calc-100dvh-4-1rem-4-75rem: var(
+      --base-app-measure-calc-100dvh-4-1rem-4-75rem
+    );
+    --catalog-app-measure-grid: var(--base-app-measure-grid);
+    --catalog-app-measure-repeat-2-minmax-0-1fr: var(
+      --base-app-measure-repeat-2-minmax-0-1fr
+    );
+    --catalog-app-measure-repeat-4-minmax-0-1fr: var(
+      --base-app-measure-repeat-4-minmax-0-1fr
+    );
+    --catalog-app-measure-1: var(--base-app-measure-1-n);
+    --catalog-app-measure-absolute: var(--base-app-measure-absolute);
+    --catalog-app-color-none: var(--base-app-measure-none);
+    --catalog-app-color-currentcolor: var(--base-app-color-currentcolor);
+    --catalog-app-color-1-8: var(--base-app-color-1-8-n);
+    --catalog-app-color-round: var(--base-app-color-round);
+    --catalog-app-measure-fixed: var(--base-app-measure-fixed);
+    --catalog-app-effect-translatey-200: var(
+      --base-app-effect-translatey-200-n
+    );
+    --catalog-app-measure-0-5rem-0-75rem: var(
+      --base-app-measure-0-5rem-0-75rem
+    );
+    --catalog-app-effect-translatey-0: var(--base-app-effect-translatey-0-n);
+    --catalog-app-measure-repeat-2-0-62rem: var(
+      --base-app-measure-repeat-2-0-62rem
+    );
+    --catalog-app-measure-0-16rem: var(--base-app-measure-0-16rem);
+    --catalog-app-measure-max-content: var(--base-app-measure-max-content);
+    --catalog-app-color-0-18rem: var(--base-app-color-0-18rem);
+    --catalog-app-effect-0-0-0-85rem-rgb-47-129-247-42: var(
+      --base-app-effect-0-0-0-85rem-rgb-47-129-247-42-n
+    );
+    --catalog-app-measure-repeat-2-0-45rem: var(
+      --base-app-measure-repeat-2-0-45rem
+    );
+    --catalog-app-measure-0-12rem: var(--base-app-measure-0-12rem);
+    --catalog-app-color-uppercase: var(--base-app-color-uppercase);
+    --catalog-app-measure-start: var(--base-app-measure-start);
+    --catalog-app-measure-34rem: var(--base-app-measure-34rem);
+    --catalog-app-measure-calc-2-5rem-env-safe-area-inset-top-0rem: var(
+      --base-app-measure-calc-2-5rem-env-safe-area-inset-top-0rem
+    );
+    --catalog-app-measure-12ch: var(--base-app-measure-12ch);
+    --catalog-app-measure-4-25rem: var(--base-app-measure-4-25rem);
+    --catalog-app-color-center: var(--base-app-measure-center);
+    --catalog-app-typography-0-45em: var(--base-app-typography-0-45em);
+    --catalog-app-color-start: var(--base-app-measure-start);
+    --catalog-app-color-ellipsis: var(--base-app-color-ellipsis);
+    --catalog-app-measure-nowrap: var(--base-app-measure-nowrap);
+    --catalog-app-measure-90deg: var(--base-app-measure-90deg);
+    --catalog-app-measure-repeat-5-minmax-0-1fr: var(
+      --base-app-measure-repeat-5-minmax-0-1fr
+    );
+    --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom-b: var(
+      --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom-b
+    );
+    --catalog-app-measure-0-5rem-0-5rem-calc-0-5rem-env-safe-area: var(
+      --base-app-measure-0-5rem-0-5rem-calc-0-5rem-env-safe-area
+    );
+    --catalog-app-effect-blur-1-3rem-saturate-140: var(
+      --base-app-effect-blur-1-3rem-saturate-140-n
+    );
+    --catalog-app-measure-relative: var(--base-app-measure-relative);
+    --catalog-app-measure-0-18rem: var(--base-app-color-0-18rem);
+    --catalog-app-measure-22: var(--base-app-measure-22-n);
+    --catalog-app-measure-1rem: var(--base-app-measure-1rem);
+    --catalog-app-measure-0-25rem: var(--base-app-measure-0-25rem);
+    --catalog-app-typography-0-6rem: var(--base-app-typography-0-6rem);
+    --catalog-app-color-1rem: var(--base-app-measure-1rem);
+    --catalog-app-measure-calc-20-1: var(--base-app-measure-calc-20-1-n);
+    --catalog-app-measure-calc-1-25rem-1-calc-1rem-1-0-75rem: var(
+      --base-app-measure-calc-1-25rem-1-calc-1rem-1-0-75rem
+    );
+    --catalog-app-measure-0-75rem-1rem: var(--base-app-measure-0-75rem-1rem);
+    --catalog-app-effect-blur-1-2rem: var(--base-app-effect-blur-1-2rem);
+    --catalog-app-color-radial-gradient-circle-at-100-0-rgb-47-1: var(
+      --base-app-color-radial-gradient-circle-at-100-0-rgb-47-1-n
+    );
+    --catalog-app-measure-13ch: var(--base-app-measure-13ch);
+    --catalog-app-typography-clamp-1-9rem-8vw-3-4rem: var(
+      --base-app-typography-clamp-1-9rem-8vw-3-4rem
+    );
+    --catalog-app-measure-42rem: var(--base-app-measure-42rem);
+    --catalog-app-measure-5-2rem: var(--base-app-measure-5-2rem);
+    --catalog-app-measure-0-1rem: var(--base-app-measure-0-1rem);
+    --catalog-app-measure-0-25rem-0-5rem: var(
+      --base-app-measure-0-25rem-0-5rem
+    );
+    --catalog-app-measure-inline-flex: var(--base-app-measure-inline-flex);
+    --catalog-app-color-rgb-240-103-103-40: var(
+      --base-app-color-rgb-240-103-103-40-n
+    );
+    --catalog-app-measure-2-25rem: var(--base-app-measure-2-25rem);
+    --catalog-app-measure-1-0-auto: var(--base-app-measure-1-0-auto);
+    --catalog-app-measure-2-2rem: var(--base-app-measure-2-2rem);
+    --catalog-app-motion-border-color-120ms-transform-120ms: var(
+      --base-app-motion-border-color-120ms-transform-120ms
+    );
+    --catalog-app-effect-translatey-0-06rem: var(
+      --base-app-effect-translatey-0-06rem
+    );
+    --catalog-app-measure-webkit-box: var(--base-app-measure-webkit-box);
+    --catalog-app-color-2: var(--base-app-color-2-n);
+    --catalog-app-measure-flex-start: var(--base-app-measure-flex-start);
+    --catalog-app-measure-wrap: var(--base-app-measure-wrap);
+    --catalog-app-measure-1-55rem: var(--base-app-measure-1-55rem);
+    --catalog-app-measure-auto-1fr-auto: var(--base-app-measure-auto-1fr-auto);
+    --catalog-app-measure-repeat-4-1fr: var(--base-app-measure-repeat-4-1fr);
+    --catalog-app-measure-40dvh: var(--base-app-measure-40dvh);
+    --catalog-app-measure-7rem: var(--base-app-measure-7rem);
+    --catalog-app-measure-92: var(--base-app-measure-92-n);
+    --catalog-app-measure-end: var(--base-app-measure-end);
+    --catalog-app-color-rgb-47-129-247-32: var(
+      --base-app-color-rgb-47-129-247-32-n
+    );
+    --catalog-app-measure-pre-wrap: var(--base-app-measure-pre-wrap);
+    --catalog-app-measure-anywhere: var(--base-app-measure-anywhere);
+    --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom-c: var(
+      --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom-c
+    );
+    --catalog-app-measure-1fr-auto: var(--base-app-measure-1fr-auto);
+    --catalog-app-effect-blur-1rem: var(--base-app-effect-blur-1rem);
+    --catalog-app-measure-9rem: var(--base-app-measure-9rem);
+    --catalog-app-measure-0-0-auto: var(--base-app-measure-0-0-auto);
+    --catalog-app-measure-3-2rem: var(--base-app-measure-3-2rem);
+    --catalog-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem-b: var(
+      --base-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem-b
+    );
+    --catalog-app-measure-calc-20-2: var(--base-app-measure-calc-20-2-n);
+    --catalog-app-measure-repeat-3-1fr: var(--base-app-measure-repeat-3-1fr);
+    --catalog-app-color-c090c11: var(--base-app-color-c090c11);
+    --catalog-app-color-cdfe7f2: var(--base-app-color-cdfe7f2);
+    --catalog-app-color-1-65: var(--base-app-color-1-65-n);
+    --catalog-app-measure-pre: var(--base-app-measure-pre);
+    --catalog-app-measure-2: var(--base-app-color-2-n);
+    --catalog-app-color-cff7ab2: var(--base-app-color-cff7ab2);
+    --catalog-app-color-ca8dd80: var(--base-app-color-ca8dd80);
+    --catalog-app-color-cd9a8ff: var(--base-app-color-cd9a8ff);
+    --catalog-app-color-c657184: var(--base-app-color-c657184);
+    --catalog-app-color-c82aaff: var(--base-app-color-c82aaff);
+    --catalog-app-color-rgb-53-208-127-14: var(
+      --base-app-color-rgb-53-208-127-14-n
+    );
+    --catalog-app-color-caee9c9: var(--base-app-color-caee9c9);
+    --catalog-app-color-rgb-240-103-103-14: var(
+      --base-app-color-rgb-240-103-103-14-n
+    );
+    --catalog-app-color-cffc0c0: var(--base-app-color-cffc0c0);
+    --catalog-app-color-c91b4ff: var(--base-app-color-c91b4ff);
+    --catalog-app-color-rgb-47-129-247-10: var(
+      --base-app-color-rgb-47-129-247-10-n
+    );
+    --catalog-app-color-cb78cff: var(--base-app-color-cb78cff);
+    --catalog-app-measure-52dvh: var(--base-app-measure-52dvh);
+    --catalog-app-typography-run: var(--base-app-typography-run);
+    --catalog-app-measure-minmax-6rem-auto-1fr: var(
+      --base-app-measure-minmax-6rem-auto-1fr
+    );
+    --catalog-app-measure-0-5rem-1rem: var(--base-app-measure-0-5rem-1rem);
+    --catalog-app-measure-2rem-1rem: var(--base-app-measure-2rem-1rem);
+    --catalog-app-measure-1-7rem: var(--base-app-measure-1-7rem);
+    --catalog-app-measure-min-calc-100-1-5rem-31rem: var(
+      --base-app-measure-min-calc-100-1-5rem-31rem
+    );
+    --catalog-app-measure-80dvh: var(--base-app-measure-80dvh);
+    --catalog-app-color-rgb-0-0-0-62: var(--base-app-color-rgb-0-0-0-62-n);
+    --catalog-app-effect-blur-0-2rem: var(--base-app-effect-blur-0-2rem);
+    --catalog-app-measure-flex-end: var(--base-app-measure-flex-end);
+    --catalog-app-measure-56dvh: var(--base-app-measure-56dvh);
+    --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom-d: var(
+      --base-app-measure-calc-4-75rem-env-safe-area-inset-bottom-d
+    );
+    --catalog-app-measure-0-0625rem: var(--base-app-border-0-0625rem);
+    --catalog-app-measure-0-0625rem-b: var(--base-app-measure-0-0625rem);
+    --catalog-app-effect-inset-50: var(--base-app-effect-inset-50-n);
+    --catalog-app-measure-5-5rem-1fr: var(--base-app-measure-5-5rem-1fr);
+    --catalog-app-measure-auto-1fr: var(--base-app-measure-auto-1fr);
+    --catalog-app-measure-1-1: var(--base-app-measure-1-1-n);
+    --catalog-app-measure-0-auto: var(--base-app-measure-0-auto);
+    --catalog-app-measure-5-5rem: var(--base-app-measure-5-5rem);
+    --catalog-app-measure-1fr: var(--base-app-measure-1fr);
+    --catalog-app-measure-repeat-5-5rem: var(--base-app-measure-repeat-5-5rem);
+    --catalog-app-measure-calc-5-5rem-1rem: var(
+      --base-app-measure-calc-5-5rem-1rem
+    );
+    --catalog-app-motion-auto: var(--base-app-measure-auto);
+    --catalog-app-motion-0s: var(--base-app-motion-0s);
+    --catalog-app-color-0-0625rem-solid-canvastext: var(
+      --base-app-color-0-0625rem-solid-canvastext
+    );
+    --catalog-app-effect-0: var(--base-app-effect-0-n);
+    --catalog-app-effect-translatey-0-25rem: var(
+      --base-app-effect-translatey-0-25rem
+    );
+    --catalog-app-effect-100: var(--base-app-color-100-n);
+    --catalog-app-measure-2-75rem: var(--base-app-measure-2-75rem);
+    --catalog-app-measure-50dvh: var(--base-app-measure-50dvh);
+    --catalog-app-measure-inline-block: var(--base-app-measure-inline-block);
+    --catalog-app-color-end: var(--base-app-measure-end);
+    --catalog-app-measure-4-4rem: var(--base-app-measure-4-4rem);
+    --catalog-app-measure-1-4rem: var(--base-app-measure-1-4rem);
+    --catalog-app-measure-3-1rem: var(--base-app-measure-3-1rem);
+    --catalog-app-color-0: var(--base-app-measure-0-n);
+    --catalog-app-measure-0-15rem: var(--base-app-measure-0-15rem);
+    --catalog-app-measure-0-75rem-0-5rem: var(
+      --base-app-measure-0-75rem-0-5rem
+    );
+    --catalog-app-color-0-7rem-0-7rem-0-0: var(
+      --base-app-color-0-7rem-0-7rem-0-0-n
+    );
+    --catalog-app-color-0-95rem-0-95rem-0-0: var(
+      --base-app-color-0-95rem-0-95rem-0-0-n
+    );
+    --catalog-app-measure-2rem: var(--base-app-measure-2rem);
+    --catalog-app-color-0-0-0-95rem-0-95rem: var(
+      --base-app-color-0-0-0-95rem-0-95rem
+    );
+    --catalog-app-measure-repeat-3-minmax-0-1fr: var(
+      --base-app-measure-repeat-3-minmax-0-1fr
+    );
+    --catalog-app-measure-minmax-0-1fr-minmax-0-1fr: var(
+      --base-app-measure-minmax-0-1fr-minmax-0-1fr
+    );
+    --catalog-app-color-0-0625rem-solid-rgb-255-255-255-3-5: var(
+      --base-app-color-0-0625rem-solid-rgb-255-255-255-3-5-n
+    );
+    --catalog-app-measure-3rem-minmax-0-1fr: var(
+      --base-app-measure-3rem-minmax-0-1fr
+    );
+    --catalog-app-measure-1-65rem: var(--base-app-measure-1-65rem);
+    --catalog-app-color-0-0625rem-solid-rgb-255-255-255-8: var(
+      --base-app-color-0-0625rem-solid-rgb-255-255-255-8-n
+    );
+    --catalog-app-color-rgb-255-255-255-2-5: var(
+      --base-app-color-rgb-255-255-255-2-5-n
+    );
+    --catalog-app-measure-minmax-18rem-0-9fr-minmax-18rem-1-1fr: var(
+      --base-app-measure-minmax-18rem-0-9fr-minmax-18rem-1-1fr
+    );
+    --catalog-app-measure-32rem: var(--base-app-measure-32rem);
+    --catalog-app-effect-none: var(--base-app-measure-none);
+    --catalog-app-color-0-999rem-999rem-0: var(
+      --base-app-color-0-999rem-999rem-0-n
+    );
+    --catalog-app-typography-value: var(--base-app-typography-value);
+    --catalog-app-effect-inset-0-2rem-0-0-c2f81f7: var(
+      --base-app-effect-inset-0-2rem-0-0-c2f81f7
+    );
+    --catalog-app-measure-baseline: var(--base-app-measure-baseline);
+    --catalog-app-typography-0-75rem-1-55-sfmono-regular-consolas-lib: var(
+      --base-app-typography-0-75rem-1-55-sfmono-regular-consolas-lib
+    );
+    --catalog-app-color-0-45rem-0-45rem-0-0: var(
+      --base-app-color-0-45rem-0-45rem-0-0-n
+    );
+    --catalog-app-measure-minmax-15rem-17rem-minmax-0-1fr: var(
+      --base-app-measure-minmax-15rem-17rem-minmax-0-1fr
+    );
+    --catalog-app-measure-calc-4-1rem-1rem: var(
+      --base-app-measure-calc-4-1rem-1rem
+    );
+    --catalog-app-measure-calc-100dvh-4-1rem-4-75rem-2-5rem: var(
+      --base-app-measure-calc-100dvh-4-1rem-4-75rem-2-5rem
+    );
+    --catalog-app-measure-minmax-0-1fr-minmax-0-1fr-auto: var(
+      --base-app-measure-minmax-0-1fr-minmax-0-1fr-auto
+    );
+    --semantic-app-color-scheme-dark: var(--catalog-app-color-dark);
+    --semantic-app-color-scheme-light: var(--catalog-app-color-light);
+    --semantic-app-box-sizing-border-box: var(--catalog-app-measure-border-box);
+    --semantic-app--webkit-text-size-adjust-100: var(--catalog-app-color-100);
+    --semantic-app-display-block: var(--catalog-app-measure-block);
+    --semantic-app-display-none: var(--catalog-app-measure-none);
+    --semantic-app-min-block-size-100dvh: var(--catalog-app-measure-100dvh);
+    --semantic-app-overflow-x-hidden: var(--catalog-app-measure-hidden);
+    --semantic-app--webkit-tap-highlight-color-transparent: var(
+      --catalog-app-color-transparent
+    );
+    --semantic-app-cursor-pointer: var(--catalog-app-cursor-pointer);
+    --semantic-app-inline-size-100: var(--catalog-app-measure-100);
+    --semantic-app-border-0-0625rem-solid-c263041: var(
+      --catalog-app-color-0-0625rem-solid-c263041
+    );
+    --semantic-app-outline-none: var(--catalog-app-border-none);
+    --semantic-app-outline-calc-0-0625rem-2-solid-c2f81f7: var(
+      --catalog-app-border-calc-0-0625rem-2-solid-c2f81f7
+    );
+    --semantic-app-outline-offset-calc-0-0625rem-2: var(
+      --catalog-app-border-calc-0-0625rem-2
+    );
+    --semantic-app-resize-vertical: var(--catalog-app-measure-vertical);
+    --semantic-app-color-cffffff: var(--catalog-app-color-cffffff);
+    --semantic-app-position-sticky: var(--catalog-app-measure-sticky);
+    --semantic-app-inset-block-start-0: var(--catalog-app-measure-0);
+    --semantic-app-display-flex: var(--catalog-app-measure-flex);
+    --semantic-app-align-items-center: var(--catalog-app-measure-center);
+    --semantic-app-justify-content-space-between: var(
+      --catalog-app-measure-space-between
+    );
+    --semantic-app-min-block-size-calc-4-1rem-env-safe-area-inset-top-0rem: var(
+      --catalog-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem
+    );
+    --semantic-app-padding-calc-0-75rem-env-safe-area-inset-top-0re: var(
+      --catalog-app-measure-calc-0-75rem-env-safe-area-inset-top-0re
+    );
+    --semantic-app-border-block-end-0-0625rem-solid-c1b2431: var(
+      --catalog-app-color-0-0625rem-solid-c1b2431
+    );
+    --semantic-app-backdrop-filter-blur-1-25rem-saturate-140: var(
+      --catalog-app-effect-blur-1-25rem-saturate-140
+    );
+    --semantic-app-inline-size-min-100-72rem: var(
+      --catalog-app-measure-min-100-72rem
+    );
+    --semantic-app-margin-inline-auto: var(--catalog-app-measure-auto);
+    --semantic-app-padding-block-end-calc-4-75rem-env-safe-area-inset-bottom: var(
+      --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom
+    );
+    --semantic-app-padding-1-25rem-1rem-2-5rem: var(
+      --catalog-app-measure-1-25rem-1rem-2-5rem
+    );
+    --semantic-app-animation-screen-in-180ms-ease-0-2-0-8-0-2-1: var(
+      --catalog-app-motion-screen-in-180ms-ease-0-2-0-8-0-2-1
+    );
+    --semantic-app-min-block-size-calc-100dvh-4-1rem-4-75rem: var(
+      --catalog-app-measure-calc-100dvh-4-1rem-4-75rem
+    );
+    --semantic-app-display-grid: var(--catalog-app-measure-grid);
+    --semantic-app-grid-template-columns-repeat-2-minmax-0-1fr: var(
+      --catalog-app-measure-repeat-2-minmax-0-1fr
+    );
+    --semantic-app-grid-template-columns-repeat-4-minmax-0-1fr: var(
+      --catalog-app-measure-repeat-4-minmax-0-1fr
+    );
+    --semantic-app-flex-1: var(--catalog-app-measure-1);
+    --semantic-app-min-inline-size-0: var(--catalog-app-measure-0);
+    --semantic-app-position-absolute: var(--catalog-app-measure-absolute);
+    --semantic-app-inline-size-0: var(--catalog-app-measure-0);
+    --semantic-app-block-size-0: var(--catalog-app-measure-0);
+    --semantic-app-overflow-hidden: var(--catalog-app-measure-hidden);
+    --semantic-app-fill-none: var(--catalog-app-color-none);
+    --semantic-app-stroke-currentcolor: var(--catalog-app-color-currentcolor);
+    --semantic-app-stroke-width-1-8: var(--catalog-app-color-1-8);
+    --semantic-app-stroke-linecap-round: var(--catalog-app-color-round);
+    --semantic-app-stroke-linejoin-round: var(--catalog-app-color-round);
+    --semantic-app-position-fixed: var(--catalog-app-measure-fixed);
+    --semantic-app-transform-translatey-200: var(
+      --catalog-app-effect-translatey-200
+    );
+    --semantic-app-padding-0-5rem-0-75rem: var(
+      --catalog-app-measure-0-5rem-0-75rem
+    );
+    --semantic-app-transform-translatey-0: var(
+      --catalog-app-effect-translatey-0
+    );
+    --semantic-app-grid-template-columns-repeat-2-0-62rem: var(
+      --catalog-app-measure-repeat-2-0-62rem
+    );
+    --semantic-app-gap-0-16rem: var(--catalog-app-measure-0-16rem);
+    --semantic-app-inline-size-max-content: var(
+      --catalog-app-measure-max-content
+    );
+    --semantic-app-aspect-ratio-1: var(--catalog-app-measure-1);
+    --semantic-app-border-radius-0-18rem: var(--catalog-app-color-0-18rem);
+    --semantic-app-box-shadow-0-0-0-85rem-rgb-47-129-247-42: var(
+      --catalog-app-effect-0-0-0-85rem-rgb-47-129-247-42
+    );
+    --semantic-app-grid-template-columns-repeat-2-0-45rem: var(
+      --catalog-app-measure-repeat-2-0-45rem
+    );
+    --semantic-app-gap-0-12rem: var(--catalog-app-measure-0-12rem);
+    --semantic-app-text-transform-uppercase: var(--catalog-app-color-uppercase);
+    --semantic-app-place-items-start: var(--catalog-app-measure-start);
+    --semantic-app-align-content-center: var(--catalog-app-measure-center);
+    --semantic-app-max-inline-size-34rem: var(--catalog-app-measure-34rem);
+    --semantic-app-padding-calc-2-5rem-env-safe-area-inset-top-0rem: var(
+      --catalog-app-measure-calc-2-5rem-env-safe-area-inset-top-0rem
+    );
+    --semantic-app-max-inline-size-12ch: var(--catalog-app-measure-12ch);
+    --semantic-app-min-block-size-4-25rem: var(--catalog-app-measure-4-25rem);
+    --semantic-app-text-align-center: var(--catalog-app-color-center);
+    --semantic-app-letter-spacing-0-45em: var(--catalog-app-typography-0-45em);
+    --semantic-app-background-transparent: var(--catalog-app-color-transparent);
+    --semantic-app-text-align-start: var(--catalog-app-color-start);
+    --semantic-app-text-overflow-ellipsis: var(--catalog-app-color-ellipsis);
+    --semantic-app-white-space-nowrap: var(--catalog-app-measure-nowrap);
+    --semantic-app-rotate-90deg: var(--catalog-app-measure-90deg);
+    --semantic-app-place-items-center: var(--catalog-app-measure-center);
+    --semantic-app-inset-inline-0: var(--catalog-app-measure-0);
+    --semantic-app-inset-block-end-0: var(--catalog-app-measure-0);
+    --semantic-app-grid-template-columns-repeat-5-minmax-0-1fr: var(
+      --catalog-app-measure-repeat-5-minmax-0-1fr
+    );
+    --semantic-app-min-block-size-calc-4-75rem-env-safe-area-inset-bottom: var(
+      --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom-b
+    );
+    --semantic-app-padding-0-5rem-0-5rem-calc-0-5rem-env-safe-area: var(
+      --catalog-app-measure-0-5rem-0-5rem-calc-0-5rem-env-safe-area
+    );
+    --semantic-app-border-block-start-0-0625rem-solid-c1b2431: var(
+      --catalog-app-color-0-0625rem-solid-c1b2431
+    );
+    --semantic-app-backdrop-filter-blur-1-3rem-saturate-140: var(
+      --catalog-app-effect-blur-1-3rem-saturate-140
+    );
+    --semantic-app-position-relative: var(--catalog-app-measure-relative);
+    --semantic-app-gap-0-18rem: var(--catalog-app-measure-0-18rem);
+    --semantic-app-inset-inline-end-22: var(--catalog-app-measure-22);
+    --semantic-app-min-inline-size-1rem: var(--catalog-app-measure-1rem);
+    --semantic-app-block-size-1rem: var(--catalog-app-measure-1rem);
+    --semantic-app-padding-inline-0-25rem: var(--catalog-app-measure-0-25rem);
+    --semantic-app-font-size-0-6rem: var(--catalog-app-typography-0-6rem);
+    --semantic-app-line-height-1rem: var(--catalog-app-color-1rem);
+    --semantic-app-inset-block-start-calc-4-1rem-env-safe-area-inset-top-0rem: var(
+      --catalog-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem
+    );
+    --semantic-app-z-index-calc-20-1: var(--catalog-app-measure-calc-20-1);
+    --semantic-app-margin-calc-1-25rem-1-calc-1rem-1-0-75rem: var(
+      --catalog-app-measure-calc-1-25rem-1-calc-1rem-1-0-75rem
+    );
+    --semantic-app-padding-0-75rem-1rem: var(
+      --catalog-app-measure-0-75rem-1rem
+    );
+    --semantic-app-backdrop-filter-blur-1-2rem: var(
+      --catalog-app-effect-blur-1-2rem
+    );
+    --semantic-app-background-radial-gradient-circle-at-100-0-rgb-47-1: var(
+      --catalog-app-color-radial-gradient-circle-at-100-0-rgb-47-1
+    );
+    --semantic-app-max-inline-size-13ch: var(--catalog-app-measure-13ch);
+    --semantic-app-font-size-clamp-1-9rem-8vw-3-4rem: var(
+      --catalog-app-typography-clamp-1-9rem-8vw-3-4rem
+    );
+    --semantic-app-max-inline-size-42rem: var(--catalog-app-measure-42rem);
+    --semantic-app-justify-self-start: var(--catalog-app-measure-start);
+    --semantic-app-border-0-0625rem-solid-c1b2431: var(
+      --catalog-app-color-0-0625rem-solid-c1b2431
+    );
+    --semantic-app-justify-items-center: var(--catalog-app-measure-center);
+    --semantic-app-min-block-size-5-2rem: var(--catalog-app-measure-5-2rem);
+    --semantic-app-gap-0-1rem: var(--catalog-app-measure-0-1rem);
+    --semantic-app-padding-0-25rem-0-5rem: var(
+      --catalog-app-measure-0-25rem-0-5rem
+    );
+    --semantic-app-display-inline-flex: var(--catalog-app-measure-inline-flex);
+    --semantic-app-justify-content-center: var(--catalog-app-measure-center);
+    --semantic-app-border-color-rgb-240-103-103-40: var(
+      --catalog-app-color-rgb-240-103-103-40
+    );
+    --semantic-app-min-block-size-2-25rem: var(--catalog-app-measure-2-25rem);
+    --semantic-app-overflow-x-auto: var(--catalog-app-measure-auto);
+    --semantic-app-flex-1-0-auto: var(--catalog-app-measure-1-0-auto);
+    --semantic-app-min-block-size-2-2rem: var(--catalog-app-measure-2-2rem);
+    --semantic-app-transition-border-color-120ms-transform-120ms: var(
+      --catalog-app-motion-border-color-120ms-transform-120ms
+    );
+    --semantic-app-transform-translatey-0-06rem: var(
+      --catalog-app-effect-translatey-0-06rem
+    );
+    --semantic-app-display-webkit-box: var(--catalog-app-measure-webkit-box);
+    --semantic-app--webkit-line-clamp-2: var(--catalog-app-color-2);
+    --semantic-app-line-clamp-2: var(--catalog-app-color-2);
+    --semantic-app-justify-content-flex-start: var(
+      --catalog-app-measure-flex-start
+    );
+    --semantic-app-flex-wrap-wrap: var(--catalog-app-measure-wrap);
+    --semantic-app-min-block-size-1-55rem: var(--catalog-app-measure-1-55rem);
+    --semantic-app-grid-template-columns-auto-1fr-auto: var(
+      --catalog-app-measure-auto-1fr-auto
+    );
+    --semantic-app-grid-template-columns-repeat-4-1fr: var(
+      --catalog-app-measure-repeat-4-1fr
+    );
+    --semantic-app-border-block-0-0625rem-solid-c1b2431: var(
+      --catalog-app-color-0-0625rem-solid-c1b2431
+    );
+    --semantic-app-text-decoration-none: var(--catalog-app-color-none);
+    --semantic-app-align-content-start: var(--catalog-app-measure-start);
+    --semantic-app-min-block-size-40dvh: var(--catalog-app-measure-40dvh);
+    --semantic-app-padding-block-end-7rem: var(--catalog-app-measure-7rem);
+    --semantic-app-max-inline-size-92: var(--catalog-app-measure-92);
+    --semantic-app-justify-self-end: var(--catalog-app-measure-end);
+    --semantic-app-border-color-rgb-47-129-247-32: var(
+      --catalog-app-color-rgb-47-129-247-32
+    );
+    --semantic-app-white-space-pre-wrap: var(--catalog-app-measure-pre-wrap);
+    --semantic-app-overflow-wrap-anywhere: var(--catalog-app-measure-anywhere);
+    --semantic-app-inset-block-end-calc-4-75rem-env-safe-area-inset-bottom: var(
+      --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom-c
+    );
+    --semantic-app-grid-template-columns-1fr-auto: var(
+      --catalog-app-measure-1fr-auto
+    );
+    --semantic-app-align-items-end: var(--catalog-app-measure-end);
+    --semantic-app-backdrop-filter-blur-1rem: var(
+      --catalog-app-effect-blur-1rem
+    );
+    --semantic-app-max-block-size-9rem: var(--catalog-app-measure-9rem);
+    --semantic-app-resize-none: var(--catalog-app-measure-none);
+    --semantic-app-flex-0-0-auto: var(--catalog-app-measure-0-0-auto);
+    --semantic-app-min-block-size-3-2rem: var(--catalog-app-measure-3-2rem);
+    --semantic-app-inset-block-start-calc-4-1rem-env-safe-area-inset-top-0rem-b: var(
+      --catalog-app-measure-calc-4-1rem-env-safe-area-inset-top-0rem-b
+    );
+    --semantic-app-z-index-calc-20-2: var(--catalog-app-measure-calc-20-2);
+    --semantic-app-grid-template-columns-repeat-3-1fr: var(
+      --catalog-app-measure-repeat-3-1fr
+    );
+    --semantic-app-background-c090c11: var(--catalog-app-color-c090c11);
+    --semantic-app-color-cdfe7f2: var(--catalog-app-color-cdfe7f2);
+    --semantic-app-line-height-1-65: var(--catalog-app-color-1-65);
+    --semantic-app-overflow-auto: var(--catalog-app-measure-auto);
+    --semantic-app-white-space-pre: var(--catalog-app-measure-pre);
+    --semantic-app-tab-size-2: var(--catalog-app-measure-2);
+    --semantic-app-color-cff7ab2: var(--catalog-app-color-cff7ab2);
+    --semantic-app-color-ca8dd80: var(--catalog-app-color-ca8dd80);
+    --semantic-app-color-cd9a8ff: var(--catalog-app-color-cd9a8ff);
+    --semantic-app-color-c657184: var(--catalog-app-color-c657184);
+    --semantic-app-color-c82aaff: var(--catalog-app-color-c82aaff);
+    --semantic-app-min-inline-size-max-content: var(
+      --catalog-app-measure-max-content
+    );
+    --semantic-app-background-rgb-53-208-127-14: var(
+      --catalog-app-color-rgb-53-208-127-14
+    );
+    --semantic-app-color-caee9c9: var(--catalog-app-color-caee9c9);
+    --semantic-app-background-rgb-240-103-103-14: var(
+      --catalog-app-color-rgb-240-103-103-14
+    );
+    --semantic-app-color-cffc0c0: var(--catalog-app-color-cffc0c0);
+    --semantic-app-color-c91b4ff: var(--catalog-app-color-c91b4ff);
+    --semantic-app-background-rgb-47-129-247-10: var(
+      --catalog-app-color-rgb-47-129-247-10
+    );
+    --semantic-app-color-cb78cff: var(--catalog-app-color-cb78cff);
+    --semantic-app-max-block-size-52dvh: var(--catalog-app-measure-52dvh);
+    --semantic-app-content-run: var(--catalog-app-typography-run);
+    --semantic-app-margin-inline-start-auto: var(--catalog-app-measure-auto);
+    --semantic-app-grid-template-columns-minmax-6rem-auto-1fr: var(
+      --catalog-app-measure-minmax-6rem-auto-1fr
+    );
+    --semantic-app-gap-0-5rem-1rem: var(--catalog-app-measure-0-5rem-1rem);
+    --semantic-app-padding-2rem-1rem: var(--catalog-app-measure-2rem-1rem);
+    --semantic-app-inline-size-1-7rem: var(--catalog-app-measure-1-7rem);
+    --semantic-app-block-size-1-7rem: var(--catalog-app-measure-1-7rem);
+    --semantic-app-inline-size-min-calc-100-1-5rem-31rem: var(
+      --catalog-app-measure-min-calc-100-1-5rem-31rem
+    );
+    --semantic-app-max-block-size-80dvh: var(--catalog-app-measure-80dvh);
+    --semantic-app-background-rgb-0-0-0-62: var(
+      --catalog-app-color-rgb-0-0-0-62
+    );
+    --semantic-app-backdrop-filter-blur-0-2rem: var(
+      --catalog-app-effect-blur-0-2rem
+    );
+    --semantic-app-justify-content-flex-end: var(
+      --catalog-app-measure-flex-end
+    );
+    --semantic-app-max-block-size-56dvh: var(--catalog-app-measure-56dvh);
+    --semantic-app-overflow-y-auto: var(--catalog-app-measure-auto);
+    --semantic-app-inset-block-end-calc-4-75rem-env-safe-area-inset-bottom-b: var(
+      --catalog-app-measure-calc-4-75rem-env-safe-area-inset-bottom-d
+    );
+    --semantic-app-pointer-events-none: var(--catalog-app-measure-none);
+    --semantic-app-inline-size-0-0625rem: var(--catalog-app-measure-0-0625rem);
+    --semantic-app-block-size-0-0625rem: var(--catalog-app-measure-0-0625rem);
+    --semantic-app-margin-0-0625rem: var(--catalog-app-measure-0-0625rem-b);
+    --semantic-app-clip-path-inset-50: var(--catalog-app-effect-inset-50);
+    --semantic-app-grid-template-columns-5-5rem-1fr: var(
+      --catalog-app-measure-5-5rem-1fr
+    );
+    --semantic-app-grid-template-rows-auto-1fr: var(
+      --catalog-app-measure-auto-1fr
+    );
+    --semantic-app-grid-column-2: var(--catalog-app-measure-2);
+    --semantic-app-grid-column-1: var(--catalog-app-measure-1);
+    --semantic-app-grid-row-1-1: var(--catalog-app-measure-1-1);
+    --semantic-app-inset-block-0: var(--catalog-app-measure-0);
+    --semantic-app-inset-inline-0-auto: var(--catalog-app-measure-0-auto);
+    --semantic-app-inline-size-5-5rem: var(--catalog-app-measure-5-5rem);
+    --semantic-app-block-size-100dvh: var(--catalog-app-measure-100dvh);
+    --semantic-app-grid-template-columns-1fr: var(--catalog-app-measure-1fr);
+    --semantic-app-grid-template-rows-repeat-5-5rem: var(
+      --catalog-app-measure-repeat-5-5rem
+    );
+    --semantic-app-border-inline-end-0-0625rem-solid-c1b2431: var(
+      --catalog-app-color-0-0625rem-solid-c1b2431
+    );
+    --semantic-app-inset-inline-start-calc-5-5rem-1rem: var(
+      --catalog-app-measure-calc-5-5rem-1rem
+    );
+    --semantic-app-scroll-behavior-auto: var(--catalog-app-motion-auto);
+    --semantic-app-transition-duration-0s: var(--catalog-app-motion-0s);
+    --semantic-app-animation-duration-0s: var(--catalog-app-motion-0s);
+    --semantic-app-border-0-0625rem-solid-canvastext: var(
+      --catalog-app-color-0-0625rem-solid-canvastext
+    );
+    --semantic-app-opacity-0: var(--catalog-app-effect-0);
+    --semantic-app-transform-translatey-0-25rem: var(
+      --catalog-app-effect-translatey-0-25rem
+    );
+    --semantic-app-opacity-100: var(--catalog-app-effect-100);
+    --semantic-app-min-block-size-2-75rem: var(--catalog-app-measure-2-75rem);
+    --semantic-app-max-block-size-50dvh: var(--catalog-app-measure-50dvh);
+    --semantic-app-min-inline-size-1-7rem: var(--catalog-app-measure-1-7rem);
+    --semantic-app-display-inline-block: var(
+      --catalog-app-measure-inline-block
+    );
+    --semantic-app-inline-size-3-2rem: var(--catalog-app-measure-3-2rem);
+    --semantic-app-text-align-end: var(--catalog-app-color-end);
+    --semantic-app-user-select-none: var(--catalog-app-measure-none);
+    --semantic-app-min-block-size-4-4rem: var(--catalog-app-measure-4-4rem);
+    --semantic-app-inline-size-1-4rem: var(--catalog-app-measure-1-4rem);
+    --semantic-app-block-size-1-4rem: var(--catalog-app-measure-1-4rem);
+    --semantic-app-min-block-size-3-1rem: var(--catalog-app-measure-3-1rem);
+    --semantic-app-border-0: var(--catalog-app-color-0);
+    --semantic-app-border-radius-0: var(--catalog-app-color-0);
+    --semantic-app-margin-block-start-0-15rem: var(
+      --catalog-app-measure-0-15rem
+    );
+    --semantic-app-margin-block-0-75rem-0-5rem: var(
+      --catalog-app-measure-0-75rem-0-5rem
+    );
+    --semantic-app-scrollbar-width-none: var(--catalog-app-measure-none);
+    --semantic-app-border-radius-0-7rem-0-7rem-0-0: var(
+      --catalog-app-color-0-7rem-0-7rem-0-0
+    );
+    --semantic-app-border-radius-0-95rem-0-95rem-0-0: var(
+      --catalog-app-color-0-95rem-0-95rem-0-0
+    );
+    --semantic-app-min-block-size-2rem: var(--catalog-app-measure-2rem);
+    --semantic-app-border-block-start-0: var(--catalog-app-color-0);
+    --semantic-app-border-radius-0-0-0-95rem-0-95rem: var(
+      --catalog-app-color-0-0-0-95rem-0-95rem
+    );
+    --semantic-app-grid-template-columns-repeat-3-minmax-0-1fr: var(
+      --catalog-app-measure-repeat-3-minmax-0-1fr
+    );
+    --semantic-app-inline-size-auto: var(--catalog-app-measure-auto);
+    --semantic-app-margin-0: var(--catalog-app-measure-0);
+    --semantic-app-grid-template-columns-minmax-0-1fr-minmax-0-1fr: var(
+      --catalog-app-measure-minmax-0-1fr-minmax-0-1fr
+    );
+    --semantic-app-min-inline-size-42rem: var(--catalog-app-measure-42rem);
+    --semantic-app-border-block-end-0-0625rem-solid-rgb-255-255-255-3-5: var(
+      --catalog-app-color-0-0625rem-solid-rgb-255-255-255-3-5
+    );
+    --semantic-app-grid-template-columns-3rem-minmax-0-1fr: var(
+      --catalog-app-measure-3rem-minmax-0-1fr
+    );
+    --semantic-app-min-block-size-1-65rem: var(--catalog-app-measure-1-65rem);
+    --semantic-app-border-inline-start-0-0625rem-solid-rgb-255-255-255-8: var(
+      --catalog-app-color-0-0625rem-solid-rgb-255-255-255-8
+    );
+    --semantic-app-background-rgb-255-255-255-2-5: var(
+      --catalog-app-color-rgb-255-255-255-2-5
+    );
+    --semantic-app-grid-template-columns-minmax-18rem-0-9fr-minmax-18rem-1-1fr: var(
+      --catalog-app-measure-minmax-18rem-0-9fr-minmax-18rem-1-1fr
+    );
+    --semantic-app-align-items-start: var(--catalog-app-measure-start);
+    --semantic-app-min-block-size-32rem: var(--catalog-app-measure-32rem);
+    --semantic-app-box-shadow-none: var(--catalog-app-effect-none);
+    --semantic-app-inset-inline-start-0: var(--catalog-app-measure-0);
+    --semantic-app-border-radius-0-999rem-999rem-0: var(
+      --catalog-app-color-0-999rem-999rem-0
+    );
+    --semantic-app-content-value: var(--catalog-app-typography-value);
+    --semantic-app-box-shadow-inset-0-2rem-0-0-c2f81f7: var(
+      --catalog-app-effect-inset-0-2rem-0-0-c2f81f7
+    );
+    --semantic-app-align-items-baseline: var(--catalog-app-measure-baseline);
+    --semantic-app-grid-column-1-1: var(--catalog-app-measure-1-1);
+    --semantic-app-font-0-75rem-1-55-sfmono-regular-consolas-lib: var(
+      --catalog-app-typography-0-75rem-1-55-sfmono-regular-consolas-lib
+    );
+    --semantic-app-border-radius-0-45rem-0-45rem-0-0: var(
+      --catalog-app-color-0-45rem-0-45rem-0-0
+    );
+    --semantic-app-grid-template-columns-minmax-15rem-17rem-minmax-0-1fr: var(
+      --catalog-app-measure-minmax-15rem-17rem-minmax-0-1fr
+    );
+    --semantic-app-inset-block-start-calc-4-1rem-1rem: var(
+      --catalog-app-measure-calc-4-1rem-1rem
+    );
+    --semantic-app-max-block-size-calc-100dvh-4-1rem-4-75rem-2-5rem: var(
+      --catalog-app-measure-calc-100dvh-4-1rem-4-75rem-2-5rem
+    );
+    --semantic-app-grid-template-columns-minmax-0-1fr-minmax-0-1fr-auto: var(
+      --catalog-app-measure-minmax-0-1fr-minmax-0-1fr-auto
+    );
+    --semantic-app-grid-column-auto: var(--catalog-app-measure-auto);
+    --semantic-app-padding-0-5rem-1rem: var(--catalog-app-measure-0-5rem-1rem);
+    color-scheme: var(--semantic-app-color-scheme-dark);
+    --semantic-app-font-ui: var(--catalog-app-typography-font-ui);
+    --semantic-app-font-code: var(--catalog-app-typography-font-code);
+    --semantic-app-fs-2xs: var(--catalog-app-measure-fs-micro);
+    --semantic-app-fs-xs: var(--catalog-app-measure-fs-tiny);
+    --semantic-app-fs-sm: var(--catalog-app-measure-fs-small);
+    --semantic-app-fs-md: var(--catalog-app-measure-fs-medium);
+    --semantic-app-fs-lg: var(--catalog-app-measure-fs-large);
+    --semantic-app-fs-xl: var(--catalog-app-measure-fs-jumbo);
+    --semantic-app-fs-2xl: var(--catalog-app-measure-fs-double-jumbo);
+    --semantic-app-fs-hero: var(--catalog-app-measure-fs-hero);
+    --semantic-app-lh-tight: var(--catalog-app-measure-lh-tight);
+    --semantic-app-lh-ui: var(--catalog-app-measure-lh-ui);
+    --semantic-app-lh-body: var(--catalog-app-measure-lh-body);
+    --semantic-app-weight-regular: var(--catalog-app-measure-weight-regular);
+    --semantic-app-weight-medium: var(--catalog-app-measure-weight-medium);
+    --semantic-app-weight-semibold: var(--catalog-app-measure-weight-semibold);
+    --semantic-app-weight-bold: var(--catalog-app-measure-weight-bold);
+    --semantic-app-tracking-tight: var(--catalog-app-measure-tracking-tight);
+    --semantic-app-tracking-label: var(--catalog-app-measure-tracking-label);
+    --semantic-app-sp-0: var(--catalog-app-measure-sp-0);
+    --semantic-app-sp-1: var(--catalog-app-measure-sp-1);
+    --semantic-app-sp-2: var(--catalog-app-measure-sp-2);
+    --semantic-app-sp-3: var(--catalog-app-measure-sp-3);
+    --semantic-app-sp-4: var(--catalog-app-measure-sp-4);
+    --semantic-app-sp-5: var(--catalog-app-measure-sp-5);
+    --semantic-app-sp-6: var(--catalog-app-measure-sp-6);
+    --semantic-app-sp-7: var(--catalog-app-measure-sp-7);
+    --semantic-app-sp-8: var(--catalog-app-measure-sp-8);
+    --semantic-app-sp-9: var(--catalog-app-measure-sp-9);
+    --semantic-app-radius-xs: var(--catalog-app-border-radius-tiny);
+    --semantic-app-radius-sm: var(--catalog-app-border-radius-small);
+    --semantic-app-radius-md: var(--catalog-app-border-radius-medium);
+    --semantic-app-radius-lg: var(--catalog-app-border-radius-large);
+    --semantic-app-radius-xl: var(--catalog-app-border-radius-jumbo);
+    --semantic-app-radius-round: var(--catalog-app-border-radius-round);
+    --semantic-app-border-w: var(--catalog-app-border-border-w);
+    --semantic-app-icon-sm: var(--catalog-app-measure-icon-small);
+    --semantic-app-icon-md: var(--catalog-app-measure-icon-medium);
+    --semantic-app-icon-lg: var(--catalog-app-measure-icon-large);
+    --semantic-app-tap: var(--catalog-app-measure-tap);
+    --semantic-app-nav-h: var(--catalog-app-measure-nav-h);
+    --semantic-app-topbar-h: var(--catalog-app-measure-topbar-h);
+    --semantic-app-content-max: var(--catalog-app-measure-content-max);
+    --semantic-app-editor-min: var(--catalog-app-measure-editor-min);
+    --semantic-app-terminal-min: var(--catalog-app-measure-terminal-min);
+    --semantic-app-modal-max: var(--catalog-app-measure-modal-max);
+    --semantic-app-panel-max: var(--catalog-app-measure-panel-max);
+    --semantic-app-z-nav: var(--catalog-app-measure-z-nav);
+    --semantic-app-z-modal: var(--catalog-app-measure-z-modal);
+    --semantic-app-z-toast: var(--catalog-app-measure-z-toast);
+    --semantic-app-motion-fast: var(--catalog-app-motion-motion-fast);
+    --semantic-app-motion: var(--catalog-app-motion-motion);
+    --semantic-app-ease: var(--catalog-app-motion-ease);
+    --semantic-app-bg: var(--catalog-app-color-bg);
+    --semantic-app-bg-raised: var(--catalog-app-color-bg-raised);
+    --semantic-app-surface: var(--catalog-app-color-surface);
+    --semantic-app-surface-2: var(--catalog-app-color-surface-2);
+    --semantic-app-surface-3: var(--catalog-app-color-surface-3);
+    --semantic-app-surface-hover: var(--catalog-app-color-surface-hover);
+    --semantic-app-glass: var(--catalog-app-color-glass);
+    --semantic-app-text: var(--catalog-app-color-text);
+    --semantic-app-text-2: var(--catalog-app-color-text-2);
+    --semantic-app-text-3: var(--catalog-app-color-text-3);
+    --semantic-app-border: var(--catalog-app-color-border);
+    --semantic-app-border-soft: var(--catalog-app-color-border-soft);
+    --semantic-app-accent: var(--catalog-app-color-accent);
+    --semantic-app-accent-strong: var(--catalog-app-color-accent-strong);
+    --semantic-app-accent-soft: var(--catalog-app-color-accent-soft);
+    --semantic-app-green: var(--catalog-app-color-green);
+    --semantic-app-green-soft: var(--catalog-app-color-green-soft);
+    --semantic-app-yellow: var(--catalog-app-color-yellow);
+    --semantic-app-yellow-soft: var(--catalog-app-color-yellow-soft);
+    --semantic-app-red: var(--catalog-app-color-red);
+    --semantic-app-red-soft: var(--catalog-app-color-red-soft);
+    --semantic-app-purple: var(--catalog-app-color-purple);
+    --semantic-app-purple-soft: var(--catalog-app-color-purple-soft);
+    --semantic-app-cyan: var(--catalog-app-color-cyan);
+    --semantic-app-shadow-sm: var(--catalog-app-effect-shadow-small);
+    --semantic-app-shadow-lg: var(--catalog-app-effect-shadow-large);
+    --semantic-app-safe-t: var(--catalog-app-measure-safe-t);
+    --semantic-app-safe-b: var(--catalog-app-measure-safe-b);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: var(--semantic-app-color-scheme-light);
+    }
+  }
+}
+@layer reset {
+  :where(
+    html,
+    body,
+    div,
+    span,
+    main,
+    section,
+    header,
+    footer,
+    nav,
+    aside,
+    article,
+    button,
+    input,
+    select,
+    textarea,
+    a,
+    p,
+    h1,
+    h2,
+    h3,
+    pre,
+    code,
+    ul,
+    ol,
+    li,
+    dl,
+    dt,
+    dd,
+    svg,
+    dialog,
+    form,
+    label
+  ) {
+    box-sizing: var(--semantic-app-box-sizing-border-box);
+  }
+  html {
+    -webkit-text-size-adjust: var(--semantic-app--webkit-text-size-adjust-100);
+  }
+  body,
+  h1,
+  h2,
+  h3,
+  p,
+  pre,
+  dl,
+  dd {
+    margin: var(--semantic-app-sp-0);
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  button {
+    border: var(--semantic-app-sp-0);
+  }
+  svg {
+    display: var(--semantic-app-display-block);
+  }
+  [hidden] {
+    display: var(--semantic-app-display-none);
+  }
+}
+@layer base {
+  body {
+    min-block-size: var(--semantic-app-min-block-size-100dvh);
+    background: var(--semantic-app-bg);
+    color: var(--semantic-app-text);
+    font-family: var(--semantic-app-font-ui);
+    font-size: var(--semantic-app-fs-md);
+    font-weight: var(--semantic-app-weight-regular);
+    line-height: var(--semantic-app-lh-body);
+    overflow-x: var(--semantic-app-overflow-x-hidden);
+  }
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: var(
+      --semantic-app--webkit-tap-highlight-color-transparent
+    );
+  }
+  button,
+  a {
+    color: inherit;
+  }
+  button {
+    cursor: var(--semantic-app-cursor-pointer);
+  }
+  input,
+  textarea,
+  select {
+    inline-size: var(--semantic-app-inline-size-100);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-sm);
+    outline: var(--semantic-app-outline-none);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text);
+  }
+  input:focus-visible,
+  :where(textarea:focus-visible),
+  select:focus-visible,
+  button:focus-visible,
+  a:focus-visible {
+    outline: var(--semantic-app-outline-calc-0-0625rem-2-solid-c2f81f7);
+    outline-offset: var(--semantic-app-outline-offset-calc-0-0625rem-2);
+  }
+  textarea {
+    resize: var(--semantic-app-resize-vertical);
+  }
+  ::selection {
+    background: var(--semantic-app-accent);
+    color: var(--semantic-app-color-cffffff);
+  }
+}
+@layer layout {
+  .app-shell {
+    min-block-size: var(--semantic-app-min-block-size-100dvh);
+  }
+  .workspace {
+    min-block-size: var(--semantic-app-min-block-size-100dvh);
+  }
+  .topbar {
+    position: var(--semantic-app-position-sticky);
+    inset-block-start: var(--semantic-app-inset-block-start-0);
+    z-index: var(--semantic-app-z-nav);
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    min-block-size: var(
+      --semantic-app-min-block-size-calc-4-1rem-env-safe-area-inset-top-0rem
+    );
+    padding: var(
+      --semantic-app-padding-calc-0-75rem-env-safe-area-inset-top-0re
+    );
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-glass);
+    backdrop-filter: var(
+      --semantic-app-backdrop-filter-blur-1-25rem-saturate-140
+    );
+  }
+  .content-stack {
+    inline-size: var(--semantic-app-inline-size-min-100-72rem);
+    margin-inline: var(--semantic-app-margin-inline-auto);
+    padding-block-end: var(
+      --semantic-app-padding-block-end-calc-4-75rem-env-safe-area-inset-bottom
+    );
+  }
+  .screen {
+    display: var(--semantic-app-display-none);
+    padding: var(--semantic-app-padding-1-25rem-1rem-2-5rem);
+  }
+  .screen.active {
+    display: var(--semantic-app-display-block);
+    animation: var(--semantic-app-animation-screen-in-180ms-ease-0-2-0-8-0-2-1);
+  }
+  .detail-screen {
+    min-block-size: var(
+      --semantic-app-min-block-size-calc-100dvh-4-1rem-4-75rem
+    );
+  }
+  .dashboard-grid {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-4);
+  }
+  .metric-grid {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-2-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-3);
+  }
+  .quick-grid {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-4-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+  }
+  .toolbar-row,
+  .heading-actions,
+  .topbar-actions,
+  .git-actions,
+  .terminal-tools,
+  .editor-actions {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-2);
+  }
+  .grow {
+    flex: var(--semantic-app-flex-1);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+}
+@layer components {
+  .icon-sprite {
+    position: var(--semantic-app-position-absolute);
+    inline-size: var(--semantic-app-inline-size-0);
+    block-size: var(--semantic-app-block-size-0);
+    overflow: var(--semantic-app-overflow-hidden);
+  }
+  .icon {
+    inline-size: var(--semantic-app-icon-md);
+    block-size: var(--semantic-app-icon-md);
+    fill: var(--semantic-app-fill-none);
+    stroke: var(--semantic-app-stroke-currentcolor);
+    stroke-width: var(--semantic-app-stroke-width-1-8);
+    stroke-linecap: var(--semantic-app-stroke-linecap-round);
+    stroke-linejoin: var(--semantic-app-stroke-linejoin-round);
+  }
+  .skip-link {
+    position: var(--semantic-app-position-fixed);
+    inset-inline-start: var(--semantic-app-sp-4);
+    inset-block-start: var(--semantic-app-sp-4);
+    z-index: var(--semantic-app-z-toast);
+    transform: var(--semantic-app-transform-translatey-200);
+    background: var(--semantic-app-accent);
+    color: var(--semantic-app-color-cffffff);
+    padding: var(--semantic-app-padding-0-5rem-0-75rem);
+    border-radius: var(--semantic-app-radius-sm);
+  }
+  .skip-link:focus {
+    transform: var(--semantic-app-transform-translatey-0);
+  }
+  .brand-mark {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-2-0-62rem
+    );
+    gap: var(--semantic-app-gap-0-16rem);
+    inline-size: var(--semantic-app-inline-size-max-content);
+  }
+  .brand-mark span {
+    aspect-ratio: var(--semantic-app-aspect-ratio-1);
+    border-radius: var(--semantic-app-border-radius-0-18rem);
+    background: var(--semantic-app-accent);
+    box-shadow: var(--semantic-app-box-shadow-0-0-0-85rem-rgb-47-129-247-42);
+  }
+  .brand-mark.compact {
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-2-0-45rem
+    );
+    gap: var(--semantic-app-gap-0-12rem);
+  }
+  .product-kicker,
+  .section-kicker {
+    color: var(--semantic-app-accent-strong);
+    font-size: var(--semantic-app-fs-xs);
+    font-weight: var(--semantic-app-weight-semibold);
+    letter-spacing: var(--semantic-app-tracking-label);
+    text-transform: var(--semantic-app-text-transform-uppercase);
+  }
+  .pair-screen {
+    display: var(--semantic-app-display-grid);
+    place-items: var(--semantic-app-place-items-start);
+    align-content: var(--semantic-app-align-content-center);
+    gap: var(--semantic-app-sp-4);
+    min-block-size: var(--semantic-app-min-block-size-100dvh);
+    max-inline-size: var(--semantic-app-max-inline-size-34rem);
+    margin-inline: var(--semantic-app-margin-inline-auto);
+    padding: var(
+      --semantic-app-padding-calc-2-5rem-env-safe-area-inset-top-0rem
+    );
+  }
+  .pair-screen h1 {
+    max-inline-size: var(--semantic-app-max-inline-size-12ch);
+    font-size: var(--semantic-app-fs-hero);
+    line-height: var(--semantic-app-lh-tight);
+    letter-spacing: var(--semantic-app-tracking-tight);
+  }
+  .pair-screen > p {
+    max-inline-size: var(--semantic-app-max-inline-size-34rem);
+    color: var(--semantic-app-text-2);
+  }
+  .pair-form {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-3);
+    inline-size: var(--semantic-app-inline-size-100);
+    margin-block-start: var(--semantic-app-sp-2);
+  }
+  .pair-form label {
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-sm);
+  }
+  .pair-form input {
+    min-block-size: var(--semantic-app-min-block-size-4-25rem);
+    padding-inline: var(--semantic-app-sp-5);
+    text-align: var(--semantic-app-text-align-center);
+    font-size: var(--semantic-app-fs-2xl);
+    font-family: var(--semantic-app-font-code);
+    letter-spacing: var(--semantic-app-letter-spacing-0-45em);
+  }
+  .pair-security {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-2);
+    align-items: var(--semantic-app-align-items-center);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .inline-status {
+    color: var(--semantic-app-red);
+    font-size: var(--semantic-app-fs-sm);
+  }
+  .project-switch {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-3);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+    padding: var(--semantic-app-sp-0);
+    background: var(--semantic-app-background-transparent);
+    text-align: var(--semantic-app-text-align-start);
+  }
+  .project-copy {
+    display: var(--semantic-app-display-grid);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .project-copy strong {
+    overflow: var(--semantic-app-overflow-hidden);
+    text-overflow: var(--semantic-app-text-overflow-ellipsis);
+    white-space: var(--semantic-app-white-space-nowrap);
+    font-size: var(--semantic-app-fs-md);
+  }
+  .project-copy span {
+    overflow: var(--semantic-app-overflow-hidden);
+    text-overflow: var(--semantic-app-text-overflow-ellipsis);
+    white-space: var(--semantic-app-white-space-nowrap);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .project-switch .chevron {
+    rotate: var(--semantic-app-rotate-90deg);
+    color: var(--semantic-app-text-3);
+    inline-size: var(--semantic-app-icon-sm);
+  }
+  .icon-button {
+    display: var(--semantic-app-display-grid);
+    place-items: var(--semantic-app-place-items-center);
+    inline-size: var(--semantic-app-tap);
+    block-size: var(--semantic-app-tap);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-background-transparent);
+    color: var(--semantic-app-text-2);
+  }
+  .icon-button:hover {
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text);
+  }
+  .bottom-nav {
+    position: var(--semantic-app-position-fixed);
+    z-index: var(--semantic-app-z-nav);
+    inset-inline: var(--semantic-app-inset-inline-0);
+    inset-block-end: var(--semantic-app-inset-block-end-0);
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-5-minmax-0-1fr
+    );
+    min-block-size: var(
+      --semantic-app-min-block-size-calc-4-75rem-env-safe-area-inset-bottom
+    );
+    padding: var(
+      --semantic-app-padding-0-5rem-0-5rem-calc-0-5rem-env-safe-area
+    );
+    border-block-start: var(
+      --semantic-app-border-block-start-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-glass);
+    backdrop-filter: var(
+      --semantic-app-backdrop-filter-blur-1-3rem-saturate-140
+    );
+  }
+  .bottom-nav button {
+    position: var(--semantic-app-position-relative);
+    display: var(--semantic-app-display-grid);
+    place-items: var(--semantic-app-place-items-center);
+    align-content: var(--semantic-app-align-content-center);
+    gap: var(--semantic-app-gap-0-18rem);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-background-transparent);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  :where(.bottom-nav button .icon) {
+    inline-size: var(--semantic-app-icon-lg);
+    block-size: var(--semantic-app-icon-lg);
+  }
+  .bottom-nav button.selected {
+    color: var(--semantic-app-accent-strong);
+    background: var(--semantic-app-accent-soft);
+  }
+  .bottom-nav b {
+    position: var(--semantic-app-position-absolute);
+    inset-block-start: var(--semantic-app-sp-1);
+    inset-inline-end: var(--semantic-app-inset-inline-end-22);
+    min-inline-size: var(--semantic-app-min-inline-size-1rem);
+    block-size: var(--semantic-app-block-size-1rem);
+    padding-inline: var(--semantic-app-padding-inline-0-25rem);
+    border-radius: var(--semantic-app-radius-round);
+    background: var(--semantic-app-red);
+    color: var(--semantic-app-color-cffffff);
+    font-size: var(--semantic-app-font-size-0-6rem);
+    line-height: var(--semantic-app-line-height-1rem);
+  }
+  .bottom-nav b:empty {
+    display: var(--semantic-app-display-none);
+  }
+  .screen-heading,
+  .detail-heading,
+  .section-title {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+  }
+  .screen-heading {
+    margin-block-end: var(--semantic-app-sp-4);
+  }
+  .screen-heading h1,
+  .detail-heading h1 {
+    font-size: var(--semantic-app-fs-xl);
+    line-height: var(--semantic-app-lh-tight);
+    letter-spacing: var(--semantic-app-tracking-tight);
+  }
+  .screen-heading p,
+  .detail-copy p,
+  .section-title span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .detail-heading {
+    position: var(--semantic-app-position-sticky);
+    inset-block-start: var(
+      --semantic-app-inset-block-start-calc-4-1rem-env-safe-area-inset-top-0rem
+    );
+    z-index: var(--semantic-app-z-index-calc-20-1);
+    margin: var(--semantic-app-margin-calc-1-25rem-1-calc-1rem-1-0-75rem);
+    padding: var(--semantic-app-padding-0-75rem-1rem);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-glass);
+    backdrop-filter: var(--semantic-app-backdrop-filter-blur-1-2rem);
+  }
+  .detail-copy {
+    flex: var(--semantic-app-flex-1);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .detail-copy h1,
+  .detail-copy p {
+    overflow: var(--semantic-app-overflow-hidden);
+    text-overflow: var(--semantic-app-text-overflow-ellipsis);
+    white-space: var(--semantic-app-white-space-nowrap);
+  }
+  .dashboard-hero {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-4);
+    margin-block-end: var(--semantic-app-sp-5);
+    padding: var(--semantic-app-sp-5);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-xl);
+    background: var(
+      --semantic-app-background-radial-gradient-circle-at-100-0-rgb-47-1
+    );
+    box-shadow: var(--semantic-app-shadow-sm);
+    overflow: var(--semantic-app-overflow-hidden);
+  }
+  .dashboard-hero h1 {
+    max-inline-size: var(--semantic-app-max-inline-size-13ch);
+    margin-block: var(--semantic-app-sp-1);
+    font-size: var(--semantic-app-font-size-clamp-1-9rem-8vw-3-4rem);
+    line-height: var(--semantic-app-lh-tight);
+    letter-spacing: var(--semantic-app-tracking-tight);
+  }
+  .dashboard-hero p {
+    max-inline-size: var(--semantic-app-max-inline-size-42rem);
+    color: var(--semantic-app-text-2);
+  }
+  :where(.dashboard-hero .button) {
+    justify-self: var(--semantic-app-justify-self-start);
+  }
+  .dashboard-metrics {
+    margin-block-end: var(--semantic-app-sp-4);
+  }
+  .dashboard-metrics article,
+  .overview-strip > div,
+  .usage-card {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-1);
+    padding: var(--semantic-app-sp-4);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+  }
+  .dashboard-metrics strong {
+    font-size: var(--semantic-app-fs-2xl);
+    line-height: var(--semantic-app-lh-tight);
+    letter-spacing: var(--semantic-app-tracking-tight);
+  }
+  .dashboard-metrics span {
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-sm);
+  }
+  .dashboard-metrics small {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .quick-grid {
+    margin-block-end: var(--semantic-app-sp-5);
+  }
+  .quick-grid button {
+    display: var(--semantic-app-display-grid);
+    justify-items: var(--semantic-app-justify-items-center);
+    gap: var(--semantic-app-sp-2);
+    min-block-size: var(--semantic-app-min-block-size-5-2rem);
+    padding: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  :where(.quick-grid button:hover) {
+    border-color: var(--semantic-app-border);
+    background: var(--semantic-app-surface-hover);
+    color: var(--semantic-app-text);
+  }
+  .quick-grid .icon {
+    color: var(--semantic-app-accent-strong);
+    inline-size: var(--semantic-app-icon-lg);
+    block-size: var(--semantic-app-icon-lg);
+  }
+  .surface,
+  .settings-section {
+    padding: var(--semantic-app-sp-4);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-lg);
+    background: var(--semantic-app-surface);
+    box-shadow: var(--semantic-app-shadow-sm);
+  }
+  .surface + .surface,
+  :where(.settings-section + .settings-section) {
+    margin-block-start: var(--semantic-app-sp-4);
+  }
+  .section-title {
+    margin-block-end: var(--semantic-app-sp-3);
+  }
+  .section-title > div {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-gap-0-1rem);
+  }
+  .section-title h2 {
+    font-size: var(--semantic-app-fs-md);
+  }
+  .link-button {
+    padding: var(--semantic-app-padding-0-25rem-0-5rem);
+    background: var(--semantic-app-background-transparent);
+    color: var(--semantic-app-accent-strong);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .button {
+    display: var(--semantic-app-display-inline-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-center);
+    gap: var(--semantic-app-sp-2);
+    min-block-size: var(--semantic-app-tap);
+    padding-inline: var(--semantic-app-sp-4);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text);
+    font-size: var(--semantic-app-fs-sm);
+    font-weight: var(--semantic-app-weight-medium);
+  }
+  .button:hover {
+    background: var(--semantic-app-surface-hover);
+  }
+  .button.primary {
+    border-color: var(--semantic-app-accent);
+    background: var(--semantic-app-accent);
+    color: var(--semantic-app-color-cffffff);
+  }
+  .button.primary:hover {
+    background: var(--semantic-app-accent-strong);
+  }
+  .button.secondary {
+    background: var(--semantic-app-surface-2);
+  }
+  .button.danger {
+    border-color: var(--semantic-app-border-color-rgb-240-103-103-40);
+    background: var(--semantic-app-red-soft);
+    color: var(--semantic-app-red);
+  }
+  .button.compact {
+    min-block-size: var(--semantic-app-min-block-size-2-25rem);
+    padding-inline: var(--semantic-app-sp-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .full-width {
+    inline-size: var(--semantic-app-inline-size-100);
+  }
+  .overview-strip {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-4-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+    margin-block-end: var(--semantic-app-sp-4);
+  }
+  .overview-strip > div {
+    padding: var(--semantic-app-sp-3);
+    text-align: var(--semantic-app-text-align-center);
+  }
+  .overview-strip strong {
+    font-size: var(--semantic-app-fs-lg);
+  }
+  .overview-strip span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .search-field {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-2);
+    min-block-size: var(--semantic-app-tap);
+    padding-inline: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-3);
+  }
+  .search-field input {
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+    padding: var(--semantic-app-sp-0);
+    border: var(--semantic-app-sp-0);
+    background: var(--semantic-app-background-transparent);
+  }
+  .segmented {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-1);
+    margin-block: var(--semantic-app-sp-3);
+    padding: var(--semantic-app-sp-1);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+    overflow-x: var(--semantic-app-overflow-x-auto);
+  }
+  .segmented button,
+  .editor-tabs button,
+  .agent-toolbar button {
+    flex: var(--semantic-app-flex-1-0-auto);
+    min-block-size: var(--semantic-app-min-block-size-2-2rem);
+    padding-inline: var(--semantic-app-sp-3);
+    border-radius: var(--semantic-app-radius-xs);
+    background: var(--semantic-app-background-transparent);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .segmented button.selected,
+  .editor-tabs button.selected,
+  .agent-toolbar button.selected {
+    background: var(--semantic-app-surface-3);
+    color: var(--semantic-app-text);
+    box-shadow: var(--semantic-app-shadow-sm);
+  }
+  .agent-list,
+  .compact-list,
+  .project-list,
+  .provider-list,
+  .activity-list,
+  .device-list,
+  .history-list,
+  .branch-list,
+  .stash-list {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+  }
+  .agent-card {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-3);
+    padding: var(--semantic-app-sp-4);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+    transition: var(
+      --semantic-app-transition-border-color-120ms-transform-120ms
+    );
+  }
+  .agent-card:hover {
+    border-color: var(--semantic-app-border);
+    transform: var(--semantic-app-transform-translatey-0-06rem);
+  }
+  .agent-card-head,
+  .agent-meta,
+  .agent-context-head,
+  .provider-main {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+  }
+  .agent-name {
+    display: var(--semantic-app-display-grid);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .agent-name strong {
+    overflow: var(--semantic-app-overflow-hidden);
+    text-overflow: var(--semantic-app-text-overflow-ellipsis);
+    white-space: var(--semantic-app-white-space-nowrap);
+  }
+  .agent-name span,
+  .agent-meta,
+  .agent-card p {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .agent-card p {
+    color: var(--semantic-app-text-2);
+    display: var(--semantic-app-display-webkit-box);
+    overflow: var(--semantic-app-overflow-hidden);
+    line-clamp: var(--semantic-app-line-clamp-2);
+    -webkit-line-clamp: var(--semantic-app--webkit-line-clamp-2);
+  }
+  .agent-meta {
+    justify-content: var(--semantic-app-justify-content-flex-start);
+    flex-wrap: var(--semantic-app-flex-wrap-wrap);
+  }
+  .status-pill,
+  .tag-chip,
+  .branch-chip {
+    display: var(--semantic-app-display-inline-flex);
+    align-items: var(--semantic-app-align-items-center);
+    min-block-size: var(--semantic-app-min-block-size-1-55rem);
+    padding-inline: var(--semantic-app-sp-2);
+    border-radius: var(--semantic-app-radius-round);
+    background: var(--semantic-app-surface-3);
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-2xs);
+    white-space: var(--semantic-app-white-space-nowrap);
+  }
+  .status-pill.running {
+    background: var(--semantic-app-green-soft);
+    color: var(--semantic-app-green);
+  }
+  .status-pill.waiting {
+    background: var(--semantic-app-yellow-soft);
+    color: var(--semantic-app-yellow);
+  }
+  .status-pill.failed {
+    background: var(--semantic-app-red-soft);
+    color: var(--semantic-app-red);
+  }
+  .agent-toolbar,
+  .editor-tabs {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-1);
+    margin-block-end: var(--semantic-app-sp-3);
+    padding: var(--semantic-app-sp-1);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+  }
+  .agent-detail-panel {
+    margin-block-end: var(--semantic-app-sp-3);
+  }
+  .agent-context {
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+    overflow: var(--semantic-app-overflow-hidden);
+  }
+  .agent-context-summary {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-auto-1fr-auto
+    );
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-2);
+    padding: var(--semantic-app-sp-3);
+    cursor: var(--semantic-app-cursor-pointer);
+  }
+  .agent-context-summary span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .agent-context-metrics {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-4-1fr
+    );
+    gap: var(--semantic-app-border-w);
+    border-block: var(--semantic-app-border-block-0-0625rem-solid-c1b2431);
+    background: var(--semantic-app-border-soft);
+  }
+  .agent-context-metrics > div {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-gap-0-1rem);
+    padding: var(--semantic-app-sp-3);
+    background: var(--semantic-app-surface);
+    text-align: var(--semantic-app-text-align-center);
+  }
+  .agent-context-metrics span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .agent-context-section,
+  .agent-context-row {
+    padding: var(--semantic-app-sp-3);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+  }
+  .tag-list {
+    display: var(--semantic-app-display-flex);
+    flex-wrap: var(--semantic-app-flex-wrap-wrap);
+    gap: var(--semantic-app-sp-1);
+    margin-block-start: var(--semantic-app-sp-2);
+  }
+  .tag-chip {
+    background: var(--semantic-app-purple-soft);
+    color: var(--semantic-app-purple);
+  }
+  .tag-chip.muted {
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-3);
+  }
+  .attachment-list {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+    margin-block-start: var(--semantic-app-sp-2);
+  }
+  .attachment-row {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-2);
+    align-items: var(--semantic-app-align-items-center);
+    color: var(--semantic-app-text-2);
+    text-decoration: var(--semantic-app-text-decoration-none);
+  }
+  .attachment-row span {
+    display: var(--semantic-app-display-grid);
+  }
+  .attachment-row small {
+    color: var(--semantic-app-text-3);
+  }
+  .message-list {
+    display: var(--semantic-app-display-grid);
+    align-content: var(--semantic-app-align-content-start);
+    gap: var(--semantic-app-sp-3);
+    min-block-size: var(--semantic-app-min-block-size-40dvh);
+    padding-block-end: var(--semantic-app-padding-block-end-7rem);
+  }
+  .message {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+    max-inline-size: var(--semantic-app-max-inline-size-92);
+    padding: var(--semantic-app-padding-0-75rem-1rem);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+  }
+  .message.user {
+    justify-self: var(--semantic-app-justify-self-end);
+    border-color: var(--semantic-app-border-color-rgb-47-129-247-32);
+    background: var(--semantic-app-accent-soft);
+  }
+  .message-head {
+    display: var(--semantic-app-display-flex);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .message-body {
+    white-space: var(--semantic-app-white-space-pre-wrap);
+    overflow-wrap: var(--semantic-app-overflow-wrap-anywhere);
+  }
+  .message-body code {
+    font-family: var(--semantic-app-font-code);
+  }
+  .composer {
+    position: var(--semantic-app-position-sticky);
+    inset-block-end: var(
+      --semantic-app-inset-block-end-calc-4-75rem-env-safe-area-inset-bottom
+    );
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(--semantic-app-grid-template-columns-1fr-auto);
+    align-items: var(--semantic-app-align-items-end);
+    gap: var(--semantic-app-sp-2);
+    padding: var(--semantic-app-sp-2);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-lg);
+    background: var(--semantic-app-glass);
+    box-shadow: var(--semantic-app-shadow-lg);
+    backdrop-filter: var(--semantic-app-backdrop-filter-blur-1rem);
+  }
+  .composer textarea {
+    max-block-size: var(--semantic-app-max-block-size-9rem);
+    padding: var(--semantic-app-sp-3);
+    border: var(--semantic-app-sp-0);
+    background: var(--semantic-app-background-transparent);
+    resize: var(--semantic-app-resize-none);
+  }
+  .send-button {
+    display: var(--semantic-app-display-grid);
+    place-items: var(--semantic-app-place-items-center);
+    inline-size: var(--semantic-app-tap);
+    block-size: var(--semantic-app-tap);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-accent);
+    color: var(--semantic-app-color-cffffff);
+  }
+  .recent-files {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-2);
+    margin-block: var(--semantic-app-sp-3);
+    overflow-x: var(--semantic-app-overflow-x-auto);
+  }
+  .recent-files button {
+    flex: var(--semantic-app-flex-0-0-auto);
+    padding: var(--semantic-app-padding-0-5rem-0-75rem);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-round);
+    background: var(--semantic-app-surface);
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .breadcrumbs {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-1);
+    flex-wrap: var(--semantic-app-flex-wrap-wrap);
+    margin-block: var(--semantic-app-sp-3);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .file-tree,
+  .workspace-search-results {
+    overflow: var(--semantic-app-overflow-hidden);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+  }
+  .tree-row,
+  .search-result,
+  .change-row,
+  .history-row,
+  .branch-row,
+  .project-row,
+  .provider-card,
+  .device-row,
+  .activity-row,
+  .task-row,
+  .stash-row {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-3);
+    min-block-size: var(--semantic-app-min-block-size-3-2rem);
+    padding: var(--semantic-app-sp-3);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-surface);
+  }
+  .tree-row:last-child,
+  .search-result:last-child,
+  .change-row:last-child,
+  .history-row:last-child,
+  .branch-row:last-child,
+  .project-row:last-child,
+  .provider-card:last-child,
+  .device-row:last-child,
+  .activity-row:last-child,
+  :where(.task-row:last-child),
+  .stash-row:last-child {
+    border-block-end: var(--semantic-app-sp-0);
+  }
+  .task-row {
+    cursor: var(--semantic-app-cursor-pointer);
+  }
+  .tree-row:hover,
+  .search-result:hover,
+  .change-row:hover,
+  .task-row:hover {
+    background: var(--semantic-app-surface-hover);
+  }
+  .tree-row .icon {
+    flex: var(--semantic-app-flex-0-0-auto);
+    color: var(--semantic-app-text-3);
+  }
+  .tree-row-copy,
+  .change-copy,
+  .project-copy,
+  .provider-copy {
+    display: var(--semantic-app-display-grid);
+    flex: var(--semantic-app-flex-1);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .tree-row-copy span,
+  .change-copy span,
+  .search-result span,
+  .project-row span,
+  .provider-copy span,
+  .activity-row span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .editor-tabs {
+    position: var(--semantic-app-position-sticky);
+    inset-block-start: var(
+      --semantic-app-inset-block-start-calc-4-1rem-env-safe-area-inset-top-0rem-b
+    );
+    z-index: var(--semantic-app-z-index-calc-20-2);
+  }
+  .file-inspector {
+    margin-block-end: var(--semantic-app-sp-3);
+    padding: var(--semantic-app-sp-4);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+  }
+  .inspector-metrics {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-3-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+  }
+  .inspector-metrics > div {
+    display: var(--semantic-app-display-grid);
+    padding: var(--semantic-app-sp-3);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+  }
+  .inspector-metrics span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .symbol-list {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-1);
+    margin-block-start: var(--semantic-app-sp-3);
+  }
+  .symbol-row {
+    display: var(--semantic-app-display-flex);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+    padding: var(--semantic-app-sp-2);
+    border-radius: var(--semantic-app-radius-xs);
+    background: var(--semantic-app-surface-2);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .code-preview,
+  .diff-view,
+  .terminal-output {
+    min-block-size: var(--semantic-app-editor-min);
+    padding: var(--semantic-app-sp-4);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-background-c090c11);
+    color: var(--semantic-app-color-cdfe7f2);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-xs);
+    line-height: var(--semantic-app-line-height-1-65);
+    overflow: var(--semantic-app-overflow-auto);
+    white-space: var(--semantic-app-white-space-pre);
+    tab-size: var(--semantic-app-tab-size-2);
+  }
+  .editor-input textarea {
+    min-block-size: var(--semantic-app-editor-min);
+    padding: var(--semantic-app-sp-4);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-background-c090c11);
+    color: var(--semantic-app-color-cdfe7f2);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-xs);
+    line-height: var(--semantic-app-line-height-1-65);
+    tab-size: var(--semantic-app-tab-size-2);
+  }
+  .editor-actions {
+    flex-wrap: var(--semantic-app-flex-wrap-wrap);
+    margin-block-start: var(--semantic-app-sp-3);
+  }
+  .token-keyword {
+    color: var(--semantic-app-color-cff7ab2);
+  }
+  .token-string {
+    color: var(--semantic-app-color-ca8dd80);
+  }
+  .token-number {
+    color: var(--semantic-app-color-cd9a8ff);
+  }
+  .token-comment {
+    color: var(--semantic-app-color-c657184);
+  }
+  .token-function {
+    color: var(--semantic-app-color-c82aaff);
+  }
+  .git-tabs {
+    margin-block-end: var(--semantic-app-sp-3);
+  }
+  .git-actions {
+    margin-block-end: var(--semantic-app-sp-3);
+    overflow-x: var(--semantic-app-overflow-x-auto);
+  }
+  .git-actions .button {
+    flex: var(--semantic-app-flex-0-0-auto);
+  }
+  .change-list,
+  .history-list,
+  .branch-list,
+  .stash-list {
+    overflow: var(--semantic-app-overflow-hidden);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+  }
+  .branch-create {
+    margin-block-start: var(--semantic-app-sp-3);
+  }
+  .diff-line {
+    display: var(--semantic-app-display-block);
+    min-inline-size: var(--semantic-app-min-inline-size-max-content);
+  }
+  .diff-add {
+    background: var(--semantic-app-background-rgb-53-208-127-14);
+    color: var(--semantic-app-color-caee9c9);
+  }
+  .diff-remove {
+    background: var(--semantic-app-background-rgb-240-103-103-14);
+    color: var(--semantic-app-color-cffc0c0);
+  }
+  .diff-hunk {
+    color: var(--semantic-app-color-c91b4ff);
+    background: var(--semantic-app-background-rgb-47-129-247-10);
+  }
+  .diff-header {
+    color: var(--semantic-app-color-cb78cff);
+  }
+  .runtime-summary {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-3-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+    margin-block-end: var(--semantic-app-sp-3);
+  }
+  .runtime-summary > div {
+    display: var(--semantic-app-display-grid);
+    padding: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface);
+  }
+  .runtime-summary span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  :where(.brand-mark span:nth-child(2)),
+  .brand-mark span:nth-child(3) {
+    background: var(--semantic-app-cyan);
+  }
+  .terminal-tabs {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-2);
+    margin-block-end: var(--semantic-app-sp-2);
+    overflow-x: var(--semantic-app-overflow-x-auto);
+  }
+  .terminal-tabs button {
+    flex: var(--semantic-app-flex-0-0-auto);
+    min-block-size: var(--semantic-app-min-block-size-2-25rem);
+    padding-inline: var(--semantic-app-sp-3);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-3);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .terminal-tabs button.selected {
+    background: var(--semantic-app-accent-soft);
+    color: var(--semantic-app-accent-strong);
+  }
+  .terminal-tools {
+    margin-block-end: var(--semantic-app-sp-2);
+  }
+  .terminal-output {
+    min-block-size: var(--semantic-app-terminal-min);
+    max-block-size: var(--semantic-app-max-block-size-52dvh);
+  }
+  .terminal-composer {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-auto-1fr-auto
+    );
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-2);
+    margin-block-start: var(--semantic-app-sp-2);
+    padding: var(--semantic-app-sp-2);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+  }
+  .terminal-composer input {
+    padding: var(--semantic-app-sp-2);
+    border: var(--semantic-app-sp-0);
+    background: var(--semantic-app-background-transparent);
+    font-family: var(--semantic-app-font-code);
+  }
+  .terminal-prompt {
+    color: var(--semantic-app-green);
+    font-family: var(--semantic-app-font-code);
+  }
+  .task-panel {
+    margin-block-start: var(--semantic-app-sp-4);
+  }
+  .task-row::after {
+    content: var(--semantic-app-content-run);
+    margin-inline-start: var(--semantic-app-margin-inline-start-auto);
+    color: var(--semantic-app-accent-strong);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .settings-section {
+    margin-block-end: var(--semantic-app-sp-4);
+  }
+  .workspace-stats,
+  .usage-grid {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-2-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+  }
+  .workspace-stat,
+  .usage-card {
+    padding: var(--semantic-app-sp-3);
+  }
+  .project-facts {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-minmax-6rem-auto-1fr
+    );
+    gap: var(--semantic-app-gap-0-5rem-1rem);
+  }
+  .project-facts dt {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .project-facts dd {
+    overflow-wrap: var(--semantic-app-overflow-wrap-anywhere);
+    font-size: var(--semantic-app-fs-sm);
+  }
+  .llm-form {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+  }
+  .llm-form input,
+  .llm-form select,
+  .llm-form textarea {
+    padding: var(--semantic-app-sp-3);
+  }
+  .llm-response {
+    margin-block-start: var(--semantic-app-sp-3);
+    white-space: var(--semantic-app-white-space-pre-wrap);
+    color: var(--semantic-app-text-2);
+  }
+  .empty-state {
+    display: var(--semantic-app-display-grid);
+    justify-items: var(--semantic-app-justify-items-center);
+    gap: var(--semantic-app-sp-2);
+    padding: var(--semantic-app-padding-2rem-1rem);
+    color: var(--semantic-app-text-3);
+    text-align: var(--semantic-app-text-align-center);
+  }
+  .empty-state .icon {
+    inline-size: var(--semantic-app-inline-size-1-7rem);
+    block-size: var(--semantic-app-block-size-1-7rem);
+  }
+  .tree-row[data-kind="directory"] .icon {
+    color: var(--semantic-app-accent-strong);
+  }
+  .empty-state strong {
+    color: var(--semantic-app-text-2);
+  }
+  .compact-list .empty-state {
+    padding: var(--semantic-app-sp-4);
+  }
+  .modal {
+    inline-size: var(--semantic-app-inline-size-min-calc-100-1-5rem-31rem);
+    max-block-size: var(--semantic-app-max-block-size-80dvh);
+    padding: var(--semantic-app-sp-0);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-lg);
+    background: var(--semantic-app-surface);
+    color: var(--semantic-app-text);
+    box-shadow: var(--semantic-app-shadow-lg);
+  }
+  .modal::backdrop {
+    background: var(--semantic-app-background-rgb-0-0-0-62);
+    backdrop-filter: var(--semantic-app-backdrop-filter-blur-0-2rem);
+  }
+  .modal form > header,
+  .modal form > footer {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-2);
+    padding: var(--semantic-app-padding-0-75rem-1rem);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+  }
+  .modal form > footer {
+    justify-content: var(--semantic-app-justify-content-flex-end);
+    border-block-start: var(
+      --semantic-app-border-block-start-0-0625rem-solid-c1b2431
+    );
+    border-block-end: var(--semantic-app-sp-0);
+  }
+  .modal [data-slot="modal-body"] {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-3);
+    max-block-size: var(--semantic-app-max-block-size-56dvh);
+    padding: var(--semantic-app-sp-4);
+    overflow-y: var(--semantic-app-overflow-y-auto);
+  }
+  .modal label {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-sm);
+  }
+  .modal input,
+  .modal textarea {
+    padding: var(--semantic-app-sp-3);
+  }
+  .toast-region {
+    position: var(--semantic-app-position-fixed);
+    z-index: var(--semantic-app-z-toast);
+    inset-inline: var(--semantic-app-sp-4);
+    inset-block-end: var(
+      --semantic-app-inset-block-end-calc-4-75rem-env-safe-area-inset-bottom-b
+    );
+    display: var(--semantic-app-display-grid);
+    justify-items: var(--semantic-app-justify-items-center);
+    gap: var(--semantic-app-sp-2);
+    pointer-events: var(--semantic-app-pointer-events-none);
+  }
+  .toast {
+    max-inline-size: var(--semantic-app-panel-max);
+    padding: var(--semantic-app-padding-0-75rem-1rem);
+    border: var(--semantic-app-border-0-0625rem-solid-c263041);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-3);
+    box-shadow: var(--semantic-app-shadow-lg);
+    color: var(--semantic-app-text);
+    font-size: var(--semantic-app-fs-sm);
+  }
+}
+@layer utilities {
+  .sr-only {
+    position: var(--semantic-app-position-absolute);
+    inline-size: var(--semantic-app-inline-size-0-0625rem);
+    block-size: var(--semantic-app-block-size-0-0625rem);
+    padding: var(--semantic-app-sp-0);
+    margin: var(--semantic-app-margin-0-0625rem);
+    overflow: var(--semantic-app-overflow-hidden);
+    clip-path: var(--semantic-app-clip-path-inset-50);
+    white-space: var(--semantic-app-white-space-nowrap);
+    border: var(--semantic-app-sp-0);
+  }
+  .muted {
+    color: var(--semantic-app-text-3);
+  }
+}
+@layer responsive {
+  @media (width >= 46rem) {
+    .screen {
+      padding-inline: var(--semantic-app-sp-6);
+    }
+    .dashboard-grid {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-repeat-2-minmax-0-1fr
+      );
+    }
+    .dashboard-metrics {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-repeat-4-minmax-0-1fr
+      );
+    }
+    .metric-grid {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-repeat-4-minmax-0-1fr
+      );
+    }
+    .workspace-stats,
+    .usage-grid {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-repeat-4-minmax-0-1fr
+      );
+    }
+    .dashboard-hero {
+      grid-template-columns: var(--semantic-app-grid-template-columns-1fr-auto);
+      align-items: var(--semantic-app-align-items-end);
+    }
+  }
+  @media (width >= 64rem) {
+    .workspace {
+      display: var(--semantic-app-display-grid);
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-5-5rem-1fr
+      );
+      grid-template-rows: var(--semantic-app-grid-template-rows-auto-1fr);
+    }
+    .topbar {
+      grid-column: var(--semantic-app-grid-column-2);
+      padding-inline: var(--semantic-app-sp-6);
+    }
+    .content-stack {
+      grid-column: var(--semantic-app-grid-column-2);
+      inline-size: var(--semantic-app-inline-size-min-100-72rem);
+    }
+    .bottom-nav {
+      grid-column: var(--semantic-app-grid-column-1);
+      grid-row: var(--semantic-app-grid-row-1-1);
+      position: var(--semantic-app-position-fixed);
+      inset-block: var(--semantic-app-inset-block-0);
+      inset-inline: var(--semantic-app-inset-inline-0-auto);
+      inline-size: var(--semantic-app-inline-size-5-5rem);
+      block-size: var(--semantic-app-block-size-100dvh);
+      grid-template-columns: var(--semantic-app-grid-template-columns-1fr);
+      grid-template-rows: var(--semantic-app-grid-template-rows-repeat-5-5rem);
+      align-content: var(--semantic-app-align-content-center);
+      padding: var(--semantic-app-sp-3);
+      border-block-start: var(--semantic-app-sp-0);
+      border-inline-end: var(
+        --semantic-app-border-inline-end-0-0625rem-solid-c1b2431
+      );
+    }
+    .composer {
+      inset-block-end: var(--semantic-app-sp-4);
+    }
+    .toast-region {
+      inset-block-end: var(--semantic-app-sp-4);
+      inset-inline-start: var(
+        --semantic-app-inset-inline-start-calc-5-5rem-1rem
+      );
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :where(
+      html,
+      body,
+      div,
+      span,
+      main,
+      section,
+      header,
+      footer,
+      nav,
+      aside,
+      article,
+      button,
+      input,
+      select,
+      textarea,
+      a,
+      p,
+      h1,
+      h2,
+      h3,
+      pre,
+      code,
+      ul,
+      ol,
+      li,
+      dl,
+      dt,
+      dd,
+      svg,
+      dialog,
+      form,
+      label
+    ) {
+      scroll-behavior: var(--semantic-app-scroll-behavior-auto);
+      transition-duration: var(--semantic-app-transition-duration-0s);
+      animation-duration: var(--semantic-app-animation-duration-0s);
+    }
+  }
+  @media (forced-colors: active) {
+    .status-pill,
+    .tag-chip,
+    .branch-chip,
+    .button,
+    .surface,
+    .agent-card {
+      border: var(--semantic-app-border-0-0625rem-solid-canvastext);
+    }
+  }
+}
+@keyframes screen-in {
+  from {
+    opacity: var(--semantic-app-opacity-0);
+    transform: var(--semantic-app-transform-translatey-0-25rem);
+  }
+  to {
+    opacity: var(--semantic-app-opacity-100);
+    transform: var(--semantic-app-transform-translatey-0);
+  }
+}
+@layer utilities {
+  [hidden] {
+    display: var(--semantic-app-display-none);
+  }
+  .task-copy,
+  .activity-copy,
+  .history-copy,
+  .branch-copy {
+    display: var(--semantic-app-display-grid);
+    flex: var(--semantic-app-flex-1);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .task-copy span,
+  .activity-copy span,
+  .history-copy span,
+  .branch-copy span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .compact-row {
+    min-block-size: var(--semantic-app-min-block-size-2-75rem);
+  }
+  .commit-summary {
+    max-block-size: var(--semantic-app-max-block-size-50dvh);
+    overflow: var(--semantic-app-overflow-auto);
+    padding: var(--semantic-app-sp-3);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-2);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-xs);
+    white-space: var(--semantic-app-white-space-pre-wrap);
+  }
+}
+@layer utilities {
+  .message-meta {
+    display: var(--semantic-app-display-flex);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .message-meta time {
+    margin-inline-start: var(--semantic-app-margin-inline-start-auto);
+  }
+}
+@layer utilities {
+  .change-group-title {
+    padding: var(--semantic-app-padding-0-5rem-0-75rem);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+    font-weight: var(--semantic-app-weight-semibold);
+    letter-spacing: var(--semantic-app-tracking-label);
+    text-transform: var(--semantic-app-text-transform-uppercase);
+  }
+  .change-card {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+    padding: var(--semantic-app-sp-3);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-surface);
+    cursor: var(--semantic-app-cursor-pointer);
+  }
+  .change-card:hover {
+    background: var(--semantic-app-surface-hover);
+  }
+  .change-card-head {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+  }
+  .change-path {
+    display: var(--semantic-app-display-grid);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .change-path strong,
+  .change-path span {
+    overflow: var(--semantic-app-overflow-hidden);
+    text-overflow: var(--semantic-app-text-overflow-ellipsis);
+    white-space: var(--semantic-app-white-space-nowrap);
+  }
+  .change-path span,
+  .change-meta {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .status-code {
+    display: var(--semantic-app-display-grid);
+    place-items: var(--semantic-app-place-items-center);
+    min-inline-size: var(--semantic-app-min-inline-size-1-7rem);
+    block-size: var(--semantic-app-block-size-1-7rem);
+    border-radius: var(--semantic-app-radius-xs);
+    background: var(--semantic-app-accent-soft);
+    color: var(--semantic-app-accent-strong);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .diff-line.added {
+    background: var(--semantic-app-background-rgb-53-208-127-14);
+    color: var(--semantic-app-color-caee9c9);
+  }
+  .diff-line.removed {
+    background: var(--semantic-app-background-rgb-240-103-103-14);
+    color: var(--semantic-app-color-cffc0c0);
+  }
+  .diff-line.hunk {
+    background: var(--semantic-app-background-rgb-47-129-247-10);
+    color: var(--semantic-app-color-c91b4ff);
+  }
+  .diff-line.header {
+    color: var(--semantic-app-color-cb78cff);
+  }
+  .line-number {
+    display: var(--semantic-app-display-inline-block);
+    inline-size: var(--semantic-app-inline-size-3-2rem);
+    margin-inline-end: var(--semantic-app-sp-3);
+    color: var(--semantic-app-text-3);
+    text-align: var(--semantic-app-text-align-end);
+    user-select: var(--semantic-app-user-select-none);
+  }
+}
+@layer components {
+  .code-command-grid {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-2-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+    margin-block-end: var(--semantic-app-sp-4);
+  }
+  .command-tile {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-3);
+    min-block-size: var(--semantic-app-min-block-size-4-4rem);
+    padding: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+    color: var(--semantic-app-text-2);
+    text-align: var(--semantic-app-text-align-start);
+  }
+  .command-tile:hover {
+    background: var(--semantic-app-surface-hover);
+    border-color: var(--semantic-app-border);
+  }
+  .command-tile .icon {
+    inline-size: var(--semantic-app-inline-size-1-4rem);
+    block-size: var(--semantic-app-block-size-1-4rem);
+    color: var(--semantic-app-accent-strong);
+  }
+  .command-tile span {
+    display: var(--semantic-app-display-grid);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .command-tile strong {
+    color: var(--semantic-app-text);
+    font-size: var(--semantic-app-fs-sm);
+  }
+  .command-tile small {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .explorer-shell {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-3);
+  }
+  .explorer-sidebar,
+  .explorer-context {
+    overflow: var(--semantic-app-overflow-hidden);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-surface);
+  }
+  .explorer-sidebar > .search-field {
+    margin: var(--semantic-app-sp-3);
+  }
+  .explorer-title,
+  .context-heading {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+    min-block-size: var(--semantic-app-min-block-size-3-1rem);
+    padding: var(--semantic-app-sp-3);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+  }
+  .explorer-title span,
+  .context-heading span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .context-heading > div {
+    display: var(--semantic-app-display-grid);
+  }
+  .explorer-sidebar .file-tree {
+    border: var(--semantic-app-border-0);
+    border-radius: var(--semantic-app-border-radius-0);
+  }
+  .explorer-sidebar .breadcrumbs {
+    padding-inline: var(--semantic-app-sp-3);
+  }
+  .explorer-context .recent-files,
+  .explorer-context .workspace-search-results {
+    margin: var(--semantic-app-sp-3);
+  }
+  .explorer-help {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-3);
+    margin: var(--semantic-app-sp-3);
+    padding: var(--semantic-app-sp-3);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-2);
+  }
+  .explorer-help .icon {
+    flex: var(--semantic-app-flex-0-0-auto);
+    margin-block-start: var(--semantic-app-margin-block-start-0-15rem);
+    color: var(--semantic-app-accent-strong);
+  }
+  .explorer-help p {
+    margin-block-start: var(--semantic-app-sp-1);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .open-file-tabs {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-1);
+    margin-block: var(--semantic-app-margin-block-0-75rem-0-5rem);
+    overflow-x: var(--semantic-app-overflow-x-auto);
+    scrollbar-width: var(--semantic-app-scrollbar-width-none);
+  }
+  .open-file-tabs::-webkit-scrollbar {
+    display: var(--semantic-app-display-none);
+  }
+  .open-file-tabs button {
+    flex: var(--semantic-app-flex-0-0-auto);
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-2);
+    min-block-size: var(--semantic-app-min-block-size-2-2rem);
+    padding-inline: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-border-radius-0-7rem-0-7rem-0-0);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-3);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .open-file-tabs button.selected {
+    border-color: var(--semantic-app-accent);
+    background: var(--semantic-app-surface);
+    color: var(--semantic-app-text);
+  }
+  .editor-workbench {
+    overflow: var(--semantic-app-overflow-hidden);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-border-radius-0-95rem-0-95rem-0-0);
+    background: var(--semantic-app-background-c090c11);
+  }
+  .editor-workbench .code-preview,
+  .editor-workbench .editor-input textarea {
+    border: var(--semantic-app-border-0);
+    border-radius: var(--semantic-app-border-radius-0);
+  }
+  .editor-statusbar {
+    display: var(--semantic-app-display-flex);
+    flex-wrap: var(--semantic-app-flex-wrap-wrap);
+    gap: var(--semantic-app-sp-3);
+    min-block-size: var(--semantic-app-min-block-size-2rem);
+    padding: var(--semantic-app-padding-0-5rem-0-75rem);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-block-start: var(--semantic-app-border-block-start-0);
+    border-radius: var(--semantic-app-border-radius-0-0-0-95rem-0-95rem);
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text-3);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .editor-statusbar strong {
+    color: var(--semantic-app-text-2);
+    font-weight: var(--semantic-app-weight-medium);
+  }
+  .git-review-summary {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-3-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+    margin-block-end: var(--semantic-app-sp-3);
+  }
+  .review-metric {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-1);
+    padding: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-surface);
+  }
+  .review-metric strong {
+    font-size: var(--semantic-app-fs-lg);
+  }
+  .review-metric span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .diff-toolbar {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+    margin-block: var(--semantic-app-sp-3);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .compact-segment {
+    inline-size: var(--semantic-app-inline-size-auto);
+    margin: var(--semantic-app-margin-0);
+  }
+  .compact-segment button {
+    min-block-size: var(--semantic-app-min-block-size-2rem);
+    padding-inline: var(--semantic-app-sp-3);
+  }
+  .diff-split-row {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-minmax-0-1fr-minmax-0-1fr
+    );
+    min-inline-size: var(--semantic-app-min-inline-size-42rem);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-rgb-255-255-255-3-5
+    );
+  }
+  .diff-side {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-3rem-minmax-0-1fr
+    );
+    min-block-size: var(--semantic-app-min-block-size-1-65rem);
+  }
+  .diff-side + .diff-side {
+    border-inline-start: var(
+      --semantic-app-border-inline-start-0-0625rem-solid-rgb-255-255-255-8
+    );
+  }
+  .diff-side .line-number {
+    inline-size: var(--semantic-app-inline-size-auto);
+    margin: var(--semantic-app-margin-0);
+    padding-inline: var(--semantic-app-sp-2);
+    background: var(--semantic-app-background-rgb-255-255-255-2-5);
+  }
+  .diff-side .line-code {
+    padding-inline: var(--semantic-app-sp-2);
+  }
+  .diff-side.added {
+    background: var(--semantic-app-background-rgb-53-208-127-14);
+    color: var(--semantic-app-color-caee9c9);
+  }
+  .diff-side.removed {
+    background: var(--semantic-app-background-rgb-240-103-103-14);
+    color: var(--semantic-app-color-cffc0c0);
+  }
+  .terminal-quickbar {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-2);
+    margin-block-end: var(--semantic-app-sp-2);
+    overflow-x: var(--semantic-app-overflow-x-auto);
+  }
+  .terminal-quickbar button {
+    flex: var(--semantic-app-flex-0-0-auto);
+    min-block-size: var(--semantic-app-min-block-size-2rem);
+    padding-inline: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-round);
+    background: var(--semantic-app-surface);
+    color: var(--semantic-app-text-3);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-2xs);
+  }
+  .terminal-quickbar button:hover {
+    color: var(--semantic-app-text);
+    border-color: var(--semantic-app-border);
+  }
+}
+@layer responsive {
+  @media (width >= 46rem) {
+    .code-command-grid {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-repeat-4-minmax-0-1fr
+      );
+    }
+    .explorer-shell {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-minmax-18rem-0-9fr-minmax-18rem-1-1fr
+      );
+      align-items: var(--semantic-app-align-items-start);
+    }
+    .explorer-sidebar,
+    .explorer-context {
+      min-block-size: var(--semantic-app-min-block-size-32rem);
+    }
+  }
+}
+@layer tokens {
+  :root {
+    --semantic-app-sp-half: var(--catalog-app-measure-sp-half);
+    --semantic-app-control-h: var(--catalog-app-measure-control-h);
+    --semantic-app-panel-line: var(--catalog-app-color-panel-line);
+    --semantic-app-rail-w: var(--catalog-app-measure-rail-w);
+    --semantic-app-problem-mark: var(--catalog-app-measure-problem-mark);
+    --semantic-app-code-focus: var(--catalog-app-color-code-focus);
+    --semantic-app-shadow-focus: var(--catalog-app-color-shadow-focus);
+  }
+}
+@layer components {
+  .screen-heading {
+    align-items: var(--semantic-app-align-items-end);
+    padding-block-end: var(--semantic-app-sp-4);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+  }
+  .screen-heading h1,
+  .detail-copy h1 {
+    letter-spacing: var(--semantic-app-tracking-tight);
+  }
+  .surface,
+  .settings-section {
+    border-color: var(--semantic-app-border-soft);
+    box-shadow: var(--semantic-app-box-shadow-none);
+  }
+  .dashboard-metrics article,
+  .review-metric,
+  .usage-card {
+    border-color: var(--semantic-app-border-soft);
+    background: var(--semantic-app-bg-raised);
+  }
+  .command-tile {
+    border-color: var(--semantic-app-border-soft);
+    background: var(--semantic-app-bg-raised);
+  }
+  .command-tile:hover,
+  .command-tile:focus-visible {
+    background: var(--semantic-app-surface-2);
+  }
+  .context-tabs {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-1);
+    padding: var(--semantic-app-sp-1);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-bg);
+  }
+  .context-tabs button {
+    display: var(--semantic-app-display-inline-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-center);
+    gap: var(--semantic-app-sp-1);
+    min-block-size: var(--semantic-app-control-h);
+    flex: var(--semantic-app-flex-1);
+    padding-inline: var(--semantic-app-sp-2);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-background-transparent);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+    font-weight: var(--semantic-app-weight-medium);
+  }
+  .context-tabs button.selected {
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text);
+    box-shadow: var(--semantic-app-shadow-sm);
+  }
+  .context-tabs b {
+    min-inline-size: var(--semantic-app-sp-5);
+    padding-inline: var(--semantic-app-sp-1);
+    border-radius: var(--semantic-app-radius-round);
+    background: var(--semantic-app-surface-3);
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-2xs);
+    line-height: var(--semantic-app-sp-5);
+  }
+  .context-panel {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+  }
+  .context-file-row,
+  .problem-row {
+    position: var(--semantic-app-position-relative);
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-start);
+    gap: var(--semantic-app-sp-3);
+    inline-size: var(--semantic-app-inline-size-100);
+    min-block-size: var(--semantic-app-tap);
+    padding: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-background-transparent);
+    text-align: var(--semantic-app-text-align-start);
+  }
+  .context-file-row:hover,
+  .problem-row:hover {
+    background: var(--semantic-app-surface-2);
+  }
+  .context-file-row .icon,
+  .problem-row .icon {
+    flex: var(--semantic-app-flex-0-0-auto);
+    margin-block-start: var(--semantic-app-sp-1);
+    color: var(--semantic-app-text-3);
+  }
+  .context-file-copy,
+  .problem-copy {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-1);
+    min-inline-size: var(--semantic-app-min-inline-size-0);
+  }
+  .context-file-copy strong,
+  .problem-copy strong {
+    overflow: var(--semantic-app-overflow-hidden);
+    color: var(--semantic-app-text);
+    font-size: var(--semantic-app-fs-sm);
+    font-weight: var(--semantic-app-weight-medium);
+    text-overflow: var(--semantic-app-text-overflow-ellipsis);
+  }
+  .context-file-copy span,
+  .problem-copy span {
+    overflow: var(--semantic-app-overflow-hidden);
+    color: var(--semantic-app-text-3);
+    font-family: var(--semantic-app-font-code);
+    font-size: var(--semantic-app-fs-2xs);
+    text-overflow: var(--semantic-app-text-overflow-ellipsis);
+  }
+  .problem-row::before {
+    position: var(--semantic-app-position-absolute);
+    inset-block: var(--semantic-app-sp-2);
+    inset-inline-start: var(--semantic-app-inset-inline-start-0);
+    inline-size: var(--semantic-app-problem-mark);
+    border-radius: var(--semantic-app-border-radius-0-999rem-999rem-0);
+    background: var(--semantic-app-text-3);
+    content: var(--semantic-app-content-value);
+  }
+  .problem-row.error::before {
+    background: var(--semantic-app-red);
+  }
+  .problem-row.warning::before {
+    background: var(--semantic-app-yellow);
+  }
+  .problem-row.information::before {
+    background: var(--semantic-app-accent);
+  }
+  .problem-row.hint::before {
+    background: var(--semantic-app-purple);
+  }
+  .problem-toolbar {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-center);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .problem-list,
+  .bookmark-list,
+  .file-history-list {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+  }
+  .problem-summary-cards {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-repeat-3-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-2);
+  }
+  .diagnostic-focus {
+    position: var(--semantic-app-position-relative);
+    background: var(--semantic-app-accent-soft);
+    box-shadow: var(--semantic-app-box-shadow-inset-0-2rem-0-0-c2f81f7);
+  }
+  .inspector-heading {
+    display: var(--semantic-app-display-flex);
+    align-items: var(--semantic-app-align-items-baseline);
+    justify-content: var(--semantic-app-justify-content-space-between);
+    gap: var(--semantic-app-sp-3);
+    padding-block-end: var(--semantic-app-sp-3);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+  }
+  .inspector-heading strong {
+    font-size: var(--semantic-app-fs-sm);
+  }
+  .inspector-heading span {
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .file-history-row {
+    inline-size: var(--semantic-app-inline-size-100);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-background-transparent);
+    text-align: var(--semantic-app-text-align-start);
+  }
+  .file-history-row:hover {
+    background: var(--semantic-app-surface-2);
+  }
+  .compare-panel {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-4);
+    margin-block-start: var(--semantic-app-sp-4);
+  }
+  .compare-form {
+    display: var(--semantic-app-display-grid);
+    grid-template-columns: var(
+      --semantic-app-grid-template-columns-minmax-0-1fr-minmax-0-1fr
+    );
+    gap: var(--semantic-app-sp-3);
+    padding: var(--semantic-app-sp-4);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-bg-raised);
+  }
+  .compare-form label {
+    display: var(--semantic-app-display-grid);
+    gap: var(--semantic-app-sp-2);
+    color: var(--semantic-app-text-2);
+    font-size: var(--semantic-app-fs-xs);
+  }
+  .compare-form input {
+    min-block-size: var(--semantic-app-control-h);
+    padding-inline: var(--semantic-app-sp-3);
+  }
+  .compare-form .button {
+    grid-column: var(--semantic-app-grid-column-1-1);
+  }
+  .compare-stat {
+    overflow: var(--semantic-app-overflow-auto);
+    padding: var(--semantic-app-sp-3);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-sm);
+    background: var(--semantic-app-bg-raised);
+    color: var(--semantic-app-text-2);
+    font: var(--semantic-app-font-0-75rem-1-55-sfmono-regular-consolas-lib);
+    white-space: var(--semantic-app-white-space-pre-wrap);
+  }
+  .compare-diff {
+    max-block-size: var(--semantic-app-max-block-size-56dvh);
+    overflow: var(--semantic-app-overflow-auto);
+    border: var(--semantic-app-border-0-0625rem-solid-c1b2431);
+    border-radius: var(--semantic-app-radius-md);
+    background: var(--semantic-app-bg-raised);
+  }
+  .editor-workbench,
+  .terminal-output,
+  .diff-view {
+    border-color: var(--semantic-app-border-soft);
+    background: var(--semantic-app-bg-raised);
+    box-shadow: var(--semantic-app-box-shadow-none);
+  }
+  .open-file-tabs {
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-background-transparent);
+  }
+  .open-file-tabs button {
+    border-radius: var(--semantic-app-border-radius-0-45rem-0-45rem-0-0);
+  }
+  .editor-statusbar {
+    border-block-start: var(
+      --semantic-app-border-block-start-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-bg-raised);
+  }
+  .change-card {
+    border-color: var(--semantic-app-border-soft);
+    background: var(--semantic-app-bg-raised);
+  }
+  .change-card:hover {
+    background: var(--semantic-app-surface-2);
+  }
+  .terminal-quickbar button {
+    border-color: var(--semantic-app-border-soft);
+    background: var(--semantic-app-background-transparent);
+  }
+}
+@layer responsive {
+  @media (width >= 48rem) {
+    .explorer-shell {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-minmax-15rem-17rem-minmax-0-1fr
+      );
+      align-items: var(--semantic-app-align-items-start);
+    }
+    .explorer-sidebar {
+      position: var(--semantic-app-position-sticky);
+      inset-block-start: var(--semantic-app-inset-block-start-calc-4-1rem-1rem);
+      max-block-size: var(
+        --semantic-app-max-block-size-calc-100dvh-4-1rem-4-75rem-2-5rem
+      );
+      overflow: var(--semantic-app-overflow-auto);
+    }
+    .compare-form {
+      grid-template-columns: var(
+        --semantic-app-grid-template-columns-minmax-0-1fr-minmax-0-1fr-auto
+      );
+      align-items: var(--semantic-app-align-items-end);
+    }
+    .compare-form .button {
+      grid-column: var(--semantic-app-grid-column-auto);
+      min-block-size: var(--semantic-app-control-h);
+    }
+  }
+}
+@layer components {
+  .project-statusbar {
+    display: var(--semantic-app-display-flex);
+    gap: var(--semantic-app-sp-1);
+    overflow-x: var(--semantic-app-overflow-x-auto);
+    padding: var(--semantic-app-padding-0-5rem-1rem);
+    border-block-end: var(
+      --semantic-app-border-block-end-0-0625rem-solid-c1b2431
+    );
+    background: var(--semantic-app-bg-raised);
+    scrollbar-width: var(--semantic-app-scrollbar-width-none);
+  }
+  .project-statusbar::-webkit-scrollbar {
+    display: var(--semantic-app-display-none);
+  }
+  .project-statusbar button {
+    display: var(--semantic-app-display-inline-flex);
+    align-items: var(--semantic-app-align-items-center);
+    gap: var(--semantic-app-sp-2);
+    min-block-size: var(--semantic-app-control-h);
+    padding-inline: var(--semantic-app-sp-3);
+    border-radius: var(--semantic-app-radius-round);
+    background: var(--semantic-app-background-transparent);
+    color: var(--semantic-app-text-3);
+    font-size: var(--semantic-app-fs-xs);
+    white-space: var(--semantic-app-white-space-nowrap);
+  }
+  .project-statusbar button:hover,
+  .project-statusbar button:focus-visible {
+    background: var(--semantic-app-surface-2);
+    color: var(--semantic-app-text);
+  }
+  .project-statusbar .icon {
+    inline-size: var(--semantic-app-icon-sm);
+    block-size: var(--semantic-app-icon-sm);
+  }
+}

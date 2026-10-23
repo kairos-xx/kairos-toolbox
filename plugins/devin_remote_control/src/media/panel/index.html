@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; img-src {{CSP_SOURCE}} data:; style-src {{CSP_SOURCE}}; script-src {{CSP_SOURCE}};"
+    />
+    <title>Devin Remote Control</title>
+    <link rel="stylesheet" href="{{PANEL_CSS}}" />
+    <script src="{{QR_JS}}" defer></script>
+    <script src="{{PANEL_JS}}" defer></script>
+  </head>
+  <body>
+    <main class="panel-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-grid" aria-hidden="true"
+            ><i></i><i></i><i></i><i></i
+          ></span>
+          <div>
+            <strong>Devin Remote</strong
+            ><span>Remote development control center</span>
+          </div>
+        </div>
+        <output
+          class="gateway-state"
+          data-slot="gateway-state"
+          aria-live="polite"
+          >Starting…</output
+        >
+      </header>
+      <section class="hero-card">
+        <div class="hero-copy">
+          <span class="kicker">Current workspace</span>
+          <h1>Take this project with you.</h1>
+          <p>
+            One shared gateway, one ngrok tunnel, isolated project endpoints,
+            and a phone-first IDE for Devin, code, Git and runtime.
+          </p>
+          <div class="metric-row">
+            <article>
+              <strong data-slot="metric-active">0</strong
+              ><span>Active agents</span>
+            </article>
+            <article>
+              <strong data-slot="metric-acu">0.00</strong><span>ACU</span>
+            </article>
+            <article>
+              <strong data-slot="metric-devices">0</strong
+              ><span>Paired devices</span>
+            </article>
+          </div>
+        </div>
+        <label class="project-control"
+          ><span>Project</span
+          ><select data-slot="project-select" aria-label="Open project"></select
+        ></label>
+      </section>
+      <div class="workspace-grid">
+        <section class="card access-card" aria-labelledby="access-heading">
+          <div class="card-heading">
+            <div>
+              <span class="kicker">Remote access</span>
+              <h2 id="access-heading">Scan and continue on your phone</h2>
+            </div>
+            <span
+              class="state-dot"
+              data-slot="tunnel-dot"
+              aria-hidden="true"
+            ></span>
+          </div>
+          <div class="access-layout">
+            <div
+              class="qr-frame"
+              data-slot="qr"
+              aria-label="Project access QR code"
+            ></div>
+            <div class="access-copy">
+              <label class="url-field"
+                ><span>Public project URL</span
+                ><input
+                  data-slot="project-url"
+                  type="text"
+                  readonly
+                  value="Tunnel is starting…"
+              /></label>
+              <div class="pair-box">
+                <div>
+                  <span>One-time pairing code</span
+                  ><strong class="pair-code" data-slot="pair-code"
+                    >— — — — — —</strong
+                  ><small data-slot="pair-expiry"
+                    >Generate a code to pair a phone.</small
+                  >
+                </div>
+                <button
+                  type="button"
+                  class="secondary-button"
+                  data-action="pair"
+                >
+                  New code
+                </button>
+              </div>
+              <div class="button-row">
+                <button type="button" class="primary-button" data-action="open">
+                  Open web app</button
+                ><button
+                  type="button"
+                  class="secondary-button"
+                  data-action="copy"
+                >
+                  Copy URL</button
+                ><button
+                  type="button"
+                  class="danger-button"
+                  data-action="revoke"
+                >
+                  Revoke phones
+                </button>
+              </div>
+              <div class="security-note">
+                <span class="security-icon">✓</span>
+                <p>
+                  <strong>Secure by default</strong
+                  ><span
+                    >API keys stay in VS Code SecretStorage. Phone sessions are
+                    project-scoped and revocable.</span
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <aside class="side-stack">
+          <section class="card connections-card">
+            <div class="card-heading">
+              <div>
+                <span class="kicker">Connections</span>
+                <h2>Services</h2>
+              </div>
+            </div>
+            <div class="connection-list">
+              <article class="connection-row">
+                <span class="service-icon">D</span>
+                <div>
+                  <strong>Devin</strong
+                  ><span data-slot="devin-state">Not configured</span>
+                </div>
+                <button
+                  type="button"
+                  class="mini-button"
+                  data-action="set-devin"
+                >
+                  Configure
+                </button>
+              </article>
+              <article class="connection-row">
+                <span class="service-icon">O</span>
+                <div>
+                  <strong>OpenAI compatible</strong
+                  ><span data-slot="openai-state">Optional project chat</span>
+                </div>
+                <button
+                  type="button"
+                  class="mini-button"
+                  data-action="set-openai"
+                >
+                  API key
+                </button>
+              </article>
+              <article class="connection-row">
+                <span class="service-icon">A</span>
+                <div>
+                  <strong>Anthropic</strong
+                  ><span data-slot="anthropic-state"
+                    >Optional project chat</span
+                  >
+                </div>
+                <button
+                  type="button"
+                  class="mini-button"
+                  data-action="set-anthropic"
+                >
+                  API key
+                </button>
+              </article>
+              <article class="connection-row">
+                <span class="service-icon">N</span>
+                <div>
+                  <strong>ngrok</strong
+                  ><span data-slot="ngrok-state">Checking…</span>
+                </div>
+                <button
+                  type="button"
+                  class="mini-button"
+                  data-action="set-ngrok"
+                >
+                  Token
+                </button>
+              </article>
+            </div>
+          </section>
+          <section class="card gateway-card">
+            <div class="card-heading">
+              <div>
+                <span class="kicker">Gateway</span>
+                <h2>Shared server</h2>
+              </div>
+            </div>
+            <div class="gateway-facts">
+              <span>Local endpoint</span
+              ><code data-slot="local-url">Local gateway stopped</code
+              ><span>Tunnel</span
+              ><strong data-slot="tunnel-summary">Starting…</strong>
+            </div>
+            <div class="button-row">
+              <button
+                type="button"
+                class="secondary-button"
+                data-action="toggle-gateway"
+              >
+                Stop gateway</button
+              ><button
+                type="button"
+                class="secondary-button"
+                data-action="toggle-tunnel"
+              >
+                Restart tunnel
+              </button>
+            </div>
+          </section>
+        </aside>
+      </div>
+      <section class="card architecture-card">
+        <div class="card-heading">
+          <div>
+            <span class="kicker">Open workspaces</span>
+            <h2>One server, separate routes</h2>
+          </div>
+          <p>
+            Every VS Code workspace gets its own endpoint, pairing state and
+            session scope.
+          </p>
+        </div>
+        <div class="route-list" data-slot="routes"></div>
+      </section>
+    </main>
+  </body>
+</html>

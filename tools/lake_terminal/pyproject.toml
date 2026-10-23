@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lake-terminal"
+version = "1.0.0"
+description = "Cross-platform local execution control plane for humans and coding agents."
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [{ name = "Joao Lopes" }]
+dependencies = [
+    "fastapi>=0.115",
+    "psutil>=7.0",
+    "uvicorn>=0.34",
+]
+
+[project.scripts]
+lake = "lake_terminal.cli:main"
+
+[tool.setuptools]
+packages = ["lake_terminal"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+lake_terminal = ["web_assets/*"]

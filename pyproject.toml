@@ -1,0 +1,142 @@
+#
+# BUILD SYSTEM
+#
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = []
+py-modules = []
+
+#
+# PROJECT
+#
+
+[project]
+name = "vscode-plugins-workspace"
+version = "1.0.0"
+description = "Shared development workspace for VS Code-compatible plugins."
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [{ name = "Joao Lopes" }]
+dependencies = [
+    "coverage>=7.6",
+    "fastapi>=0.115",
+    "uvicorn>=0.34",
+    "pytest>=8.4",
+    "httpx2>=0.2",
+    "psutil>=7.1",
+]
+
+#
+# LINTING
+#
+
+[tool.ruff]
+extend-exclude = [
+    ".dev",
+    ".history",
+    "mutants",
+    "build",
+    "dist",
+    ".bkp",
+    ".build-cache",
+    ".icloud-conflicts",
+    "node_modules",
+    "src/node_modules",
+    "vsix",
+]
+line-length = 79
+src = ["."]
+target-version = "py313"
+
+[tool.ruff.lint]
+ignore = ["D203", "D213"]
+select = ["ALL"]
+
+#
+# BASEDPYRIGHT
+#
+
+[tool.basedpyright]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/.*",
+    "mutants",
+    "**/mutants",
+    "dist",
+    "build",
+    ".build-cache",
+    "vsix",
+]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+venvPath = "."
+venv = ".venv"
+extraPaths = ["tools/arrow"]
+
+[[tool.basedpyright.executionEnvironments]]
+root = "plugins/close_deleted_editors"
+
+[[tool.basedpyright.executionEnvironments]]
+root = "plugins/devin_remote_control"
+
+[[tool.basedpyright.executionEnvironments]]
+root = "plugins/open_selected_editor_panel"
+
+[[tool.basedpyright.executionEnvironments]]
+root = "plugins/simple_web_server"
+
+[[tool.basedpyright.executionEnvironments]]
+root = "tools/lake_terminal"
+extraPaths = ["tools/arrow"]
+
+[[tool.basedpyright.executionEnvironments]]
+root = "tools/arrow"
+
+#
+# PYREFLY
+#
+
+[tool.pyrefly]
+project-excludes = [
+    "**/node_modules/**",
+    "**/mutants/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.build-cache/**",
+    "**/vsix/**",
+]
+project-includes = ["**/lake_terminal/**"]
+python-version = "3.13"
+search-path = [".", "tools/arrow"]
+
+#
+# COVERAGE
+#
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = false
+
+
+[tool.exactus]
+
+collect-files = true # bundle FILES/{README,TREE,files.zip} with
+clean = true         # clear reports before running; a list
+exclude = ["dev/**"]
+
+
+[tool.exactus.coverage_tests]
+exclude = ["dev/**"]  # exclude relative paths matching GLOB
+fail-under = 90       # overall Python+JS coverage floor
+per-file-minimum = 80 # per-source-file coverage floor

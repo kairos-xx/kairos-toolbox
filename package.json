@@ -1,0 +1,7 @@
+{
+	"name": "lake-terminal-integration-qualification",
+	"private": true,
+	"devDependencies": {
+		"@types/node": "^22.20.5"
+	}
+}

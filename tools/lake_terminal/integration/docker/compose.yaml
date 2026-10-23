@@ -1,0 +1,6 @@
+services:
+  lake-linux:
+    build:
+      context: ../../../..
+      dockerfile: tools/lake_terminal/integration/docker/Dockerfile
+    command: ["lake", "--test-integration", "synthetic", "all"]
