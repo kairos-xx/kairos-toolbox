@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from importlib import import_module
 from json import dumps, loads
 from operator import attrgetter
 from os import environ
@@ -16,6 +17,7 @@ from typing import TYPE_CHECKING, Final, Protocol, TypeGuard, cast
 from urllib.parse import urlencode
 
 from .agent import AgentDetector
+from .agent_identity import AgentIdentity
 from .claude import ClaudeHooks
 from .codex import CodexHooks
 from .core import (
@@ -42,6 +44,7 @@ from .identity import IdentityStore
 from .integration import IntegrationHarness, IntegrationResult
 from .ipc import EventSubscriber
 from .lifecycle import CommandLifecycle
+from .mcp_registration import McpRegistration
 from .mcp_server import LakeMcpServer
 from .monitoring import Monitor, SessionSnapshot
 from .platform import (
@@ -49,7 +52,7 @@ from .platform import (
     RuntimePlatform,
 )
 from .privacy import PrivacyPolicy
-from .product import state_directory
+from .product import Product, state_directory
 from .recorder import EventRecorder
 from .startup import StartupState, WebStartup
 from .storage import LakeDatabase
@@ -58,6 +61,7 @@ from .web import WebConstants, WebDashboard
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from types import ModuleType
 
     from .models import SessionEntry
 type StatusValue = str | int | bool
@@ -133,7 +137,10 @@ class Constants:
         lifecycle_finish_args: Lifecycle-finish arguments.
         agent_state_args: Agent-state arguments.
         cleanup_args: Cleanup arguments.
+        handle_uri_args: ``--handle-uri`` arguments.
         maximum_port: Maximum TCP port.
+        update_notice_options: Read-only commands allowed to show notices.
+        update_silent_commands: Commands that never trigger update checks.
         session_name_markers: Provider session-name environment markers.
 
     """
@@ -146,10 +153,18 @@ class Constants:
     lifecycle_finish_args: Final[int] = 2
     agent_state_args: Final[int] = 1
     cleanup_args: Final[int] = 2
+    handle_uri_args: Final[int] = 2
     maximum_port: Final[int] = 65_535
+    update_notice_options: Final[frozenset[str]] = frozenset(
+        {"--list", "--watch", "--view", "--doctor"},
+    )
+    update_silent_commands: Final[frozenset[str]] = frozenset(
+        {"test", "explain"},
+    )
     session_name_markers: Final[tuple[str, ...]] = (
         "DEVIN_SESSION_ID",
         "CURSOR_SESSION_ID",
+        "CLAUDE_CODE_SESSION_ID",
         "CLAUDE_SESSION_ID",
         "CODEX_SESSION_ID",
         "CODEX_THREAD_ID",
@@ -240,12 +255,11 @@ REMOTE EXECUTION HOSTS
 INTROSPECTION INSIDE A MANAGED SESSION
   lake --id                    Print current short session ID.
   lake --session-name          Print the agent session name
-                                 (DEVIN_SESSION_ID for Devin).
+                               (DEVIN_SESSION_ID, CLAUDE_CODE_SESSION_ID, ...).
   lake --status                Print current session metadata.
 
 DATABASE AND METADATA
-  Canonical state is stored only in ~/.lake_terminal/lake.db. No JSON session
-  database, history mirror, event mirror, or compatibility importer exists.
+  Canonical state is stored only in ~/.lake_terminal/lake.db.
 
 STATE AND EVENTS
   The normalized SQLite schema stores sessions, commands, events, observed
@@ -286,13 +300,33 @@ REMOTE/CONTAINER MODEL
 
 EXIT AND PROCESS SEMANTICS
   lake does not redefine shell `exit`. Exiting a child application returns
-  to the managed shell; exiting the top-level managed shell terminates that
-  session. Managed shells use a recursion guard so invoking `lake` does not
-  accidentally nest persistent sessions.
+  to the managed shell; exiting the top-level managed shell detaches all
+  attached clients and respawns a fresh shell. The session itself stays
+  alive until `lake ID --kill` or the tmux session is destroyed. Managed
+  shells use a recursion guard so invoking `lake` does not accidentally
+  nest persistent sessions.
 
 RECOVERY / TROUBLESHOOTING
   Use `lake --doctor --full`; SQLite corruption is quarantined and rebuilt,
   live backends are reconciled, and schema upgrades run transactionally.
+
+UPDATES
+  lake --version               Print the installed version.
+  lake --check-updates         Check GitHub Releases now (alias:
+                                 --update-check).
+  lake --update [VERSION]      Install the latest (or a specific) release.
+                                 Live checkouts are never rewritten.
+  lake --settings              Print every effective setting as JSON.
+  lake --make-release [patch|minor|major|X.Y.Z] [--dry-run] [--no-verify]
+                       [--watch]
+                               Maintainer-only: verify, bump, tag and push
+                                 so CI publishes the release.
+  Interactive invocations show a one-line notice when a newer release is
+  cached. Policy lives in ~/.lake_terminal/update.json (check: always |
+  hourly | daily | weekly | never, repository, tag_prefix, channel,
+  timeout_seconds). LAKE_DISABLE_UPDATE_CHECK=1 turns checks off;
+  LAKE_UPDATE_REPO=owner/repo overrides the release repository; GH_TOKEN
+  or GITHUB_TOKEN authenticates against a private repository.
 
 INSTALLATION ALIAS
   Installation supports a configurable alias. `--force-alias` permits
@@ -311,13 +345,16 @@ IDENTIFIERS
 INTERNAL INTERFACE
   LAKE_SESSION_ID marks the current managed session for shell recursion
   guards; stable UUIDs and backend-neutral metadata drive the control plane.
+  LAKE_MCP_READ_ONLY (or `lake --mcp --read-only`) hides execution tools
+  from MCP clients.
   LAKE_DISABLE_AGENT suppresses agent-shell detection, opting the current
   shell out of automatic agent routing.
 
 INTERNAL HOOKS
   --cursor-hook, --devin-hook, --codex-hook, --claude-hook,
-  --lifecycle-start, --lifecycle-finish, --agent-state and --mcp are
-  integration endpoints and normally should not be invoked manually.
+  --lifecycle-start, --lifecycle-finish, --agent-state, --handle-uri and
+  --mcp are integration endpoints and normally should not be invoked
+  manually.
 
 HELP
   lake -h | lake --help      Show this complete manual.
@@ -951,6 +988,62 @@ class Cli:
             f"{idle} idle\n",
         )
 
+    @staticmethod
+    def update_notice_path(*, args: tuple[str, ...]) -> bool:
+        """Return whether an invocation is a human-facing interactive one.
+
+        Machine endpoints, hooks and scripted calls never trigger update
+        checks or notices.
+
+        Args:
+            args: Command-line arguments.
+
+        Returns:
+            True when a refresh and notice are appropriate.
+
+        """
+        if not args:
+            return True
+        first: str = args[0]
+        if first.startswith("-"):
+            if first == "--status":
+                return "--json" not in args
+            return first in Constants.update_notice_options
+        if first in Constants.update_silent_commands:
+            return False
+        if fullmatch(pattern=r"[0-9a-f]{6}", string=first):
+            return len(args) == 1
+        return True
+
+    @staticmethod
+    def module(*, name: str) -> ModuleType:
+        """Import a sibling module on first use.
+
+        Args:
+            name: Module name inside this package.
+
+        Returns:
+            The imported module.
+
+        """
+        return import_module(name=f".{name}", package=__package__)
+
+    @staticmethod
+    def print_version(*, args: tuple[str, ...], home: Path) -> int:
+        """Print the installed version.
+
+        Args:
+            args: Unused arguments.
+            home: Unused home.
+
+        Returns:
+            Exit status.
+
+        """
+        _ = (args, home)
+        _ = stdout.write(f"lake-terminal {Product.version}\n")
+        return 0
+
     def run(
         self,
         *,
@@ -967,12 +1060,31 @@ class Cli:
         """
         args: tuple[str, ...] = () if arguments is None else arguments
         home: Path = Path(environ.get("HOME", str(object=Path.home())))
+        self.update_notice(args=args, home=home)
         if (early := self.early(args=args, home=home)) is not None:
             return early
         managed_id: str | None = environ.get("LAKE_SESSION_ID")
         if managed_id is not None:
             return self.managed(args=args, session_id=managed_id)
         return self.dispatch(args=args)
+
+    def update_notice(self, *, args: tuple[str, ...], home: Path) -> None:
+        """Refresh the release cache and print a pending-update notice.
+
+        Args:
+            args: Command-line arguments.
+            home: User home directory.
+
+        """
+        if (
+            environ.get("LAKE_SESSION_ID")
+            or not self.update_notice_path(args=args)
+            or not stderr.isatty()
+        ):
+            return
+        update: ModuleType = self.module(name="update")
+        update.maybe_refresh(home=home)
+        update.notify(home=home)
 
     def web_special(
         self,
@@ -1452,8 +1564,12 @@ class Cli:
             return 0
         if args == ("--is-agent-shell",):
             return 0 if AgentDetector.is_agent_shell() else 1
-        if args == ("--mcp",):
-            return LakeMcpServer(service=self.service).serve()
+        if args[:1] == ("--mcp",) and set(args[1:]) <= {"--read-only"}:
+            return LakeMcpServer(
+                service=self.service,
+                read_only="--read-only" in args
+                or bool(environ.get("LAKE_MCP_READ_ONLY")),
+            ).serve()
         handlers: dict[str, HookRunner] = {
             "--cursor-hook": CursorHooks.run_hook,
             "--devin-hook": DevinHooks.run_hook,
@@ -1464,7 +1580,159 @@ class Cli:
             return handler(home=home)
         if args[:1] == ("--cleanup",):
             return self.cleanup(args=args)
-        return None
+        return self.early_updates(args=args, home=home)
+
+    def early_updates(
+        self,
+        *,
+        args: tuple[str, ...],
+        home: Path,
+    ) -> int | None:
+        """Dispatch version, settings, self-update and release commands.
+
+        Modules are imported lazily to keep ordinary startup fast.
+
+        Args:
+            args: Args.
+            home: Home.
+
+        Returns:
+            Exit status when handled, otherwise None.
+
+        """
+        if not args:
+            return None
+        exact: dict[str, Callable[..., int]] = {
+            "--version": self.print_version,
+            "--settings": self.print_settings,
+            "--check-updates": self.check_updates,
+            "--update-check": self.check_updates,
+            "--update-refresh": self.refresh_updates,
+        }
+        prefixed: dict[str, Callable[..., int]] = {
+            "--update": self.update,
+            "--make-release": self.make_release,
+            "--handle-uri": self.handle_uri,
+        }
+        handler: Callable[..., int] | None = (
+            exact.get(args[0]) if len(args) == 1 else None
+        ) or prefixed.get(args[0])
+        if handler is None:
+            return None
+        return handler(args=args, home=home)
+
+    def print_settings(self, *, args: tuple[str, ...], home: Path) -> int:
+        """Print every effective setting as JSON.
+
+        Args:
+            args: Unused arguments.
+            home: Home.
+
+        Returns:
+            Exit status.
+
+        """
+        _ = args
+        document: object = self.module(name="settings").settings_document(
+            home=home,
+        )
+        _ = stdout.write(dumps(obj=document, indent=2) + "\n")
+        return 0
+
+    def check_updates(self, *, args: tuple[str, ...], home: Path) -> int:
+        """Force an update check.
+
+        Args:
+            args: Unused arguments.
+            home: Home.
+
+        Returns:
+            Exit status.
+
+        """
+        _ = args
+        return cast(
+            typ="int",
+            val=self.module(name="update").check_updates(home=home),
+        )
+
+    def refresh_updates(self, *, args: tuple[str, ...], home: Path) -> int:
+        """Run the detached cache refresh entry point.
+
+        Args:
+            args: Arguments.
+            home: Home.
+
+        Returns:
+            Exit status.
+
+        """
+        return cast(
+            typ="int",
+            val=self.module(name="update").main(arguments=args, home=home),
+        )
+
+    def update(self, *, args: tuple[str, ...], home: Path) -> int:
+        """Run ``--update [VERSION]``.
+
+        Args:
+            args: Arguments beginning with ``--update``.
+            home: Home.
+
+        Returns:
+            Exit status.
+
+        """
+        rest: tuple[str, ...] = args[1:]
+        if len(rest) > 1 or (rest and rest[0].startswith("-")):
+            _ = stderr.write("usage: lake --update [VERSION]\n")
+            return 2
+        return cast(
+            typ="int",
+            val=self.module(name="update").run_update(
+                home=home,
+                requested=rest[0] if rest else None,
+            ),
+        )
+
+    def handle_uri(self, *, args: tuple[str, ...], home: Path) -> int:
+        """Run the Arrow handler for one ``lake-terminal://`` URI.
+
+        Registered with the operating system by the installer.
+
+        Args:
+            args: ``--handle-uri`` followed by exactly one URI.
+            home: Unused home.
+
+        Returns:
+            The handler's exit status, or 2 for a usage error.
+
+        """
+        _ = home
+        if len(args) != Constants.handle_uri_args:
+            _ = stderr.write("usage: lake --handle-uri URI\n")
+            return 2
+        return cast(
+            typ="int",
+            val=self.module(name="url_handler").main(arguments=args[1:]),
+        )
+
+    def make_release(self, *, args: tuple[str, ...], home: Path) -> int:
+        """Run the maintainer release driver.
+
+        Args:
+            args: Arguments beginning with ``--make-release``.
+            home: Unused home.
+
+        Returns:
+            Exit status.
+
+        """
+        _ = home
+        return cast(
+            typ="int",
+            val=self.module(name="release").run_cli(arguments=args[1:]),
+        )
 
     def explain(self, *, session_id: str) -> int:
         """Explain the recorded attribution for one Lake session.
@@ -1711,6 +1979,13 @@ class Cli:
             ("Editor bridge", str(object=caps.editor_agent_bridge)),
             ("Editor", RuntimePlatform.editor() or "none"),
             ("Surface", RuntimePlatform.surface()),
+            ("Agent identity", cls._identity_summary()),
+            (
+                "Claude MCP server",
+                "registered"
+                if McpRegistration.installed(home=home)
+                else "missing (python install.py install --with mcp)",
+            ),
             ("Database schema", str(object=database.schema_version())),
             ("Database integrity", database.integrity()),
             (
@@ -1884,6 +2159,27 @@ class Cli:
         if parsed_port is None:
             return None
         return host, parsed_port
+
+    @staticmethod
+    def _identity_summary() -> str:
+        """Describe the agent identity resolved for this process.
+
+        Returns:
+            Provider, session and evidence source, or ``none``.
+
+        """
+        identity: AgentIdentity | None = AgentIdentity.from_environment()
+        if identity is None:
+            return "none"
+        return " · ".join(
+            part
+            for part in (
+                identity.agent,
+                identity.session or "no session",
+                identity.source,
+            )
+            if part
+        )
 
     @staticmethod
     def _integration_results(

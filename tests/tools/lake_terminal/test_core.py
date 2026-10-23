@@ -980,3 +980,100 @@ def test_default_service(
     monkeypatch.setenv(name="HOME", value=str(object=tmp_path))
     service: LakeTerminal = core_module.default_service()
     expect(actual=service.list_entries(), expected=())
+
+
+@pytest.mark.parametrize(
+    ("variable", "agent"),
+    [
+        ("CLAUDE_CODE_SESSION_ID", "claude-code"),
+        ("CLAUDE_SESSION_ID", "claude-code"),
+        ("DEVIN_SESSION_ID", "devin"),
+        ("CURSOR_SESSION_ID", "cursor"),
+        ("CODEX_SESSION_ID", "codex"),
+        ("CODEX_THREAD_ID", "codex"),
+    ],
+)
+def test_create_adopts_native_session_variable(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    variable: str,
+    agent: str,
+) -> None:
+    """Attribute agent sessions from provider variables without LAKE_AGENT*.
+
+    Args:
+        tmp_path: Tmp path.
+        monkeypatch: Monkeypatch.
+        variable: Provider-native session variable.
+        agent: Expected canonical provider.
+
+    """
+    service: LakeTerminal = _service(tmp_path=tmp_path)
+    sessions: set[str] = set()
+    monkeypatch.setattr(
+        target=core_module,
+        name="run",
+        value=_fake_tmux(existing=sessions, pane_pid="2000000001"),
+    )
+    _stub_descendants(monkeypatch=monkeypatch)
+    monkeypatch.setenv(name=variable, value="native-77")
+    expect(actual=service.create(initiator="agent"), expected=0)
+    entry: SessionEntry = SessionRepository(home=tmp_path).read()[0]
+    expect(actual=entry.agent, expected=agent)
+    expect(actual=entry.agent_session, expected="native-77")
+
+
+def test_create_records_claude_desktop_surface(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Report Claude Code Desktop as its own surface.
+
+    Args:
+        tmp_path: Tmp path.
+        monkeypatch: Monkeypatch.
+
+    """
+    service: LakeTerminal = _service(tmp_path=tmp_path)
+    monkeypatch.setattr(
+        target=core_module,
+        name="run",
+        value=_fake_tmux(existing=set(), pane_pid="2000000001"),
+    )
+    _stub_descendants(monkeypatch=monkeypatch)
+    monkeypatch.setenv(name="CLAUDECODE", value="1")
+    monkeypatch.setenv(name="CLAUDE_CODE_SESSION_ID", value="d-1")
+    monkeypatch.setenv(name="CLAUDE_CODE_ENTRYPOINT", value="claude-desktop")
+    expect(actual=service.create(initiator="agent"), expected=0)
+    entry: SessionEntry = SessionRepository(home=tmp_path).read()[0]
+    expect(actual=entry.surface, expected="desktop")
+
+
+def test_ensure_agent_reuses_session_by_native_variable(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reuse the live session that matches the native provider session.
+
+    Args:
+        tmp_path: Tmp path.
+        monkeypatch: Monkeypatch.
+
+    """
+    service: LakeTerminal = _service(tmp_path=tmp_path)
+    sessions: set[str] = set()
+    monkeypatch.setattr(
+        target=core_module,
+        name="run",
+        value=_fake_tmux(existing=sessions, pane_pid="2000000001"),
+    )
+    _stub_descendants(monkeypatch=monkeypatch)
+    monkeypatch.setenv(name="DEVIN_SESSION_ID", value="d-1")
+    expect(actual=service.ensure_agent(), expected=0)
+    monkeypatch.setenv(name="DEVIN_SESSION_ID", value="d-2")
+    expect(actual=service.ensure_agent(), expected=0)
+    found: tuple[SessionEntry, ...] = SessionRepository(home=tmp_path).read()
+    expect(
+        actual=sorted(entry.agent_session for entry in found),
+        expected=["d-1", "d-2"],
+    )

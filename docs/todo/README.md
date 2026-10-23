@@ -1,7 +1,7 @@
 # `todo/`
 
-Pending work items. Currently empty — the Devin-readiness assessment for
-`tools/lake_terminal` was completed and removed.
+Pending work items. Currently empty — the Devin-readiness assessment and the
+Lake Terminal update/settings/release work were completed and removed.
 
 <!-- exactus:inventory:start -->
 ## Directory contents

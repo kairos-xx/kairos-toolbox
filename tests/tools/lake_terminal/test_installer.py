@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Final, cast
 import pytest
 
 from tests.conftest import sibling_tree
+from tools.lake_terminal.lake_terminal import installer as installer_module
+from tools.lake_terminal.lake_terminal import mcp_registration
 from tools.lake_terminal.lake_terminal.installer import (
     Component,
     Constants,
@@ -23,6 +25,7 @@ from tools.lake_terminal.lake_terminal.installer import (
     main,
 )
 from tools.lake_terminal.lake_terminal.lifecycle import LifecycleInstaller
+from tools.lake_terminal.lake_terminal.mcp_registration import McpRegistration
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -636,3 +639,93 @@ def test_main_implicit_install_and_invalid_alias(*, home: Path) -> None:
         stream=invalid_output,
     )
     expect(actual=invalid_result, expected=2)
+
+
+def no_cli(**_: object) -> None:
+    """Report that the ``claude`` executable is not installed.
+
+    Args:
+        **_: Ignored lookup arguments.
+
+    """
+    return
+
+
+def test_mcp_component_registers_and_removes_server(
+    *,
+    installer: Installer,
+    layout: Layout,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Install and remove the Claude MCP registration as one component.
+
+    Args:
+        installer: Installer.
+        layout: Layout.
+        monkeypatch: Monkeypatch.
+
+    """
+    monkeypatch.setattr(
+        target=mcp_registration,
+        name="which",
+        value=no_cli,
+    )
+    desktop: Path = McpRegistration.claude_desktop_path(home=layout.home)
+    desktop.parent.mkdir(parents=True)
+    component: Component = next(
+        item
+        for item in installer_module.components(layout=layout)
+        if item.key == "mcp"
+    )
+    check(condition=component.available, reason="mcp component available")
+    check(condition=component.selected, reason="selected when Claude exists")
+    expect(
+        actual=install(
+            installer=installer,
+            layout=layout,
+            keys=frozenset({"launcher", "mcp"}),
+        ),
+        expected=0,
+    )
+    check(
+        condition=McpRegistration.installed(home=layout.home),
+        reason="registered",
+    )
+    check(condition=component.installed(layout=layout), reason="reported")
+    component.remove(layout=layout) if component.remove else None
+    check(
+        condition=not McpRegistration.installed(home=layout.home),
+        reason="removed",
+    )
+
+
+def test_live_launcher_path_contains_arrow(layout: Layout) -> None:
+    """The directory added to ``PYTHONPATH`` must hold ``arrow_uri``.
+
+    Args:
+        layout: Live layout rooted at the real ``tools`` directory.
+
+    """
+    check(
+        condition=(layout.arrow_import_root / "arrow_uri").is_dir(),
+        reason=f"arrow_uri missing under {layout.arrow_import_root}",
+    )
+
+
+def test_copy_install_bundles_arrow(layout: Layout) -> None:
+    """A copy install carries ``arrow_uri`` next to ``lake_terminal``.
+
+    Args:
+        layout: Base layout rooted at the real ``tools`` directory.
+
+    """
+    copied: Layout = replace(layout, mode="copy")
+    _ = installer_module.install_launcher(layout=copied)
+    check(
+        condition=(copied.lib_dir / "arrow_uri").is_dir(),
+        reason="arrow_uri not copied",
+    )
+    check(
+        condition=(copied.lib_dir / "lake_terminal").is_dir(),
+        reason="lake_terminal not copied",
+    )

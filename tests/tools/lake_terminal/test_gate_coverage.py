@@ -432,9 +432,9 @@ def test_installer_file_and_manifest_helpers(tmp_path: Path) -> None:
     expect(actual=data.get("alias"), expected="shared")
     rebuilt: Layout | None = installer_module.manifest_layout(home=tmp_path)
     check(condition=rebuilt is not None, reason="manifest rebuild")
-    layout.manifest_path.write_text("bad json")
+    layout.manifest_path.write_text(data="bad json", encoding="utf-8")
     expect(actual=installer_module.read_manifest(layout=layout), expected={})
-    layout.manifest_path.write_text("[]")
+    layout.manifest_path.write_text(data="[]", encoding="utf-8")
     expect(actual=installer_module.read_manifest(layout=layout), expected={})
     layout.manifest_path.unlink()
     expect(actual=installer_module.read_manifest(layout=layout), expected={})
@@ -559,7 +559,7 @@ def test_installer_component_helpers(
         remove(layout=layout)
         expect(actual=installed(layout=layout), expected=False)
     expect(
-        actual=installer_module.copyurl_installed(layout=layout),
+        actual=installer_module.uri_handler_installed(layout=layout),
         expected=False,
     )
     expect(
@@ -649,7 +649,7 @@ def test_installer_public_status_and_selection(
     )
     expect(actual=installer.status(layout=layout), expected=0)
     layout.launcher.parent.mkdir(parents=True, exist_ok=True)
-    layout.launcher.write_text("foreign")
+    layout.launcher.write_text(data="foreign")
 
     def foreign_which(*, cmd: str) -> str:
         """Resolve every command to the foreign launcher.
@@ -1658,11 +1658,11 @@ def test_cli_session_name_get_inside(
     expect(actual=printed.getvalue(), expected="env-2\n")
 
 
-def test_installer_copyurl_and_hooks(
+def test_installer_uri_handler_and_hooks(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Exercise clipboard handler and editor hook component operations.
+    """Exercise URI handler and editor hook component operations.
 
     Args:
         tmp_path: Scratch directory.
@@ -1706,21 +1706,21 @@ def test_installer_copyurl_and_hooks(
         name="launch_services",
         value=launch_services,
     )
-    result: str = installer_module.install_copyurl(layout=layout)
+    result: str = installer_module.install_uri_handler(layout=layout)
     check(
-        condition=result.endswith("LakeTerminalCopy.app"),
-        reason="copy app path",
+        condition=result.endswith("LakeTerminalURI.app"),
+        reason="URI handler app path",
     )
     expect(
-        actual=installer_module.copyurl_installed(layout=layout),
+        actual=installer_module.uri_handler_installed(layout=layout),
         expected=True,
     )
-    installer_module.remove_copyurl(layout=layout)
+    installer_module.remove_uri_handler(layout=layout)
     expect(
-        actual=installer_module.copyurl_installed(layout=layout),
+        actual=installer_module.uri_handler_installed(layout=layout),
         expected=False,
     )
-    check(condition=bool(calls), reason="copy-url subprocesses")
+    check(condition=bool(calls), reason="URI handler subprocesses")
     for install, installed, remove in (
         (
             installer_module.install_claude,
@@ -2249,8 +2249,10 @@ def test_tui_windows_key_paths(monkeypatch: pytest.MonkeyPatch) -> None:
     expect(actual=WatchTui.key(timeout=0.01), expected="")
 
 
-def test_storage_recovery_and_schema_upgrade(tmp_path: Path) -> None:
-    """Exercise corrupt-database recovery and legacy schema archival.
+def test_storage_recovery_and_schema_mismatch(tmp_path: Path) -> None:
+    """Corrupt or older-schema databases are set aside and rebuilt.
+
+    A newer schema is left alone, and there is no in-place upgrade path.
 
     Args:
         tmp_path: Scratch directory.
@@ -2266,38 +2268,31 @@ def test_storage_recovery_and_schema_upgrade(tmp_path: Path) -> None:
         reason="corrupt database archived",
     )
     expect(actual=recovered.integrity(), expected="ok")
-    legacy_path: Path = tmp_path / "legacy.db"
-    database: Connection = connect(database=legacy_path)
-    for table in ("sessions", "commands", "events", "processes", "hosts"):
-        _ = database.execute(f'CREATE TABLE "{table}" (id TEXT)')
-    _ = database.execute('CREATE TABLE "sessions_archive_v1" (id TEXT)')
-    LakeDatabase.upgrade_sqlite_schema(database=database, version=1)
-    check(
-        condition=LakeDatabase.table_exists(
-            database=database,
-            table="sessions_archive_v1_2",
-        ),
-        reason="collision-safe archive",
-    )
-    LakeDatabase.upgrade_sqlite_schema(
-        database=database,
-        version=StorageConstants.schema_version,
-    )
-    database.close()
-    modern_path: Path = tmp_path / "modern.db"
-    modern: Connection = connect(database=modern_path)
-    LakeDatabase.upgrade_sqlite_schema(
-        database=modern,
-        version=StorageConstants.archive_schema_boundary,
-    )
-    check(
-        condition=LakeDatabase.table_exists(
-            database=modern,
-            table="sessions",
-        ),
-        reason="modern schema created",
-    )
-    modern.close()
+    for version, rebuilt in (
+        (StorageConstants.schema_version - 1, True),
+        (StorageConstants.schema_version + 1, False),
+    ):
+        home: Path = tmp_path / f"schema-{version}"
+        state: Path = home / ".lake_terminal"
+        state.mkdir(parents=True)
+        database: Connection = connect(
+            database=state / StorageConstants.database_name,
+        )
+        _ = database.execute(
+            "CREATE TABLE schema_meta (key TEXT PRIMARY KEY, value TEXT)",
+        )
+        _ = database.execute(
+            "INSERT INTO schema_meta VALUES('schema_version', ?)",
+            (str(object=version),),
+        )
+        database.commit()
+        database.close()
+        opened: LakeDatabase = LakeDatabase(home=home)
+        expect(actual=bool(opened.recovered_from), expected=rebuilt)
+        expect(
+            actual=opened.schema_version(),
+            expected=(StorageConstants.schema_version if rebuilt else version),
+        )
 
 
 def test_cli_render_and_router_branches(tmp_path: Path) -> None:
@@ -3454,3 +3449,28 @@ def test_conpty_spawn_success_with_fake_kernel(
         rows=24,
     )
     expect(actual=session.pid, expected=4321)
+
+
+def test_cli_session_name_uses_claude_code_session_id(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Print Claude Code's native session id as the agent session name.
+
+    Args:
+        tmp_path: Temporary home directory.
+        monkeypatch: Pytest monkeypatch fixture.
+
+    """
+    monkeypatch.setenv(name="HOME", value=str(object=tmp_path))
+    monkeypatch.setenv(name="LAKE_SESSION_ID", value="abc123")
+    monkeypatch.setenv(name="CLAUDE_CODE_SESSION_ID", value="cc-9")
+    printed: StringIO = StringIO()
+    monkeypatch.setattr(target=cli_module, name="stdout", value=printed)
+    service: _NamedService = _named_service()
+    service.entries = (
+        SessionEntry(id="abc123", command="lake abc123", session="s1"),
+    )
+    cli: Cli = Cli(service=cast(typ="LakeTerminal", val=service))
+    expect(actual=cli.run(arguments=("--session-name",)), expected=0)
+    expect(actual=printed.getvalue(), expected="cc-9\n")

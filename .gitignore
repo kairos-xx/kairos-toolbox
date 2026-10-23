@@ -21,7 +21,9 @@ __pycache__/
 venv/
 *.egg-info/
 dist/
-build/
+# Build output: the binaries stay local, the generated report is tracked.
+**/build/*
+!/build/BUILD.md
 
 # Test and coverage artifacts
 .coverage

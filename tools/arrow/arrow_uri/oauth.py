@@ -41,7 +41,7 @@ class PKCEPair:
         verifier: str = token_urlsafe(nbytes=64)
         digest: bytes = sha256(data=verifier.encode(encoding="ascii")).digest()
         challenge: str = (
-            urlsafe_b64encode(s=digest).rstrip(b"=").decode("ascii")
+            urlsafe_b64encode(s=digest).rstrip(b"=").decode(encoding="ascii")
         )
         return cls(verifier=verifier, challenge=challenge)
 

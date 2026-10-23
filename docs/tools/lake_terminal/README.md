@@ -8,7 +8,6 @@ Complete architecture, configuration and Python API reference for the Lake Termi
 ### Files
 
 - [`DOCS.md`](DOCS.md) — This document describes the current `lake_terminal` implementation. It covers architecture, runtime semantics, configuration, CLI integration points and the public Python API exposed by the modules under `lake_terminal.lake_terminal`.
-- [`DOCS_IMPLEMENTATION.md`](DOCS_IMPLEMENTATION.md) — This revision implements the non-legacy Lake Terminal control-plane architecture:
 
 ### Subdirectories
 

@@ -41,6 +41,7 @@ class LakeMcpServer:
         protocol_version: MCP protocol revision.
         server_name: MCP server name.
         send_keys: Key names accepted by the lake_send tool.
+        mutating_tools: Tools hidden and refused in read-only mode.
         tools: Exposed MCP tool descriptors.
 
     """
@@ -48,6 +49,9 @@ class LakeMcpServer:
     protocol_version: Final[str] = "2025-06-18"
     server_name: Final[str] = "lake-terminal"
     send_keys: Final[frozenset[str]] = Constants.sendable_keys
+    mutating_tools: Final[frozenset[str]] = frozenset(
+        {"lake_exec", "lake_send", "lake_new", "lake_kill"},
+    )
     tools: Final[tuple[JsonObject, ...]] = (
         {
             "name": "lake_exec",
@@ -302,6 +306,7 @@ class LakeMcpServer:
         service: LakeTerminal,
         reader: BinaryIO | None = None,
         writer: BinaryIO | None = None,
+        read_only: bool = False,
     ) -> None:
         """Bind the server to a service and stdio streams.
 
@@ -309,8 +314,10 @@ class LakeMcpServer:
             service: Resident Lake Terminal service.
             reader: Request byte stream; defaults to standard input.
             writer: Response byte stream; defaults to standard output.
+            read_only: Expose only inspection tools, never execution.
 
         """
+        self._read_only: bool = read_only
         self._service: LakeTerminal = service
         self._reader: BinaryIO = reader or stdin.buffer
         self._writer: BinaryIO = writer or stdout.buffer
@@ -529,7 +536,14 @@ class LakeMcpServer:
         if method == "tools/list":
             return cast(
                 typ="JsonObject",
-                val={"tools": list(self.tools)},
+                val={
+                    "tools": [
+                        tool
+                        for tool in self.tools
+                        if not self._read_only
+                        or tool["name"] not in self.mutating_tools
+                    ],
+                },
             )
         if method == "tools/call":
             return self._call(parsed=parsed)
@@ -564,6 +578,11 @@ class LakeMcpServer:
                 lambda: self._tool_commands(arguments=arguments)
             ),
         }
+        if self._read_only and name in self.mutating_tools:
+            return self._tool_result(
+                text=f"{name} is unavailable: server runs in read-only mode.",
+                is_error=True,
+            )
         handler: Callable[[], JsonObject] | None = (
             handlers.get(name) if isinstance(name, str) else None
         )

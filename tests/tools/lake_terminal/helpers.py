@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 
 def expect(*, actual: object, expected: object) -> None:
     """Fail the test when two values differ.
@@ -33,3 +35,41 @@ def check(*, condition: bool, reason: str) -> None:
     """
     if not condition:
         raise AssertionError(reason)
+
+
+def present[T](*, value: T | None) -> T:
+    """Return ``value`` after failing the test when it is ``None``.
+
+    Args:
+        value: Value that must exist.
+
+    Returns:
+        The same value, narrowed to exclude ``None``.
+
+    Raises:
+        AssertionError: When the value is ``None``.
+
+    """
+    if value is None:
+        msg: str = "expected a value; got None"
+        raise AssertionError(msg)
+    return value
+
+
+def section(*, value: object) -> dict[str, object]:
+    """Return ``value`` after failing the test when it is not a mapping.
+
+    Args:
+        value: Value that must be a JSON object.
+
+    Returns:
+        The mapping.
+
+    Raises:
+        TypeError: When the value is not a dictionary.
+
+    """
+    if not isinstance(value, dict):
+        msg: str = f"expected an object; got {value!r}"
+        raise TypeError(msg)
+    return cast(typ="dict[str, object]", val=value)

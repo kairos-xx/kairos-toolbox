@@ -1,5 +1,5 @@
 # Copyright (c) 2026 Project contributors.
-"""Handle Lake Terminal custom URIs through Arrow or the legacy copy route."""
+"""Handle Lake Terminal custom URIs through Arrow."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ from urllib.parse import SplitResult, urlsplit
 from arrow_uri.errors import AuthorizationError
 
 from .arrow_api import LakeArrow, LakeArrowResult
-from .copy_url import main as copy_main
 from .product import Product
 
 
@@ -34,8 +33,6 @@ def main(*, arguments: tuple[str, ...] | None = None) -> int:
     parsed: SplitResult = urlsplit(url=uri)
     if parsed.scheme != Product.url_scheme:
         return 2
-    if parsed.netloc == "copy":
-        return copy_main(arguments=(uri,))
     home: Path = Path(environ.get("HOME", str(object=Path.home())))
     try:
         result: LakeArrowResult = LakeArrow(home=home).execute_uri(uri=uri)

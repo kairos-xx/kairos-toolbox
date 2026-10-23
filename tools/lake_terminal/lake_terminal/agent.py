@@ -4,13 +4,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from json import JSONDecodeError, dump, load
+from json import JSONDecodeError, dump, load, loads
 from os import environ, getppid
 from os import name as os_name
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Final, Protocol, TypedDict, cast
 
+from .agent_identity import AgentIdentity
 from .process import run
 
 if TYPE_CHECKING:
@@ -52,9 +53,12 @@ class Constants:
         maximum_ancestors: Maximum ancestors.
         config_directory_name: Config directory name.
         agents_name: Agents name.
+        desktop_chat_marker: Path fragment of the Claude Desktop chat app,
+            whose processes are never coding-agent shells.
 
     """
 
+    desktop_chat_marker: Final[str] = "/applications/claude.app/"
     maximum_ancestors: Final[int] = 32
     config_directory_name: Final[str] = ".lake_terminal"
     agents_name: Final[str] = "agents.json"
@@ -357,11 +361,16 @@ class AgentDetector:
 
         """
         home: Path = Path(environ.get("HOME", str(object=Path.home())))
+        configured: tuple[AgentType, ...] = AgentConfiguration.load(home=home)
         agents: tuple[AgentType, ...] = tuple(
-            agent
-            for agent in AgentConfiguration.load(home=home)
-            if agent.enabled
+            agent for agent in configured if agent.enabled
         )
+        disabled: frozenset[str] = frozenset(
+            agent.identifier for agent in configured if not agent.enabled
+        )
+        identity: AgentIdentity | None = AgentIdentity.from_environment()
+        if identity is not None and identity.agent not in disabled:
+            return identity.agent, "environment"
         for agent in agents:
             if any(environ.get(marker) for marker in agent.environment):
                 return agent.identifier, "environment"
@@ -374,8 +383,8 @@ class AgentDetector:
                 return agent.identifier, "process_tree"
         return None
 
-    @staticmethod
-    def ancestor_commands() -> tuple[str, ...]:
+    @classmethod
+    def ancestor_commands(cls) -> tuple[str, ...]:
         """Return command lines for the current process ancestry.
 
         Returns:
@@ -383,7 +392,7 @@ class AgentDetector:
 
         """
         if os_name == "nt":
-            return ()
+            return cls.windows_ancestor_commands()
         commands: list[str] = []
         pid: int = getppid()
         seen: set[int] = set()
@@ -421,6 +430,55 @@ class AgentDetector:
         return tuple(commands)
 
     @staticmethod
+    def windows_ancestor_commands() -> tuple[str, ...]:
+        """Return command lines for the current Windows process ancestry.
+
+        Returns:
+            Ancestor command lines, nearest first; empty when unreadable.
+
+        """
+        script: str = (
+            "Get-CimInstance Win32_Process | "
+            "Select-Object ProcessId,ParentProcessId,CommandLine | "
+            "ConvertTo-Json -Compress"
+        )
+        try:
+            result: CompletedProcess[str] = run(
+                args=("powershell.exe", "-NoProfile", "-Command", script),
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            rows: JsonValue = cast(typ="JsonValue", val=loads(s=result.stdout))
+        except (OSError, JSONDecodeError):
+            return ()
+        if isinstance(rows, dict):
+            rows = [rows]
+        if not isinstance(rows, list):
+            return ()
+        table: dict[int, tuple[int, str]] = {}
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            pid: JsonValue = row.get("ProcessId")
+            parent: JsonValue = row.get("ParentProcessId")
+            line: JsonValue = row.get("CommandLine")
+            if isinstance(pid, int) and isinstance(parent, int):
+                table[pid] = (parent, line if isinstance(line, str) else "")
+        commands: list[str] = []
+        pid_now: int = getppid()
+        seen: set[int] = set()
+        while (
+            pid_now in table
+            and pid_now not in seen
+            and len(commands) < Constants.maximum_ancestors
+        ):
+            seen.add(pid_now)
+            pid_now, command = table[pid_now]
+            commands.append(command)
+        return tuple(commands)
+
+    @staticmethod
     def matches(*, command: str, agent: AgentType) -> bool:
         """Return whether one ancestor command matches an agent signature.
 
@@ -432,7 +490,9 @@ class AgentDetector:
             The resulting value.
 
         """
-        normalized: str = command.lower()
+        normalized: str = command.lower().replace("\\", "/")
+        if Constants.desktop_chat_marker in normalized:
+            return False
         executable: str = normalized.split(maxsplit=1)[0].rsplit(
             sep="/",
             maxsplit=1,

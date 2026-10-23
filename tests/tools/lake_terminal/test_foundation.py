@@ -11,19 +11,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from tools.lake_terminal.lake_terminal import (
-    copy_url,
-    notifications,
-)
+from tools.lake_terminal.lake_terminal import notifications
 from tools.lake_terminal.lake_terminal.agent import (
     AgentConfiguration,
     AgentDetector,
     AgentType,
 )
 from tools.lake_terminal.lake_terminal.buffer import OutputRingBuffer
-from tools.lake_terminal.lake_terminal.copy_url import (
-    Constants as CopyConstants,
-)
 from tools.lake_terminal.lake_terminal.events import (
     EventDetails,
     EventTypes,
@@ -576,83 +570,6 @@ def test_agent_detection_disable_opt_out(
         condition=not AgentDetector.is_agent_shell(),
         reason="opt-out env suppresses detection",
     )
-
-
-def test_copy_url_command() -> None:
-    """Extract the reconnect command from a valid URL."""
-    command: str | None = copy_url.command_from_url(
-        url="lake-terminal://copy?id=abc123",
-    )
-    expect(actual=command, expected="lake abc123")
-
-
-def test_copy_url_rejects() -> None:
-    """Reject malformed or unsafe URLs."""
-    bad_urls: tuple[str, ...] = (
-        "https://copy?id=abc123",
-        "lake-terminal://other?id=abc123",
-        "lake-terminal://copy/path?id=abc123",
-        "lake-terminal://copy",
-        "lake-terminal://copy?id=abc123&x=1",
-        "lake-terminal://copy?id=abc123&id=def456",
-        "lake-terminal://copy?id=zzzzzz",
-        "lake-terminal://copy?id=abc1234",
-    )
-    for url in bad_urls:
-        expect(actual=copy_url.command_from_url(url=url), expected=None)
-
-
-def test_copy_url_alias_file(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """Use the installed alias file when present.
-
-    Args:
-        tmp_path: Tmp path.
-        monkeypatch: Monkeypatch.
-
-    """
-    alias_path: Path = tmp_path / "alias"
-    _ = alias_path.write_text(data="custom\n", encoding="utf-8")
-    monkeypatch.setattr(
-        target=CopyConstants,
-        name="alias_file",
-        value=alias_path,
-    )
-    command: str | None = copy_url.command_from_url(
-        url="lake-terminal://copy?id=012345",
-    )
-    expect(actual=command, expected="custom 012345")
-
-
-def test_copy_url_main(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Copy the validated command through the platform clipboard helper.
-
-    Args:
-        monkeypatch: Monkeypatch.
-
-    """
-
-    def fake_run(**_kwargs: object) -> CompletedProcess[str]:
-        """Return a successful clipboard process.
-
-        Args:
-            _kwargs: Ignored process options.
-
-        Returns:
-            Successful completed process.
-
-        """
-        return CompletedProcess(args=("clipboard",), returncode=0)
-
-    monkeypatch.setattr(target=copy_url, name="run", value=fake_run)
-    expect(
-        actual=copy_url.main(arguments=("lake-terminal://copy?id=abc123",)),
-        expected=0,
-    )
-    expect(actual=copy_url.main(arguments=("bad",)), expected=2)
-    expect(actual=copy_url.main(arguments=()), expected=2)
 
 
 def _event(**overrides: object) -> LakeEvent:

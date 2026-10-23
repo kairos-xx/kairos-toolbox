@@ -24,8 +24,7 @@
   ],
   "main": "./extension/extension.js",
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:devinRemote.openProjectPanel"
+    "onStartupFinished"
   ],
   "contributes": {
     "commands": [
@@ -138,7 +137,7 @@
   },
   "scripts": {
     "check": "node tools/check.mjs",
-    "test": "node --test test/*.test.mjs",
+    "test": "node --test test_original/*.test.mjs",
     "package": "node tools/package.mjs"
   }
 }

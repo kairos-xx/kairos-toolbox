@@ -30,6 +30,7 @@ Provide activity service.test mjs content.
 - [`task-service.test.mjs`](task-service.test.mjs) — Provide task service.test mjs content.
 - [`test_devin_remote_install.py`](test_devin_remote_install.py) — Behavioral coverage for the standalone extension installer.
 - [`test_main.py`](test_main.py) — Behavioral tests for the extension installer dispatcher.
+- [`tools.test.js`](tools.test.js) — Runs a Node tool script and returns its stdout.
 
 ### Subdirectories
 

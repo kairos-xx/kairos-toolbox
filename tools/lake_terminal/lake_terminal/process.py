@@ -5,7 +5,10 @@ from __future__ import annotations
 
 from subprocess import CompletedProcess
 from subprocess import run as _run
-from typing import Final
+from typing import TYPE_CHECKING, Final
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class Constants:
@@ -25,6 +28,7 @@ def run(
     check: bool,
     capture_output: bool = False,
     text: bool = False,
+    cwd: Path | None = None,
 ) -> CompletedProcess[str]:
     """Execute an argument vector directly and optionally capture output.
 
@@ -33,6 +37,7 @@ def run(
         check: Check.
         capture_output: Capture output.
         text: Text.
+        cwd: Working directory for the child, when not the current one.
 
     Returns:
         The resulting value.
@@ -50,4 +55,5 @@ def run(
         capture_output=capture_output,
         text=True if capture_output else text,
         encoding=Constants.text_encoding if capture_output else None,
+        cwd=cwd,
     )

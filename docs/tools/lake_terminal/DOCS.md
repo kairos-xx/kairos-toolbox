@@ -2,25 +2,53 @@
 
 This document describes the current `lake_terminal` implementation. It covers architecture, runtime semantics, configuration, CLI integration points and the public Python API exposed by the modules under `lake_terminal.lake_terminal`.
 
-> **Canonical design rule:** SQLite is the only persistent control-plane state. Lake Terminal has no JSON session registry or state mirror. A narrow one-time importer migrates pre-Lake `.shared_tmux/shared.db` state into `.lake_terminal/lake.db`.
+> **Canonical design rule:** SQLite is the only persistent control-plane state. Lake Terminal has no JSON session registry or state mirror.
 
 ## Contents
 
-1. [Conceptual model](#conceptual-model)
-2. [Runtime and backend selection](#runtime-and-backend-selection)
-3. [State and data model](#state-and-data-model)
-4. [Agent attribution](#agent-attribution)
-5. [Command lifecycle](#command-lifecycle)
-6. [Daemon and IPC](#daemon-and-ipc)
-7. [Monitoring surfaces](#monitoring-surfaces)
-8. [Remote hosts](#remote-hosts)
-9. [Privacy, history and notifications](#privacy-history-and-notifications)
-10. [Installation](#installation)
-11. [CLI reference](#cli-reference)
-12. [Configuration and state files](#configuration-and-state-files)
-13. [Python API reference](#python-api-reference)
-14. [Integration guidance](#integration-guidance)
-15. [Failure and recovery semantics](#failure-and-recovery-semantics)
+1. [Capabilities](#capabilities)
+2. [Conceptual model](#conceptual-model)
+3. [Runtime and backend selection](#runtime-and-backend-selection)
+4. [State and data model](#state-and-data-model)
+5. [Agent attribution](#agent-attribution)
+6. [Command lifecycle](#command-lifecycle)
+7. [Daemon and IPC](#daemon-and-ipc)
+8. [Monitoring surfaces](#monitoring-surfaces)
+9. [Remote hosts](#remote-hosts)
+10. [Privacy, history and notifications](#privacy-history-and-notifications)
+11. [Installation](#installation)
+12. [CLI reference](#cli-reference)
+13. [Configuration and state files](#configuration-and-state-files)
+14. [Updates](#updates)
+15. [Settings report](#settings-report)
+16. [Releasing](#releasing)
+17. [Distribution](#distribution)
+18. [Python API reference](#python-api-reference)
+19. [Integration guidance](#integration-guidance)
+20. [Failure and recovery semantics](#failure-and-recovery-semantics)
+
+---
+
+## Capabilities
+
+- SQLite-only normalized state (`sessions`, `commands`, `events`, `processes`, `hosts`).
+- Stable host/session/process identities and PID-reuse protection.
+- Transactional command lifecycle and normalized event model.
+- Authenticated local IPC daemon and event subscriptions.
+- Bounded live-output buffers.
+- tmux persistence/read-only capture on Unix-capable hosts.
+- Windows ConPTY persistent-session backend behind runtime capability detection.
+- Process-only observability for direct IDE execution without a PTY.
+- Cross-platform runtime/capability detection.
+- Provider attribution through native provider hooks and configurable signatures, including Cursor embedded-agent hooks (`sessionStart`, shell execution, response/thought, stop and session end) with stable conversation attribution.
+- VS Code-compatible editor bridge using the SQLite-backed control-plane API; the extension UI is provider-neutral and Devin-specific code is restricted to the Devin Local Agent hook adapter.
+- Interactive/read-only `--watch`/`--view`, history/events, status and full diagnostics.
+- Remote execution-host definitions and SSH status aggregation.
+- Privacy redaction before persistence plus retention/purge.
+- Notification rules and agent-state events.
+- Component-based installer with an interactive wizard, a persisted manifest and owned-artefact uninstall.
+
+JSON is used only for configuration where appropriate and for explicit transport/output such as `--status --json`.
 
 ---
 
@@ -336,18 +364,23 @@ status      inspect components, PATH, interpreter, manifest and state
 uninstall   remove Lake Terminal-owned artifacts; --purge also removes state
 ```
 
-Important install options include `--alias`, `--bin-dir`, `--lib-dir`, `--mode live|copy`, `--preset minimal|default|full`, `--with`, `--without`, `--yes`, `--force`, `--dry-run`, `--quiet` and `--home`.
+The interactive wizard (`↑`/`↓` or `j`/`k` to move, space to toggle, `a` for alias, `m` for live/copy, enter to install, `q` to cancel) runs only on a TTY and is skipped by `--yes` and `--dry-run`. Components cover the launcher, tmux, zsh/bash/PowerShell lifecycle hooks, agent routing, Claude/Codex/Cursor/Devin provider hooks, web autostart and the URI handler.
+
+Important install options include `--alias`, `--bin-dir`, `--lib-dir`, `--mode live|copy|pyz`, `--preset minimal|default|full`, `--with`, `--without`, `--yes`, `--force`, `--dry-run`, `--quiet` and `--home`.
 
 ### Deployment modes
 
 - `live` — launcher targets the checkout;
-- `copy` — package is copied into the configured library directory.
+- `copy` — package is copied into the configured library directory;
+- `pyz` — the running self-contained `.pyz` archive is copied to `<lib-dir>/lake-terminal.pyz` and the launcher runs it directly (`exec <python> <lib-dir>/lake-terminal.pyz "$@"`). Running the installer from inside an archive (`python lake-terminal-….pyz run install`) selects this mode automatically; `live`/`copy` are rejected there because they need a source checkout, and `--mode pyz` is rejected outside an archive. The launcher still pins a Python ≥ 3.13 interpreter.
+
+The manifest additionally records `version` and `payload` (the archive file name) so updates know what is installed. Older manifests without them still load.
 
 ### Components
 
-The installer can manage the launcher, tmux, zsh/bash/PowerShell lifecycle integration, agent routing, Claude/Codex/Cursor/Devin hooks, web startup and macOS copy-URL handling.
+The installer can manage the launcher, tmux, zsh/bash/PowerShell lifecycle integration, agent routing, Claude/Codex/Cursor/Devin hooks, web startup and the native `lake-terminal://` URI handler.
 
-`Layout` describes installation paths. Its properties include `launcher`, `state_dir`, `manifest_path`, `import_root` and `copy_app`.
+`Layout` describes installation paths. Its properties include `launcher`, `state_dir`, `manifest_path`, `import_root` and `uri_app`.
 
 The manifest is stored at:
 
@@ -457,6 +490,18 @@ lake --doctor [--full]
 lake --purge
 ```
 
+### Version, updates and settings
+
+```text
+lake --version
+lake --check-updates            (alias: --update-check)
+lake --update [VERSION]
+lake --settings
+lake --make-release [patch|minor|major|X.Y.Z] [--dry-run] [--no-verify] [--watch]
+```
+
+See [Updates](#updates), [Settings report](#settings-report) and [Releasing](#releasing).
+
 ### Internal integration endpoints
 
 These are intended for installed hooks/providers rather than manual use:
@@ -489,6 +534,9 @@ All paths below are relative to the selected user home unless a caller explicitl
 | `~/.lake_terminal/install.json` | Installer-owned component manifest. |
 | `~/.lake_terminal/agents.json` | Configurable agent signatures. |
 | `~/.lake_terminal/privacy.json` | Retention/output/redaction policy. |
+| `~/.lake_terminal/update.json` | Hand-edited update-check policy ([Updates](#updates)). |
+| `~/.lake_terminal/update-state.json` | Machine-written last-check/notice state (mode `0600`). |
+| `~/.lake_terminal/pyz-cache/` | Per-build unpacked copies of a `.pyz` archive. |
 | Provider-specific config paths | Managed by `ClaudeHooks`, `CodexHooks`, `CursorHooks` and `DevinHooks`. |
 
 Environment variables used by the runtime include:
@@ -497,8 +545,187 @@ Environment variables used by the runtime include:
 - `LAKE_DISABLE_AGENT` — suppresses agent-shell detection when set;
 - `LAKE_AGENT_SURFACE` — explicit execution surface override;
 - `LAKE_EDITOR` — explicit editor identity;
+- `LAKE_DISABLE_UPDATE_CHECK` — turns automatic and on-demand update checks off when set;
+- `LAKE_UPDATE_REPO` — `owner/repo` that overrides the release repository;
+- `GH_TOKEN` / `GITHUB_TOKEN` — authenticate GitHub requests (needed only for a private release repository);
 - provider-specific environment markers used by agent detection;
 - normal VS Code environment markers such as `VSCODE_PID`/`VSCODE_CWD` for editor detection.
+
+---
+
+## Updates
+
+Lake Terminal checks GitHub Releases for newer builds, tells interactive users, and can replace itself.
+
+### Commands
+
+| Command | Behaviour |
+| --- | --- |
+| `lake --version` | Prints `lake-terminal X.Y.Z`. |
+| `lake --check-updates` (`--update-check`) | Forces a check now, ignoring the throttle. Prints `up to date (X.Y.Z)` or `update available: X.Y.Z — run "lake --update"` (exit `0`). A network failure or a repository with no matching release prints `could not check for updates …` (exit `1`). When checks are disabled it says so (exit `0`). |
+| `lake --update [VERSION]` | Installs the latest release, or exactly `VERSION` (which may be older). |
+
+### Automatic notice
+
+Interactive invocations — bare `lake`, `lake ID`, `lake COMMAND…`, `--status`, `--list`, `--watch`, `--view` and `--doctor` — spawn a detached background refresh when the cached answer is stale and print a one-line notice on stderr when a newer release is cached:
+
+```text
+update available: lake-terminal 1.0.0 → 1.2.0 (run "lake --update")
+```
+
+The notice appears at most once per day per version. It never delays the command: the lookup runs in a detached process and the *next* invocation sees the result. A notice or refresh is skipped when stderr is not a terminal, when `LAKE_SESSION_ID` is set (inside a managed session), or when checks are disabled. Machine paths never check or notify: `--exec`, `--send`, `--session-name`, `--status --json`, `--settings`, `--subscribe`, provider hooks, `--mcp`, `--cleanup`, `test integration` and `explain`.
+
+### Policy: `~/.lake_terminal/update.json`
+
+```json
+{
+  "check": "daily",
+  "repository": "kairos-xx/vs_code_compatible_plugins_tools",
+  "tag_prefix": "lake-terminal/v",
+  "channel": "stable",
+  "timeout_seconds": 2
+}
+```
+
+| Key | Values | Default |
+| --- | --- | --- |
+| `check` | `always`, `hourly`, `daily`, `weekly`, `never` | `daily` |
+| `repository` | `owner/repo` publishing releases | the monorepo above |
+| `tag_prefix` | tag prefix identifying this project's releases | `lake-terminal/v` |
+| `channel` | `stable` (skips prereleases) or `prerelease` | `stable` |
+| `timeout_seconds` | positive integer network timeout | `2` |
+
+Invalid or missing values fall back to defaults; a corrupt file never raises. `LAKE_DISABLE_UPDATE_CHECK=1` disables checks and `LAKE_UPDATE_REPO=owner/repo` overrides `repository`; both win over the file. The latest release is the **highest semantic version** among non-draft releases whose tag starts with `tag_prefix`, not merely the newest one, so other projects in the monorepo are ignored.
+
+Set `GH_TOKEN` or `GITHUB_TOKEN` to authenticate API requests. Anonymous checks receive `404` from a private repository, and release assets are downloaded through their public URLs, so user-facing updates need a public repository.
+
+### How `lake --update` behaves per install
+
+| Install | Result |
+| --- | --- |
+| `live` | Refuses with exit `2`: `Live install points at <source>; update with "git pull" or reinstall with "run install --mode copy".` A development checkout is never rewritten. |
+| source checkout, no install | Refuses with exit `2` and the same `git pull` advice. |
+| `copy` | Downloads the release archive and converts the install to `pyz` (launcher and manifest rewritten). The old copied package directory is left in place. |
+| `pyz` | Replaces `<lib-dir>/lake-terminal.pyz`. |
+| bare archive, no manifest | The running `.pyz` replaces itself. |
+| native installer (PyInstaller build) | Refuses with exit `2`: install the newer package from the release page. |
+
+The download goes to `<lib-dir>/.lake-download/`. The archive must be a zip and its SHA-256 must match the release's `SHA256SUMS.txt`; a missing checksum asset, missing platform build or mismatched digest aborts with exit `1` and leaves the installed archive untouched. The swap is an atomic `os.replace`. If the OS refuses it (a locked file on Windows), Lake writes `~/.lake_terminal/.lake-update-helper.py` — a stdlib-only script that retries the swap, stamps the new `version` into the manifest and removes itself — starts it detached, and exits `0` with "completing the update … in the background".
+
+Assets are named `lake-terminal-<version>-<platform>.pyz` with platform `macos-arm64`, `macos-x86_64`, `linux-x86_64`, `linux-aarch64` or `windows-amd64`.
+
+---
+
+## Settings report
+
+`lake --settings` prints one pure JSON document (nothing else is written to stdout) describing every effective setting:
+
+```json
+{
+  "version": "1.0.0",
+  "product": {"name": "Lake Terminal", "command": "lake"},
+  "install": {
+    "mode": "pyz", "alias": "lake", "launcher": "…", "bin_dir": "…",
+    "lib_dir": "…", "payload": "lake-terminal.pyz", "source": "…",
+    "python": "…", "version": "1.0.0", "components": ["launcher"],
+    "installed_at": "…"
+  },
+  "updates": {
+    "enabled": true, "check": "daily", "channel": "stable",
+    "repository": "owner/repo", "repository_from_env": false,
+    "tag_prefix": "lake-terminal/v", "timeout_seconds": 2,
+    "last_check": 1790000000.0, "latest": "1.2.0", "release_url": "…",
+    "update_available": true,
+    "config_file": "…/update.json", "state_file": "…/update-state.json"
+  },
+  "privacy": {"history_days": 30, "event_days": 90, "persist_output": false,
+              "output_limit_bytes": 262144, "redact_patterns": [],
+              "config_file": "…/privacy.json"},
+  "paths": {"state_directory": "…", "database": "…/lake.db"},
+  "environment": {"LAKE_DISABLE_UPDATE_CHECK": false, "LAKE_UPDATE_REPO": false,
+                  "GH_TOKEN": false, "GITHUB_TOKEN": false,
+                  "LAKE_DISABLE_AGENT": false}
+}
+```
+
+`install` is `null` for an uninstalled source run. `updates.enabled` is false when `check` is `never` or `LAKE_DISABLE_UPDATE_CHECK` is set. The `environment` block reports only whether each variable is set — token values are never emitted.
+
+---
+
+## Releasing
+
+`lake --make-release [patch|minor|major|X.Y.Z]` (default `patch`) is a maintainer command and works only from a source checkout (a git work tree containing `tools/lake_terminal/pyproject.toml` and the repository's `release.toml`); from an archive, copy or native installer it prints `--make-release is only available from a source checkout.` and exits `2`.
+
+It is a thin front end over [`tools.release_publish`](../release_publish/DOCS.md). Lake Terminal keeps no release logic of its own: version arithmetic, the clean-tree and tag guards, the version-file rewrite, the commit, the tag and the push all belong to `release_publish`, driven by `release.toml` at the repository root:
+
+```toml
+[release]
+tag_template = "{project}/v{version}"     # -> lake-terminal/v1.2.3
+publish_pypi = false
+create_github_release = false              # CI attaches the archives
+pre_hooks = [["{python}", "-m", "pytest", "../../tests/tools/lake_terminal", "-q"]]
+
+[projects.lake-terminal]
+path = "tools/lake_terminal"
+version_files = ["tools/lake_terminal/lake_terminal/product.py"]
+```
+
+The version is read from `Product.version`, so there is no second copy to keep in sync; `pyproject.toml` reads it dynamically too. The tag template, repository and tag prefix must match what the updater looks for (`UpdateConstants`); a test pins that.
+
+Flags: `--dry-run` prints the plan and changes nothing; `--no-verify` skips the configured hooks (the test run); `--watch` follows the CI run with `gh run watch` after a successful push. The command always passes `--no-publish`, so nothing is uploaded from your machine.
+
+Sequence (all inside `release_publish`):
+
+1. Resolve the new version from the version file; an explicit `X.Y.Z` must exceed the latest `lake-terminal/v*` tag and the tag must not already exist.
+2. Preflight: no uncommitted changes (`git diff --quiet HEAD`).
+3. Hooks: the test suite. Lint runs in CI on the tag.
+4. Rewrite only the `Product.version` literal.
+5. Stage and commit **only the version files** (pathspec commit, so untracked or unrelated files cannot enter the release commit), `git tag -a lake-terminal/vX.Y.Z`, then push the commit and the tag.
+
+Pushing the tag starts `.github/workflows/lake-release.yml`. It asks `release_publish show` for the project directory and version (and refuses a tag that disagrees), lints and tests, builds one archive per platform (`macos-14`, `macos-15-intel`, `ubuntu-latest`, `ubuntu-24.04-arm`, `windows-latest`) with `python -m tools.release_builder … --format pyz` (Arrow, which Lake imports, is a declared dependency and a `local_dependencies` entry of the manifest), writes `SHA256SUMS.txt` with `python -m tools.release_publish.artifacts dist --name SHA256SUMS.txt`, and creates the GitHub release with `python -m tools.release_publish … publish` (generated notes starting from the previous `lake-terminal/v*` tag). Lake Terminal contains no build or publish code of its own: only the manifest, `release.toml`, the archive bootstrap `pyz_main.py` and the workflow that wires the two tools together. A `workflow_dispatch` run builds the artifacts without publishing, which is the recommended rehearsal before the first real tag.
+
+Manual equivalent: `python -m tools.release_publish --config release.toml release --project lake-terminal --bump patch --no-publish` (add `--dry-run` or run `plan` first).
+
+Multi-platform archives cannot be built on one machine by design, which is why releasing pushes a tag and lets CI build.
+
+---
+
+## Distribution
+
+Each release carries a self-contained archive per platform. Compiled dependencies (`psutil`) cannot be imported from inside a zip, so the archive unpacks itself once per build into `~/.lake_terminal/pyz-cache/` and imports from there; replaced builds are pruned. It still needs a Python ≥ 3.13 interpreter on `PATH`.
+
+```bash
+curl -LO https://github.com/kairos-xx/vs_code_compatible_plugins_tools/releases/download/lake-terminal/v1.0.0/lake-terminal-1.0.0-macos-arm64.pyz
+curl -LO https://github.com/kairos-xx/vs_code_compatible_plugins_tools/releases/download/lake-terminal/v1.0.0/SHA256SUMS.txt
+shasum -a 256 -c --ignore-missing SHA256SUMS.txt
+chmod +x lake-terminal-1.0.0-macos-arm64.pyz
+./lake-terminal-1.0.0-macos-arm64.pyz run install
+```
+
+`run install` forwards to the installer, which detects the archive and installs in `pyz` mode. Afterwards `lake --update` keeps it current.
+
+### Native installers (no Python required)
+
+The `.pyz` archives need a Python ≥ 3.13 interpreter. For machines without one, [`tools.release_builder`](../release_builder/README.md) freezes Lake Terminal with PyInstaller into a macOS `.pkg`, a Linux `.deb` and a Windows ARM64 setup `.exe`, each built on its own target environment:
+
+```bash
+python -m tools.release_builder \
+    --project tools/lake_terminal \
+    --manifest tools/lake_terminal/release-builder.toml \
+    --output dist/native --platform macos
+```
+
+[`release-builder.toml`](../../../tools/lake_terminal/release-builder.toml) reads the version from `product.py` (`version_file`), freezes [`lake_entry.py`](../../../tools/lake_terminal/lake_entry.py) (a frozen script cannot use `__main__.py`'s relative imports) and passes `--collect-submodules lake_terminal --collect-data lake_terminal` because `cli.py` imports `update`, `settings` and `release` with `importlib`, which PyInstaller cannot trace. The `[windows]` worker is only required with `--platform windows`. Results and checksums land in `dist/native/artifacts.json`; attach them to the release with `gh release upload lake-terminal/vX.Y.Z dist/native/<platform>/*`. A frozen build cannot replace itself, so `lake --update` explains that the newer package must be installed instead.
+
+To build the `.pyz` locally for the current platform:
+
+```bash
+python -m tools.release_builder --project tools/lake_terminal \
+    --manifest tools/lake_terminal/release-builder.toml \
+    --output dist --format pyz
+```
+
+`release_builder` installs a throwaway copy of the project and its wheels with `pip install --target … --only-binary :all:`, ships `pyz_main.py` (the `[pyz] bootstrap` in the manifest) as the archive's `__main__.py`, writes `lake-terminal-<version>-<platform>.pyz` and smoke-tests `--version` with an isolated home directory. Checksums for the release are written once, in CI, by `release_publish`.
 
 ---
 
@@ -523,6 +750,57 @@ Immutable configured agent signature with `identifier`, `name`, `enabled`, `proc
 - `is_agent_shell() -> bool` — inspect current ancestry/environment.
 - `ancestor_commands() -> tuple[str, ...]` — collect ancestor commands.
 - `matches(*, command: str, agent: AgentType) -> bool` — test one command against one signature.
+
+## `agent_identity`
+
+Resolves the coding-agent identity exported to a process.
+
+### `AgentIdentity`
+
+Describes the agent, provider session and surface of this process (`agent`, `session`, `surface`, `source`).
+
+- `from_environment(*, environment) -> AgentIdentity | None` — resolve provider, session and surface from environment variables.
+- `canonical(*, name: str) -> str` — normalize provider names and aliases.
+- `lake_variables() -> dict[str, str]` — the `LAKE_` variables a hook exports to child shells.
+
+## `arrow_api`
+
+Arrow trust boundary for Lake Terminal URI control.
+
+### `LakeArrowOperation`
+
+Maps one public Arrow operation to existing Lake Terminal IPC (`name`, `ipc_operation`, `destructive`).
+
+### `LakeArrowResult`
+
+Result and trusted context for one Arrow invocation (`response`, `context`).
+
+### `LakeArrow`
+
+Exposes existing Lake Terminal control through signed Arrow URIs.
+
+- `create_uri(*, operation, values, subject, ttl) -> str` — issue a signed, expiring operation URI.
+- `execute_uri(*, uri) -> LakeArrowResult` — validate, authorize and dispatch a URI to IPC.
+
+## `attribution`
+
+Resolves agent attribution from explicit evidence without guessing.
+
+### `AttributionStrength`
+
+Ranks attribution evidence from weakest to strongest.
+
+### `AttributionEvidence`
+
+One provider-attribution observation (`provider`, `provider_session`, `source`, `detail`, `surface`, `editor`, `workspace`); `authoritative()` reports whether the observation can decide attribution alone.
+
+### `AttributionDecision`
+
+The selected attribution and all supporting evidence (`selected`, `evidence`, `conflicted`).
+
+### `AttributionResolver`
+
+- `resolve(*, evidence) -> AttributionDecision` — deterministic evidence precedence.
 
 ## `buffer`
 
@@ -636,11 +914,6 @@ Daemon/client-facing ConPTY API:
 
 `last_error()` and `win_dll_factory()` expose low-level Windows error/DLL helpers.
 
-## `copy_url`
-
-- `command_from_url(*, url: str) -> str` — derive the command carried by a Lake Terminal URL.
-- `main(*, arguments: tuple[str, ...] | None = None) -> int` — copy-URL command entry point.
-
 ## `core`
 
 ### `ExecResult`
@@ -729,6 +1002,16 @@ Structured event details.
 
 - `lines() -> tuple[str, ...]`
 
+## `hook_session`
+
+Hook-backed sessions for agents whose shells Lake cannot own. Provider hooks translate native tool activity into ordinary observable sessions.
+
+### `HookSessions`
+
+- `ensure(*, home, agent, agent_session, workspace, create) -> SessionEntry | None` — find or create the session for a provider-native tool run.
+- `command_started(*, home, entry, tool_use_id, command, cwd) -> None` — record a tool command start.
+- `command_finished(*, home, entry, tool_use_id, failed, response) -> None` — record completion and response.
+
 ## `hosts`
 
 ### `RemoteHost`
@@ -761,7 +1044,7 @@ Remote host definition.
 
 ### `Layout`
 
-Installation layout with properties `launcher`, `state_dir`, `manifest_path`, `import_root` and `copy_app`.
+Installation layout with properties `launcher`, `state_dir`, `manifest_path`, `import_root` and `uri_app`.
 
 ### `Component`
 
@@ -790,7 +1073,7 @@ Public helper functions include:
 - shells: `install_zsh`, `install_bash`, `install_powershell`, matching `*_installed` and `remove_*` functions;
 - routing: `routing_block`, `install_block`, `remove_block`, `routing_files`, `install_routing`, `routing_installed`, `remove_routing`;
 - providers: `install_claude`, `install_codex`, `install_cursor`, `install_devin`, corresponding installed/remove functions and `hook_installed`;
-- copy URL: `install_copyurl`, `copyurl_installed`, `remove_copyurl`;
+- URI handler: `install_uri_handler`, `uri_handler_installed`, `remove_uri_handler`;
 - selection/layout: `components`, `windows_root`, `default_bin_dir`, `default_lib_dir`, `validated_alias`, `resolve_selection`, `csv`;
 - manifest: `read_manifest`, `write_manifest`, `manifest_layout`;
 - wizard: `read_key`, `wizard_frame`, `prompt_alias`, `wizard_toggle`, `wizard_edit`, `wizard`;
@@ -825,6 +1108,15 @@ Public helper functions include:
 - `handle(*, connection: IpcConnection)`
 - `broadcast(*, payload: str)`
 
+## `json_config`
+
+Reads and writes third-party JSON configuration without destroying it.
+
+### `JsonConfig`
+
+- `load(*, path: Path) -> JsonObject` — return the stored object, or `{}` when absent; refuses non-object/invalid JSON rather than overwriting it.
+- `save(*, path: Path, data: JsonObject) -> None` — atomically replace the file, keeping a one-time `.lake-bak` backup.
+
 ## `lifecycle`
 
 ### `CommandLifecycle`
@@ -839,6 +1131,25 @@ Public helper functions include:
 - `remove_file(*, path: Path) -> None`
 - `install_powershell(*, path: Path, command: str = "lake") -> None`
 - `install_file(*, path: Path, command: str = "lake") -> None`
+
+## `mcp_registration`
+
+Registers the Lake Terminal MCP server with Claude clients.
+
+### `McpRegistration`
+
+- `install(*, home, launcher, read_only) -> None` — add the `lake --mcp` server entry.
+- `uninstall(*, home) -> None` — remove the registration.
+- `installed(*, home) -> bool` — report whether the server is registered.
+- `claude_desktop_path(*, home) -> Path` / `claude_code_path(*, home) -> Path` — the client configuration files.
+
+## `mcp_server`
+
+Minimal-latency MCP stdio server for Lake Terminal.
+
+### `LakeMcpServer`
+
+Serves MCP tool calls against a resident Lake Terminal service (`protocol_version`, `server_name`, `send_keys`, `mutating_tools`, `tools`); `serve()` runs the stdio loop.
 
 ## `models`
 
@@ -957,6 +1268,21 @@ Normalized process-tree node.
 - `listening_ports(*, sockets: list[NetworkConnection])`
 - `root_pid(*, entry: SessionEntry) -> int`
 
+## `release`
+
+Front end behind `lake --make-release`; the release logic lives in `tools.release_publish`.
+
+- `repo_root(*, anchor)` — git work tree containing the project and `release.toml`, else `None`.
+- `release_command(*, root, arg, dry_run, verify)` — the `release_publish` argument vector; raises `ValueError` for anything but `patch|minor|major|X.Y.Z`.
+- `run_cli(*, arguments, anchor, stream)` — argument parsing, the source-checkout gate, running the command and optionally `gh run watch`.
+- `execute(*, args, root, capture)` — the process seam tests replace.
+
+## `settings`
+
+### `settings_document`
+
+`settings_document(*, home)` returns the JSON-serialisable report printed by `lake --settings`.
+
 ## `startup`
 
 ### `StartupState`
@@ -984,8 +1310,6 @@ LakeDatabase(*, home: Path)
 
 Schema/integrity:
 
-- `upgrade_sqlite_schema(*, database: Connection, version: int) -> None`
-- `table_exists(*, database: Connection, table: str) -> bool`
 - `schema_version() -> int`
 - `integrity()` — inspect database integrity/recovery state.
 
@@ -1038,6 +1362,22 @@ One rendered dashboard row.
 - `key(*, timeout: float)`
 - `once()`
 - `run()`
+
+## `update`
+
+- `UpdatePolicy.load(*, home)` / `UpdateState.load(*, home)` — policy (`update.json` plus environment) and cached state (`update-state.json`).
+- `parse_version`, `is_newer` — tolerant numeric version comparison.
+- `latest_release(*, policy)`, `release_for_version(*, policy, version)`, `select_asset(*, release)`, `platform_tag()`.
+- `fetch_json(*, url, policy)`, `fetch_bytes(*, url, policy)` — HTTPS-only network seams.
+- `check(*, home)`, `maybe_refresh(*, home)`, `notify(*, home, stream)`, `check_updates(*, home, stream)`.
+- `run_update(*, home, requested, stream)` — verified download and atomic archive replacement.
+- `main(*, arguments, home)` — internal `--update-refresh` entry point.
+
+## `url_handler`
+
+Handles `lake-terminal://` custom URIs through Arrow.
+
+- `main(*, arguments: tuple[str, ...] | None = None) -> int` — URI-handler entry point: Arrow `request/v1` URIs are validated and dispatched through `LakeArrow`; responses are written to stdout.
 
 ## `web`
 
@@ -1134,7 +1474,7 @@ Stable process-start identity is stored separately from a PID. Monitoring logic 
 
 ### Database recovery
 
-Database setup performs migrations transactionally. The implementation tracks recovery state through `LakeDatabase.recovered_from`; diagnostics expose database integrity rather than silently treating corruption as valid state.
+Database setup creates the schema transactionally. A file that is corrupt or has an older, unsupported schema is set aside (renamed with a `.corrupt-<timestamp>` suffix) and replaced with a fresh database; a newer schema is left untouched. The implementation tracks this through `LakeDatabase.recovered_from`, and diagnostics expose database integrity rather than silently treating corruption as valid state.
 
 ### Daemon unavailable
 
@@ -1167,21 +1507,18 @@ For a concise project introduction, see [README.md](../../../tools/lake_terminal
 lake --help
 ```
 
-## Product identity and migration API
+## Product identity API
 
 ### `Product`
 
 `lake_terminal.product.Product` is the single authority for externally visible product
-identity. It defines `name`, `command`, `module`, current/legacy state directory names,
-current/legacy database names, and the URL scheme. Runtime code should consume these
+identity. It defines `name`, `command`, `module`, the state directory and database names, and the URL scheme. Runtime code should consume these
 values rather than introducing new product-name literals.
 
 ### `state_directory(*, home: Path) -> Path`
 
-Returns the private Lake Terminal state directory. On first access it atomically renames a
-legacy `~/.shared_tmux` directory when `.lake_terminal` does not yet exist, migrates
-`shared.db` to `lake.db`, creates the current directory when needed, and applies user-only
-permissions on Unix-like systems.
+Returns the private Lake Terminal state directory, creating it when needed and applying
+user-only permissions on Unix-like systems.
 
 ### `secure_private_file(*, path: Path) -> None`
 

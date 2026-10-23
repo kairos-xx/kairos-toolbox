@@ -1,0 +1,30 @@
+# Release configuration for tools.release_publish.
+#
+#   python -m tools.release_publish plan --project lake-terminal
+#   lake --make-release [patch|minor|major|X.Y.Z]      (front end for the above)
+#
+# The tag `lake-terminal/v<X.Y.Z>` triggers .github/workflows/lake-release.yml,
+# which builds the per-platform archives and creates the GitHub release, so the
+# local run neither creates the release nor publishes to PyPI.
+
+[repository]
+provider = "github"
+owner = "kairos-xx"
+name = "vs_code_compatible_plugins_tools"
+default_branch = "main"
+visibility = "public"
+
+[release]
+tag_template = "{project}/v{version}"
+publish_pypi = false
+create_github_release = false
+# Tests gate every release. Lint runs in CI on the tag. Hooks run from the
+# project directory, hence the relative test path.
+pre_hooks = [
+    ["{python}", "-m", "pytest", "../../tests/tools/lake_terminal", "-q"],
+]
+
+[projects.lake-terminal]
+path = "tools/lake_terminal"
+# The version is read from here; there is no second copy in this file.
+version_files = ["tools/lake_terminal/lake_terminal/product.py"]

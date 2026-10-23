@@ -41,20 +41,29 @@ class CommandLifecycle:
         self.recorder: EventRecorder = EventRecorder(home=home)
         self._host_id: str = IdentityStore(home=home).host_id()
 
-    def start(self, *, session_id: str, command: str, cwd: str) -> str:
+    def start(
+        self,
+        *,
+        session_id: str,
+        command: str,
+        cwd: str,
+        command_id: str = "",
+    ) -> str:
         """Record an authoritative command start and return its UUID.
 
         Args:
             session_id: Session id.
             command: Command.
             cwd: Cwd.
+            command_id: Caller-supplied identifier, such as a tool-use id,
+                so a later process can finish the same command.
 
         Returns:
             The resulting value.
 
         """
         entry: SessionEntry = self._entry(session_id=session_id)
-        command_id: str = IdentityStore.new_id()
+        command_id = command_id or IdentityStore.new_id()
         started_at: str = datetime.now(tz=UTC).isoformat()
         redacted: str = Redactor.redact(value=command)
         self._database.command_started(

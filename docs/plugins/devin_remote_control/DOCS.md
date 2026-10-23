@@ -41,7 +41,7 @@ project URLs and pairing material are not sent to a QR SaaS.
 
 ## Tests and release tooling
 
-- `test/*.test.mjs`: service and real-loopback gateway integration tests.
+- `test_original/*.test.mjs`: service and real-loopback gateway integration tests.
 - `tools/check.mjs`: JavaScript syntax and canonical structural web checks.
 - `tools/package.mjs`: deterministic source ZIP + VSIX assembly.
 - `AGENTS.md`: complete canonical engineering policy embedded with the source.

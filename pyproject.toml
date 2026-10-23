@@ -113,7 +113,7 @@ project-excludes = [
 ]
 project-includes = ["**/lake_terminal/**"]
 python-version = "3.13"
-search-path = [".", "tools/arrow"]
+search-path = [".", "tools/arrow", "tools/lake_terminal"]
 
 #
 # COVERAGE
@@ -130,13 +130,49 @@ skip_covered = false
 
 
 [tool.exactus]
-
 collect-files = true # bundle FILES/{README,TREE,files.zip} with
 clean = true         # clear reports before running; a list
-exclude = ["dev/**"]
 
 
 [tool.exactus.coverage_tests]
-exclude = ["dev/**"]  # exclude relative paths matching GLOB
 fail-under = 90       # overall Python+JS coverage floor
 per-file-minimum = 80 # per-source-file coverage floor
+
+
+#
+# RELEASE AUTOMATION
+#
+# A bare `python ./tools/release_builder` reads this table and runs every
+# listed format, then publishes the GitHub release (synchronizing wiki/
+# when it exists) and uploads the built distributions to PyPI.
+#
+
+[tool.release_builder]
+project = "tools/lake_terminal"
+manifest = "tools/lake_terminal/release-builder.toml"
+output = "build"
+release_config = "release.toml"
+# "windows" additionally needs the [windows] QEMU worker table in the
+# manifest (host/port/user/identity_file for the SSH-reachable guest).
+platforms = ["macos", "linux"]
+formats = ["native", "pyz", "pypi"]
+# GitHub release target: a project name from release.toml. Remove the key
+# to build without publishing.
+publish = "lake-terminal"
+# Upload the distributions that `--format pypi` produced (sdist + wheel for
+# every local_dependencies entry, then the project) through
+# `python -m tools.release_publish.upload`.
+pypi_upload = true
+dry_run = false
+
+# A bare `python ./tools/release_publish` synthesizes the command line
+# below: `release` bumps the version, runs pre_hooks, tags and pushes —
+# the pushed tag hands off to CI, which creates the hosted release.
+[tool.release_publish]
+config = "release.toml"
+command = "release"
+projects = ["lake-terminal"]
+bump = "patch"
+dry_run = false
+resume = false
+skip_hooks = false

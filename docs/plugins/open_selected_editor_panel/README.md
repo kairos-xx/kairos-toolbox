@@ -7,7 +7,7 @@ Open an Explorer selection into the editor group you chose, recursively expandin
 
 ### Files
 
-- [`DOCS.md`](DOCS.md) — Open an Explorer selection into the editor group you chose, recursively expanding folders and keeping files pinned as real tabs.
+- [`DOCS.md`](DOCS.md) — > Open an Explorer selection into the editor group you chose, recursively > expanding folders and keeping files pinned as real tabs.
 
 ### Subdirectories
 

@@ -66,7 +66,7 @@ The installer supports an interactive component wizard as well as non-interactiv
 
 ```bash
 # Create and attach to a managed persistent shell.
-shared
+lake
 
 # Create a managed shell, run a command, then keep the shell alive.
 lake pytest -q
@@ -187,7 +187,9 @@ Exposed tools:
 
 Tools that target a session accept an optional `session_id`; it defaults only when exactly one live session exists. Every tool returns human-readable `content` plus machine-readable `structuredContent` matching its declared `outputSchema` (protocol `2025-06-18`). Sessions created through `lake_new` are attributed as agent-initiated.
 
-To register the server with an MCP client such as Claude Desktop, add it to the client's server configuration:
+The installer registers the server for you (`python lake_terminal/install.py install --with mcp`): it edits Claude Desktop's `claude_desktop_config.json` (only when Claude Desktop is installed) and uses `claude mcp add-json --scope user` for Claude Code, falling back to `~/.claude.json`. `lake --doctor` reports whether it is registered. `lake --mcp --read-only` (or `LAKE_MCP_READ_ONLY=1`) exposes only the inspection tools (`lake_sessions`, `lake_output`, `lake_events`, `lake_commands`).
+
+To register the server manually with an MCP client such as Claude Desktop, add it to the client's server configuration:
 
 ```json
 {
@@ -199,6 +201,25 @@ To register the server with an MCP client such as Claude Desktop, add it to the 
   }
 }
 ```
+
+## Agent identity: one variable, every provider
+
+Lake resolves who is running a shell from the provider's own environment, so no
+hook is needed for attribution. `LAKE_AGENT` / `LAKE_AGENT_SESSION` win when set;
+otherwise the first native session variable present is used:
+
+| Provider | Session variable(s), strongest first | Surface |
+| --- | --- | --- |
+| Claude Code | `CLAUDE_CODE_SESSION_ID`, `CLAUDE_SESSION_ID` | `CLAUDE_CODE_ENTRYPOINT`: `cli`, `claude-vscode` → `vscode`, `claude-desktop` → `desktop`, `sdk-*` → `sdk` |
+| Codex | `CODEX_SESSION_ID`, `CODEX_THREAD_ID` | |
+| Cursor | `CURSOR_SESSION_ID` | |
+| Devin | `DEVIN_SESSION_ID` | |
+
+Claude Code and Devin run shell commands in their own non-interactive
+processes, so their native hooks also record each Bash/`exec` tool call into a
+non-reconnectable *hook session* (state, command, exit status) and `lake
+--doctor` shows the identity resolved for the current process. VS Code forks
+(Devin, Cursor, Windsurf, VSCodium) are told apart from the IPC hook path.
 
 ## Control-plane architecture
 
@@ -254,7 +275,7 @@ For VS Code-compatible integrations, the intended machine interface is the SQLit
 
 ## Installation model
 
-The component installer can install only what a machine needs: launcher, tmux, shell lifecycle hooks, agent routing, provider hooks, web startup and the macOS copy-URL integration.
+The component installer can install only what a machine needs: launcher, tmux, shell lifecycle hooks, agent routing, provider hooks, web startup and the native `lake-terminal://` URI handler.
 
 ```bash
 python lake_terminal/install.py plan --preset default
@@ -296,7 +317,7 @@ For the complete API, data model, CLI semantics, configuration files, daemon pro
 
 Lake Terminal is intentionally built around a few constraints:
 
-1. **No legacy JSON state path.** SQLite is canonical.
+1. **One state store.** SQLite is canonical; there is no JSON state path.
 2. **No fake persistence.** A process is reconnectable only when its backend actually supports it.
 3. **Provider-neutral core.** Provider-specific behavior stays in hook adapters.
 4. **Execution-host truth.** Capabilities belong to the machine/container/remote host running the command.
@@ -309,14 +330,17 @@ Lake Terminal is intentionally built around a few constraints:
 The repository includes Python tests for the control plane and Node tests for the web assets. The project is designed to run across macOS, Linux and Windows, with backend-specific tests isolated behind capability/fake layers.
 
 ```bash
-python -m pytest lake_terminal/tests
-node --test lake_terminal/lake_terminal/web_assets/app.test.mjs
+python -m pytest tests/tools/lake_terminal
+node --test tools/lake_terminal/lake_terminal/web_assets/app.test.mjs
 ```
+
+The test suite is hermetic: `tests/conftest.py` strips `CLAUDE*`, `CODEX_*`,
+`CURSOR_*`, `DEVIN_*`, `LAKE_*` and `VSCODE_*` variables, so it gives the same
+result when run from inside Claude Code, Devin or Cursor.
 
 ## Documentation
 
-- **[DOCS.md](../../docs/tools/lake_terminal/DOCS.md)** — complete architecture, configuration and Python API reference.
-- **[DOCS_IMPLEMENTATION.md](../../docs/tools/lake_terminal/DOCS_IMPLEMENTATION.md)** — concise implementation-state notes.
+- **[DOCS.md](../../docs/tools/lake_terminal/DOCS.md)** — complete architecture, capabilities, configuration and Python API reference.
 - `lake --help` — complete command-line operational manual.
 
 ---
@@ -328,12 +352,16 @@ node --test lake_terminal/lake_terminal/web_assets/app.test.mjs
 
 ### Files
 
+- [`LICENSE`](LICENSE) — Provide LICENSE project content.
 - [`PLATFORMS.md`](PLATFORMS.md) — Lake Terminal is OS- and CPU-architecture independent at the control-plane layer. Backend capabilities are discovered at runtime.
 - [`SECURITY.md`](SECURITY.md) — Lake Terminal is a local execution control plane. Session metadata, command history, process information, IPC authentication material, and optional terminal output are private user data.
 - [`__init__.py`](__init__.py) — Runnable wrapper exposing the Lake Terminal control-plane entry points.
 - [`__main__.py`](__main__.py) — Execute the Lake Terminal control plane as a module or directory.
 - [`install.py`](install.py) — Install, inspect, and remove the Lake Terminal control-plane integration.
+- [`lake_entry.py`](lake_entry.py) — Entry script frozen by ``tools.release_builder`` into native installers.
 - [`pyproject.toml`](pyproject.toml) — Provide pyproject toml content.
+- [`pyz_main.py`](pyz_main.py) — Entry point of the self-contained ``lake-terminal`` archive.
+- [`release-builder.toml`](release-builder.toml) — Provide release builder toml content.
 
 ### Subdirectories
 

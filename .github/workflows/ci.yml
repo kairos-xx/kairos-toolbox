@@ -9,7 +9,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+        # macos-13 was retired by GitHub; macos-15-intel is the Intel runner.
+        os: [ubuntu-latest, windows-latest, macos-15-intel, macos-latest]
         python: ["3.13"]
     runs-on: ${{ matrix.os }}
     steps:
@@ -18,8 +19,15 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install Lake Terminal
-        run: python -m pip install -e tools/lake_terminal pytest pytest-cov
+        run: python -m pip install -e tools/arrow -e tools/lake_terminal pytest pytest-cov httpx ruff==0.15.22
+      - name: Lint
+        run: ruff check tools/lake_terminal tests/tools/lake_terminal tests/conftest.py
       - name: Test Lake Terminal
         run: python -m pytest tests/tools/lake_terminal -q
       - name: Synthetic provider qualification
         run: lake test integration synthetic all
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test dashboard assets
+        run: node --test tools/lake_terminal/lake_terminal/web_assets/app.test.mjs

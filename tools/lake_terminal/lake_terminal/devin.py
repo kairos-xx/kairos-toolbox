@@ -3,13 +3,20 @@
 
 from __future__ import annotations
 
-from json import JSONDecodeError, dumps, load, loads
+from json import JSONDecodeError, load
 from pathlib import Path
 from shlex import quote
 from sys import stdin
-from typing import Final, TypedDict, cast
+from typing import TYPE_CHECKING, Final, TypedDict, cast
 
+from .hook_session import HookSessions
+from .identity import IdentityStore
+from .json_config import JsonConfig, JsonObject
+from .provider_state import ProviderState
 from .storage import LakeDatabase
+
+if TYPE_CHECKING:
+    from .models import SessionEntry
 
 
 class Constants:
@@ -20,6 +27,7 @@ class Constants:
         user_config_relative: User config relative.
         events: Events.
         command_marker: Command marker.
+        agent: Canonical provider identifier.
 
     """
 
@@ -31,6 +39,7 @@ class Constants:
         ("PreToolUse", "exec"),
     )
     command_marker: Final[str] = "--devin-hook"
+    agent: Final[str] = "devin"
 
 
 class _Command(TypedDict):
@@ -76,12 +85,16 @@ class _Payload(TypedDict, total=False):
     Attributes:
         hook_event_name: Hook event name.
         session_id: Session id.
+        cwd: Working directory reported by Devin.
+        tool_use_id: Tool-use identifier, when Devin provides one.
         tool_input: Tool input.
 
     """
 
     hook_event_name: str
     session_id: str
+    cwd: str
+    tool_use_id: str
     tool_input: _ToolInput
 
 
@@ -124,11 +137,7 @@ class DevinHooks:
             hooks=hooks,
             launcher=launcher,
         )
-        path.parent.mkdir(parents=True, exist_ok=True)
-        _ = path.write_text(
-            data=dumps(obj=data, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        cls._save(path=path, data=data)
         return path
 
     @classmethod
@@ -160,14 +169,14 @@ class DevinHooks:
             data["hooks"] = cleaned
         else:
             _ = data.pop("hooks", None)
-        _ = path.write_text(
-            data=dumps(obj=data, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        cls._save(path=path, data=data)
 
     @staticmethod
     def run_hook(*, home: Path) -> int:
-        """Register Devin session identity without rewriting tool commands.
+        """Register Devin session identity and mirror its activity.
+
+        Devin's hooks are observed, never rewritten: the shell command is
+        recorded in a hook-backed session and the tool call is left intact.
 
         Args:
             home: Home.
@@ -184,10 +193,35 @@ class DevinHooks:
         session_id: str | None = payload.get("session_id")
         if not session_id:
             return 0
+        workspace: str = payload.get("cwd") or str(object=Path.cwd())
         LakeDatabase(home=home).set_agent_context(
-            provider="devin",
+            provider=Constants.agent,
             session_id=session_id,
-            workspace=str(object=Path.cwd()),
+            workspace=workspace,
+        )
+        event: str = payload.get("hook_event_name", "")
+        entry: SessionEntry | None = HookSessions.ensure(
+            home=home,
+            agent=Constants.agent,
+            agent_session=session_id,
+            workspace=workspace,
+            create=event != "SessionEnd",
+        )
+        command: str = (payload.get("tool_input") or {}).get("command", "")
+        if entry is not None and event == "PreToolUse" and command:
+            HookSessions.command_started(
+                home=home,
+                entry=entry,
+                tool_use_id=payload.get("tool_use_id")
+                or IdentityStore.new_id(),
+                command=command,
+                cwd=workspace,
+            )
+        ProviderState.record(
+            home=home,
+            agent=Constants.agent,
+            agent_session=session_id,
+            hook_event=event,
         )
         return 0
 
@@ -240,7 +274,7 @@ class DevinHooks:
 
     @staticmethod
     def _load(*, path: Path) -> dict[str, JsonValue]:
-        """Load a JSON object, returning an empty object when absent.
+        """Load Devin's configuration, refusing to touch invalid JSON.
 
         Args:
             path: Path.
@@ -248,20 +282,19 @@ class DevinHooks:
         Returns:
             The resulting value.
 
-        Raises:
-            TypeError: When the operation cannot complete.
+        """
+        return cast(typ="dict[str, JsonValue]", val=JsonConfig.load(path=path))
+
+    @staticmethod
+    def _save(*, path: Path, data: dict[str, JsonValue]) -> None:
+        """Atomically save Devin's configuration with a one-time backup.
+
+        Args:
+            path: Path.
+            data: Data.
 
         """
-        if not path.exists():
-            return {}
-        payload: JsonValue = cast(
-            typ="JsonValue",
-            val=loads(s=path.read_text(encoding="utf-8")),
-        )
-        if not isinstance(payload, dict):
-            msg: str = f"Expected a JSON object in {path}."
-            raise TypeError(msg)
-        return cast(typ="dict[str, JsonValue]", val=payload)
+        JsonConfig.save(path=path, data=cast(typ="JsonObject", val=data))
 
     @staticmethod
     def _coerce_hooks(*, value: JsonValue) -> HooksFile:

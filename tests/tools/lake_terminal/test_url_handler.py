@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from io import StringIO
 from typing import Final, final
 from unittest.mock import patch
 
@@ -82,15 +83,18 @@ def test_main_rejects_foreign_scheme() -> None:
     )
 
 
-def test_main_dispatches_copy_route() -> None:
-    """The copy netloc stays on the legacy copy handler."""
+def test_copy_netloc_is_not_a_special_route() -> None:
+    """The retired ``copy`` host is handled like any other Arrow URI."""
+    uri: str = "lake-terminal://copy/x"
     with patch(
-        target="tools.lake_terminal.lake_terminal.url_handler.copy_main",
-        return_value=5,
-    ) as copy:
-        status: int = main(arguments=("lake-terminal://copy/x",))
-    expect(actual=status, expected=5)
-    copy.assert_called_once_with(arguments=("lake-terminal://copy/x",))
+        target="tools.lake_terminal.lake_terminal.url_handler.LakeArrow",
+    ) as arrow:
+        arrow.return_value.execute_uri.return_value = _fake_result(
+            response="",
+        )
+        status: int = main(arguments=(uri,))
+    expect(actual=status, expected=0)
+    arrow.return_value.execute_uri.assert_called_once_with(uri=uri)
 
 
 def test_main_executes_arrow_and_writes_response() -> None:
@@ -101,12 +105,14 @@ def test_main_executes_arrow_and_writes_response() -> None:
         arrow.return_value.execute_uri.return_value = _fake_result(
             response="PONG",
         )
+        stream: StringIO = StringIO()
         with patch(
             target="tools.lake_terminal.lake_terminal.url_handler.stdout",
-        ) as out:
+            new=stream,
+        ):
             status: int = main(arguments=("lake-terminal://request/v1/token",))
     expect(actual=status, expected=0)
-    out.write.assert_called_once_with("PONG\n")
+    expect(actual=stream.getvalue(), expected="PONG\n")
 
 
 def test_main_skips_empty_response() -> None:

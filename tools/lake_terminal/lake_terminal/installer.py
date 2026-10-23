@@ -16,9 +16,10 @@ from re import Pattern
 from re import compile as re_compile
 from select import select
 from shlex import quote
-from shutil import copytree, ignore_patterns, rmtree, which
+from shutil import copy2, copytree, ignore_patterns, rmtree, which
 from sys import argv, executable, stdin, stdout
 from typing import TYPE_CHECKING, Final, Protocol, TypedDict, cast
+from zipfile import is_zipfile
 
 from .claude import ClaudeHooks
 from .claude import Constants as ClaudeConstants
@@ -29,7 +30,9 @@ from .cursor import CursorHooks
 from .devin import Constants as DevinConstants
 from .devin import DevinHooks
 from .lifecycle import LifecycleInstaller
+from .mcp_registration import McpRegistration
 from .process import run
+from .product import Product
 from .startup import (
     StartupState,
     WebStartup,
@@ -109,7 +112,8 @@ class Constants:
         routing_begin: Routing begin.
         routing_end: Routing end.
         alias_pattern: Alias pattern.
-        copy_app_name: Copy app name.
+        uri_app_name: URI handler app bundle name.
+        default_payload: Default archive payload file name.
         url_scheme: Url scheme.
         launch_services: Launch services.
         minimum_python: Minimum python.
@@ -127,13 +131,14 @@ class Constants:
     default_alias: Final[str] = "lake"
     state_directory: Final[str] = ".lake_terminal"
     manifest_name: Final[str] = "install.json"
+    default_payload: Final[str] = "lake-terminal.pyz"
     launcher_marker: Final[str] = "# managed by lake_terminal"
     routing_begin: Final[str] = "# >>> lake automatic agent terminal >>>"
     routing_end: Final[str] = "# <<< lake automatic agent terminal <<<"
     alias_pattern: Final[Pattern[str]] = re_compile(
         pattern=r"[A-Za-z0-9][A-Za-z0-9._+-]*",
     )
-    copy_app_name: Final[str] = "LakeTerminalCopy.app"
+    uri_app_name: Final[str] = "LakeTerminalURI.app"
     url_scheme: Final[str] = "lake-terminal"
     launch_services: Final[Path] = (
         Path("/System/Library/Frameworks/CoreServices.framework/Frameworks")
@@ -159,8 +164,9 @@ class Layout:
         lib_dir: Lib dir.
         alias: Alias.
         mode: Mode.
-        source_root: Source root.
+        source_root: Source root; the running archive in ``pyz`` mode.
         python: Python.
+        payload: Archive file name under ``lib_dir`` in ``pyz`` mode.
 
     """
 
@@ -171,6 +177,17 @@ class Layout:
     mode: str
     source_root: Path
     python: str
+    payload: str = Constants.default_payload
+
+    @property
+    def pyz_path(self) -> Path:
+        """Return the installed self-contained archive path.
+
+        Returns:
+            The resulting value.
+
+        """
+        return self.lib_dir / self.payload
 
     @property
     def launcher(self) -> Path:
@@ -223,7 +240,7 @@ class Layout:
         """
         if self.mode == "copy":
             return self.lib_dir
-        return self.source_root.parent / "arrow"
+        return self.source_root / "arrow"
 
     @property
     def uri_desktop(self) -> Path:
@@ -242,14 +259,14 @@ class Layout:
         )
 
     @property
-    def copy_app(self) -> Path:
-        """Return the user-level clipboard URL handler bundle path.
+    def uri_app(self) -> Path:
+        """Return the user-level URI handler bundle path.
 
         Returns:
             The resulting value.
 
         """
-        return self.home / "Applications" / Constants.copy_app_name
+        return self.home / "Applications" / Constants.uri_app_name
 
 
 class _InstallStep(Protocol):
@@ -447,6 +464,9 @@ def write_launcher(*, layout: Layout) -> None:
     """
     launcher: Path = layout.launcher
     layout.bin_dir.mkdir(parents=True, exist_ok=True)
+    if layout.mode == "pyz":
+        _write_pyz_launcher(layout=layout)
+        return
     if system() == "Windows":
         _ = launcher.write_text(
             data=(
@@ -482,6 +502,81 @@ def write_launcher(*, layout: Layout) -> None:
     launcher.chmod(mode=0o755)
 
 
+def _write_pyz_launcher(*, layout: Layout) -> None:
+    """Write a launcher that runs the installed archive directly.
+
+    Args:
+        layout: Layout.
+
+    """
+    launcher: Path = layout.launcher
+    if system() == "Windows":
+        _ = launcher.write_text(
+            data=(
+                "@echo off\r\n"
+                "rem managed by lake_terminal\r\n"
+                f'"{layout.python}" "{layout.pyz_path}" %*\r\n'
+            ),
+            encoding="utf-8",
+        )
+        return
+    _ = launcher.write_text(
+        data=(
+            "#!/bin/sh\n"
+            f"{Constants.launcher_marker}\n"
+            f"exec {quote(s=layout.python)} "
+            f'{quote(s=str(object=layout.pyz_path))} "$@"\n'
+        ),
+        encoding="utf-8",
+    )
+    launcher.chmod(mode=0o755)
+
+
+def _archive_above(*, path: Path) -> Path | None:
+    """Return the first enclosing path that is a zip file.
+
+    Args:
+        path: Path to walk upwards from.
+
+    Returns:
+        The enclosing archive, or None.
+
+    """
+    return next(
+        (
+            candidate
+            for candidate in path.parents
+            if candidate.is_file() and is_zipfile(filename=candidate)
+        ),
+        None,
+    )
+
+
+def running_archive(*, anchor: Path | None = None) -> Path | None:
+    """Return the ``.pyz`` archive this code is executing from.
+
+    An archive extracts itself into a cache before importing, so the module
+    path alone is not enough; the executed script (``sys.argv[0]``) is also
+    consulted when no explicit anchor is given.
+
+    Args:
+        anchor: Module path to inspect; defaults to this file and argv.
+
+    Returns:
+        The enclosing zip archive, or None when running from a checkout.
+
+    """
+    if anchor is not None:
+        return _archive_above(path=anchor)
+    found: Path | None = _archive_above(path=Path(__file__))
+    if found is not None:
+        return found
+    script: Path = Path(argv[0]) if argv else Path()
+    if script.is_file() and is_zipfile(filename=script):
+        return script.resolve()
+    return None
+
+
 def owned_launcher(*, layout: Layout) -> bool:
     """Return whether the launcher file is one written by this installer.
 
@@ -511,6 +606,10 @@ def install_launcher(*, layout: Layout) -> str:
         The resulting value.
 
     """
+    if layout.mode == "pyz":
+        layout.lib_dir.mkdir(parents=True, exist_ok=True)
+        if layout.source_root.resolve() != layout.pyz_path.resolve():
+            _ = copy2(src=layout.source_root, dst=layout.pyz_path)
     if layout.mode == "copy":
         target: Path = layout.lib_dir / "lake_terminal"
         if target.exists():
@@ -526,7 +625,7 @@ def install_launcher(*, layout: Layout) -> str:
                 ".ruff_cache",
             ),
         )
-        arrow_source: Path = layout.source_root.parent / "arrow" / "arrow_uri"
+        arrow_source: Path = layout.source_root / "arrow" / "arrow_uri"
         if arrow_source.is_dir():
             arrow_target: Path = layout.lib_dir / "arrow_uri"
             if arrow_target.exists():
@@ -568,6 +667,8 @@ def remove_launcher(*, layout: Layout) -> None:
     launcher: Path = layout.launcher
     if owned_launcher(layout=layout):
         launcher.unlink()
+    if layout.mode == "pyz":
+        layout.pyz_path.unlink(missing_ok=True)
     if layout.mode == "copy":
         target: Path = layout.lib_dir / "lake_terminal"
         if target.exists():
@@ -1006,6 +1107,46 @@ def hook_installed(*, path: Path, marker: str) -> bool:
     )
 
 
+def install_mcp(*, layout: Layout) -> str:
+    """Register the Lake MCP server with Claude Desktop and Claude Code.
+
+    Args:
+        layout: Layout.
+
+    Returns:
+        The edited configuration files, or a note when the CLI was used.
+
+    """
+    edited: tuple[Path, ...] = McpRegistration.install(
+        home=layout.home,
+        launcher=layout.launcher,
+    )
+    return ", ".join(map(str, edited)) or "claude mcp (user scope)"
+
+
+def remove_mcp(*, layout: Layout) -> None:
+    """Remove the Lake MCP server registration from Claude clients.
+
+    Args:
+        layout: Layout.
+
+    """
+    McpRegistration.uninstall(home=layout.home)
+
+
+def mcp_installed(*, layout: Layout) -> bool:
+    """Return whether a Claude client has the Lake MCP server registered.
+
+    Args:
+        layout: Layout.
+
+    Returns:
+        The resulting value.
+
+    """
+    return McpRegistration.installed(home=layout.home)
+
+
 def claude_installed(*, layout: Layout) -> bool:
     """Return whether the Claude hook is installed.
 
@@ -1169,21 +1310,12 @@ def install_uri_handler(*, layout: Layout) -> str:
     return "unsupported"
 
 
-def install_copyurl(*, layout: Layout) -> str:
-    """Install the macOS URL handler for backward-compatible callers.
-
-    Args:
-        layout: Layout.
-
-    Returns:
-        Registered application path.
-
-    """
-    return _install_macos_uri_handler(layout=layout)
-
-
-def _handler_command(*, layout: Layout, uri_argument: str) -> str:
+def handler_command(*, layout: Layout, uri_argument: str) -> str:
     """Return the command used by an OS URI registration.
+
+    The installed launcher already knows how to start Lake Terminal in every
+    install mode (a checkout, a copy, or a ``.pyz``), so the handler simply
+    calls it instead of rebuilding import paths.
 
     Args:
         layout: Layout.
@@ -1193,19 +1325,13 @@ def _handler_command(*, layout: Layout, uri_argument: str) -> str:
         Handler command.
 
     """
-    python_path: str = pathsep.join(
-        (str(object=layout.import_root), str(object=layout.arrow_import_root)),
-    )
     if system() == "Windows":
         return (
-            f'cmd.exe /d /s /c "set PYTHONPATH={python_path}'
-            f'&& "{layout.python}" -m {Constants.module}.url_handler '
+            f'cmd.exe /d /s /c ""{layout.launcher}" --handle-uri '
             f'"{uri_argument}""'
         )
     return (
-        f"env PYTHONPATH={quote(s=python_path)} "
-        f"{quote(s=layout.python)} -m {Constants.module}.url_handler "
-        f"{uri_argument}"
+        f"{quote(s=str(object=layout.launcher))} --handle-uri {uri_argument}"
     )
 
 
@@ -1219,11 +1345,11 @@ def _install_macos_uri_handler(*, layout: Layout) -> str:
         The created application bundle path.
 
     """
-    app: Path = layout.copy_app
+    app: Path = layout.uri_app
     if app.exists():
         rmtree(path=app)
     app.parent.mkdir(parents=True, exist_ok=True)
-    shell_command: str = _handler_command(
+    shell_command: str = handler_command(
         layout=layout,
         uri_argument="",
     )
@@ -1292,7 +1418,7 @@ def _install_linux_uri_handler(*, layout: Layout) -> str:
     """
     desktop: Path = layout.uri_desktop
     desktop.parent.mkdir(parents=True, exist_ok=True)
-    command: str = _handler_command(layout=layout, uri_argument="%u")
+    command: str = handler_command(layout=layout, uri_argument="%u")
     _ = desktop.write_text(
         data=(
             "[Desktop Entry]\n"
@@ -1332,7 +1458,7 @@ def _install_windows_uri_handler(*, layout: Layout) -> str:
 
     """
     root: str = rf"HKCU\Software\Classes\{Constants.url_scheme}"
-    command: str = _handler_command(layout=layout, uri_argument="%1")
+    command: str = handler_command(layout=layout, uri_argument="%1")
     entries: tuple[tuple[str, str, str], ...] = (
         (root, "", f"URL:{Constants.url_scheme}"),
         (root, "URL Protocol", ""),
@@ -1352,7 +1478,7 @@ def _install_windows_uri_handler(*, layout: Layout) -> str:
     return root
 
 
-def copyurl_installed(*, layout: Layout) -> bool:
+def uri_handler_installed(*, layout: Layout) -> bool:
     """Return whether the platform URI handler is installed.
 
     Args:
@@ -1362,7 +1488,7 @@ def copyurl_installed(*, layout: Layout) -> bool:
         Whether a URI handler is currently registered.
 
     """
-    if layout.copy_app.exists():
+    if layout.uri_app.exists():
         return True
     platform_name: str = system()
     if platform_name == "Darwin":
@@ -1382,14 +1508,14 @@ def copyurl_installed(*, layout: Layout) -> bool:
     return False
 
 
-def remove_copyurl(*, layout: Layout) -> None:
+def remove_uri_handler(*, layout: Layout) -> None:
     """Unregister the native Lake Terminal URI handler.
 
     Args:
         layout: Resolved installation layout.
 
     """
-    app: Path = layout.copy_app
+    app: Path = layout.uri_app
     if app.exists() and system() != "Darwin":
         rmtree(path=app)
     platform_name: str = system()
@@ -1516,6 +1642,25 @@ def components(*, layout: Layout) -> tuple[Component, ...]:
             installed=claude_installed,
         ),
         Component(
+            key="mcp",
+            title="Claude MCP server",
+            summary=(
+                f"{McpRegistration.claude_desktop_path(home=layout.home)}"
+                " · claude mcp (user scope)"
+            ),
+            available=True,
+            selected=(
+                agent_dirs["claude"].exists()
+                or McpRegistration.claude_desktop_path(
+                    home=layout.home,
+                ).parent.exists()
+            ),
+            required=False,
+            install=install_mcp,
+            remove=remove_mcp,
+            installed=mcp_installed,
+        ),
+        Component(
             key="codex",
             title="Codex hooks",
             summary=str(object=CodexHooks.config_path(home=layout.home)),
@@ -1560,15 +1705,15 @@ def components(*, layout: Layout) -> tuple[Component, ...]:
             installed=_web_installed,
         ),
         Component(
-            key="copyurl",
+            key="uri",
             title="Arrow URI handler",
             summary=f"{Constants.url_scheme}:// native OS handler",
             available=True,
             selected=True,
             required=False,
             install=install_uri_handler,
-            remove=remove_copyurl,
-            installed=copyurl_installed,
+            remove=remove_uri_handler,
+            installed=uri_handler_installed,
         ),
     )
 
@@ -1657,6 +1802,8 @@ class ManifestData(TypedDict, total=False):
         source: Source.
         python: Python.
         components: Components.
+        version: Installed Lake Terminal version.
+        payload: Archive file name in ``pyz`` mode.
 
     """
 
@@ -1669,6 +1816,8 @@ class ManifestData(TypedDict, total=False):
     source: str
     python: str
     components: list[str]
+    version: str
+    payload: str
 
 
 def read_manifest(*, layout: Layout) -> ManifestData:
@@ -1693,12 +1842,18 @@ def read_manifest(*, layout: Layout) -> ManifestData:
     return cast(typ="ManifestData", val=data)
 
 
-def write_manifest(*, layout: Layout, keys: frozenset[str]) -> None:
+def write_manifest(
+    *,
+    layout: Layout,
+    keys: frozenset[str],
+    version: str | None = None,
+) -> None:
     """Write the installation manifest describing the applied layout.
 
     Args:
         layout: Layout.
         keys: Keys.
+        version: Installed version; defaults to the running version.
 
     """
     layout.state_dir.mkdir(parents=True, exist_ok=True)
@@ -1714,6 +1869,8 @@ def write_manifest(*, layout: Layout, keys: frozenset[str]) -> None:
                 "source": str(object=layout.source_root),
                 "python": layout.python,
                 "components": sorted(keys),
+                "version": version or Product.version,
+                "payload": layout.payload,
             },
             indent=2,
         )
@@ -1752,6 +1909,7 @@ def manifest_layout(*, home: Path) -> Layout | None:
         mode=str(object=data.get("mode", probe.mode)),
         source_root=Path(str(object=data.get("source", probe.source_root))),
         python=str(object=data.get("python", probe.python)),
+        payload=str(object=data.get("payload", probe.payload)),
     )
 
 
@@ -1903,6 +2061,8 @@ def wizard_edit(*, layout: Layout, key: str) -> Layout:
             layout,
             alias=prompt_alias(current=layout.alias),
         )
+    if layout.mode == "pyz":
+        return layout
     return replace(
         layout,
         mode="copy" if layout.mode == "live" else "live",
@@ -2256,10 +2416,11 @@ class Installer:
             self._source_root / ".venv" / "bin" / "python",
             Path(executable),
         )
+        bundled: bool = self._source_root.is_file()
         probe: str = (
-            "import sys,psutil;"
-            "sys.exit(0 if sys.version_info>="
-            f"{Constants.minimum_python} else 1)"
+            ("import sys;" if bundled else "import sys,psutil;")
+            + "sys.exit(0 if sys.version_info>="
+            + f"{Constants.minimum_python} else 1)"
         )
         for candidate in candidates:
             if not candidate.is_file():
@@ -2424,6 +2585,37 @@ def _use_colour() -> bool:
     return stdout.isatty() and environ.get("NO_COLOR") is None
 
 
+def resolve_mode(*, requested: str | None, archive: Path | None) -> str:
+    """Choose the install mode from the request and execution context.
+
+    Args:
+        requested: Explicit ``--mode`` value, if any.
+        archive: Running ``.pyz`` archive, if any.
+
+    Returns:
+        ``live``, ``copy`` or ``pyz``.
+
+    Raises:
+        ValueError: When the request cannot be honoured in this context.
+
+    """
+    if archive is None:
+        if requested == "pyz":
+            msg: str = (
+                "pyz mode installs the running archive; "
+                "run this command from a lake-terminal .pyz file."
+            )
+            raise ValueError(msg)
+        return requested or "live"
+    if requested not in {None, "pyz"}:
+        msg = (
+            f"{requested} mode needs a source checkout; "
+            "an archive installs in pyz mode."
+        )
+        raise ValueError(msg)
+    return "pyz"
+
+
 def _add_install_arguments(*, parser: ArgumentParser) -> None:
     """Register the Lake Terminal install option arguments.
 
@@ -2436,10 +2628,11 @@ def _add_install_arguments(*, parser: ArgumentParser) -> None:
     _ = parser.add_argument("--lib-dir", metavar="PATH", type=Path)
     _ = parser.add_argument(
         "--mode",
-        choices=("live", "copy"),
-        default="live",
+        choices=("live", "copy", "pyz"),
+        default=None,
         help="live points the launcher at this checkout; "
-        "copy freezes it under --lib-dir",
+        "copy freezes it under --lib-dir; pyz installs the running "
+        "self-contained archive (chosen automatically from a .pyz)",
     )
     _ = parser.add_argument(
         "--preset",
@@ -2532,8 +2725,13 @@ def main(
         quiet=cast(typ="bool", val=getattr(namespace, "quiet", False)),
         stream=stream,
     )
+    archive: Path | None = running_archive()
     installer: Installer = Installer(
-        source_root=Path(__file__).resolve().parents[2],
+        source_root=(
+            archive
+            if archive is not None
+            else Path(__file__).resolve().parents[2]
+        ),
         home=home,
         reporter=reporter,
     )
@@ -2543,9 +2741,12 @@ def main(
                 purge=cast(typ="bool", val=namespace.purge),
                 dry_run=cast(typ="bool", val=namespace.dry_run),
             )
-        mode: str = cast(
-            typ="str",
-            val=getattr(namespace, "mode", "live"),
+        mode: str = resolve_mode(
+            requested=cast(
+                typ="str | None",
+                val=getattr(namespace, "mode", None),
+            ),
+            archive=archive,
         )
         layout: Layout = installer.layout(
             alias=cast(typ="str | None", val=namespace.alias),

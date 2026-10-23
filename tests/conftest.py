@@ -5,8 +5,34 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from inspect import stack
+from os import environ
 from pathlib import Path
 from sys import path
+from typing import Final, final
+
+import pytest
+
+
+@final
+class Constants:
+    """Group module-level constants.
+
+    Attributes:
+        ambient_prefixes: Grouped module constant.
+
+    """
+
+    ambient_prefixes: Final[tuple[str, ...]] = (
+        "AI_AGENT",
+        "CLAUDE",
+        "CODEX_",
+        "CURSOR_",
+        "DEVIN_",
+        "LAKE_",
+        "TERM_PROGRAM",
+        "VSCODE_",
+        "__CFBundleIdentifier",
+    )
 
 
 @dataclass(frozen=True)
@@ -52,3 +78,19 @@ if str(object=(root := Path(__file__).resolve().parent.parent)) not in path:
 arrow_root: Path = root / "tools" / "arrow"
 if str(object=arrow_root) not in path:
     path.insert(0, str(object=arrow_root))
+
+
+@pytest.fixture(autouse=True)
+def hermetic_agent_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Hide the host agent, editor and Lake identity from every test.
+
+    Tests are routinely run from inside Claude Code, Devin or Cursor, whose
+    exported markers would otherwise change detection results.
+
+    Args:
+        monkeypatch: Monkeypatch.
+
+    """
+    for name in tuple(environ):
+        if name.startswith(Constants.ambient_prefixes):
+            monkeypatch.delenv(name=name, raising=False)

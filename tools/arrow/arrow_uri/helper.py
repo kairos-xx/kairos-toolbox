@@ -169,7 +169,7 @@ class HelperGrantSigner:
             Unpadded URL-safe base64 text.
 
         """
-        return urlsafe_b64encode(s=value).rstrip(b"=").decode("ascii")
+        return urlsafe_b64encode(s=value).rstrip(b"=").decode(encoding="ascii")
 
     @staticmethod
     def _decode(*, value: str) -> bytes:
@@ -183,4 +183,4 @@ class HelperGrantSigner:
 
         """
         padding: str = "=" * (-len(value) % 4)
-        return urlsafe_b64decode(s=(value + padding).encode("ascii"))
+        return urlsafe_b64decode(s=(value + padding).encode(encoding="ascii"))

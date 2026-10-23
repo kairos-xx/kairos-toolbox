@@ -24,11 +24,6 @@ profile ACL and user-scoped named-pipe environment.
 Local daemon IPC uses a randomly generated 256-bit authentication key. The key is
 stored only in the Lake Terminal state directory.
 
-## Legacy migration
-
-Lake Terminal recognizes `~/.shared_tmux` only for one-time migration into
-`~/.lake_terminal`. It does not install or expose the old Python package or command.
-
 ## Reporting
 
 Do not publish secrets, terminal captures, command histories, or state databases in a

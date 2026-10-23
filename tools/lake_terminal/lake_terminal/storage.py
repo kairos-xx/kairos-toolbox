@@ -78,20 +78,18 @@ class Constants:
     Attributes:
         schema_version: Schema version.
         database_name: Database name.
-        archive_schema_boundary: Oldest schema that can be upgraded in place.
 
     """
 
     schema_version: Final[int] = 7
     database_name: Final[str] = "lake.db"
-    archive_schema_boundary: Final[int] = 4
 
 
 class LakeDatabase:
     """Hold canonical transactional Lake Terminal observability state."""
 
     def __init__(self, *, home: Path) -> None:
-        """Open/create the per-user database and apply SQLite migrations.
+        """Open/create the per-user database, setting aside unusable files.
 
         Args:
             home: Home.
@@ -124,83 +122,6 @@ class LakeDatabase:
             )
             self._migrate()
         secure_private_file(path=self.path)
-
-    @classmethod
-    def upgrade_sqlite_schema(
-        cls,
-        *,
-        database: Connection,
-        version: int,
-    ) -> None:
-        """Upgrade SQLite state without destroying historical rows.
-
-        Args:
-            database: Database.
-            version: Version.
-
-        """
-        if version >= Constants.schema_version:
-            return
-        if version >= Constants.archive_schema_boundary:
-            cls._create_current_schema(database=database)
-            return
-        tables: tuple[str, ...] = (
-            "sessions",
-            "commands",
-            "events",
-            "processes",
-            "hosts",
-        )
-        for table in tables:
-            exists: tuple[int] | None = cast(
-                typ="tuple[int] | None",
-                val=database.execute(
-                    (
-                        "SELECT 1 FROM sqlite_master "
-                        "WHERE type='table' AND name=?"
-                    ),
-                    (table,),
-                ).fetchone(),
-            )
-            if exists is None:
-                continue
-            archived: str = f"{table}_archive_v{version}"
-            suffix: int = 1
-            while cls.table_exists(
-                database=database,
-                table=archived,
-            ):
-                suffix += 1
-                archived = f"{table}_archive_v{version}_{suffix}"
-            _ = database.execute(
-                f'ALTER TABLE "{table}" RENAME TO "{archived}"',
-            )
-        cls._create_current_schema(database=database)
-
-    @staticmethod
-    def table_exists(
-        *,
-        database: Connection,
-        table: str,
-    ) -> bool:
-        """Return whether a SQLite table exists.
-
-        Args:
-            database: Database.
-            table: Table name.
-
-        Returns:
-            Whether the table exists.
-
-        """
-        row: tuple[int] | None = cast(
-            typ="tuple[int] | None",
-            val=database.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
-                (table,),
-            ).fetchone(),
-        )
-        return row is not None
 
     def schema_version(self) -> int:
         """Return the currently installed database schema version.
@@ -1128,7 +1049,12 @@ class LakeDatabase:
         return connection
 
     def _migrate(self) -> None:
-        """Apply SQLite schema migrations transactionally."""
+        """Apply SQLite schema migrations transactionally.
+
+        Raises:
+            DatabaseError: If opening the connection or a migration fails.
+
+        """
         with closing(thing=self._connection()) as database, database:
             _ = database.execute(
                 (
@@ -1147,11 +1073,11 @@ class LakeDatabase:
                 self._create_current_schema(database=database)
                 version = Constants.schema_version
             elif version < Constants.schema_version:
-                self.upgrade_sqlite_schema(
-                    database=database,
-                    version=version,
+                msg: str = (
+                    f"unsupported database schema {version}; "
+                    f"expected {Constants.schema_version}"
                 )
-                version = Constants.schema_version
+                raise DatabaseError(msg)
             _ = database.execute(
                 (
                     "INSERT OR REPLACE INTO schema_meta(key,value) "

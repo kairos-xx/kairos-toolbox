@@ -9,6 +9,7 @@ from platform import machine, system
 from shutil import which
 from typing import Final
 
+from .agent_identity import AgentIdentity
 from .conpty import WindowsConPty
 
 
@@ -113,19 +114,41 @@ class RuntimePlatform:
         explicit: str = environ.get("LAKE_AGENT_SURFACE", "").strip().lower()
         if explicit:
             return explicit
+        identity: AgentIdentity | None = AgentIdentity.from_environment()
+        if identity is not None and identity.surface:
+            return identity.surface
         return "vscode" if cls.editor() else "cli"
 
-    @staticmethod
-    def editor() -> str:
+    @classmethod
+    def editor(cls) -> str:
         """Return the detected editor identity when hosted by an editor.
 
+        VS Code-compatible forks share every ``VSCODE_*`` variable, so the
+        fork is read from the user-data directory embedded in the IPC hook
+        path (``.../Application Support/Devin/...``) when available.
+
         Returns:
-            The resulting value.
+            The editor identity, or an empty string outside an editor.
 
         """
         if environ.get("VSCODE_PID") or environ.get("VSCODE_CWD"):
-            return environ.get("LAKE_EDITOR", "vscode")
+            return environ.get("LAKE_EDITOR") or cls._fork()
         return environ.get("LAKE_EDITOR", "")
+
+    @staticmethod
+    def _fork() -> str:
+        """Identify the VS Code-compatible fork from its IPC hook path.
+
+        Returns:
+            The fork name, defaulting to ``vscode``.
+
+        """
+        hook: str = environ.get("VSCODE_IPC_HOOK", "").lower()
+        segments: set[str] = set(hook.replace("\\", "/").split(sep="/"))
+        for name in ("devin", "cursor", "windsurf", "vscodium"):
+            if name in segments:
+                return name
+        return "vscode"
 
     @staticmethod
     def _clipboard_available(*, os_name: str) -> bool:

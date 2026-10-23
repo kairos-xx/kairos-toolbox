@@ -3,14 +3,20 @@
 
 from __future__ import annotations
 
-from json import JSONDecodeError, dumps, load, loads
+from json import JSONDecodeError, load
 from os import environ
 from pathlib import Path
 from shlex import quote
 from sys import stdin
-from typing import Final, TypedDict, cast
+from typing import TYPE_CHECKING, Final, TypedDict, cast
 
+from .agent_identity import AgentIdentity
+from .hook_session import HookSessions
+from .json_config import JsonConfig, JsonObject
 from .provider_state import ProviderState
+
+if TYPE_CHECKING:
+    from .models import SessionEntry
 
 
 class Constants:
@@ -22,6 +28,7 @@ class Constants:
         settings_relative: Settings relative.
         environment_variable: Environment variable.
         command_marker: Command marker.
+        agent: Canonical provider identifier.
 
     """
 
@@ -30,6 +37,7 @@ class Constants:
     settings_relative: Final[Path] = Path(".claude/settings.json")
     environment_variable: Final[str] = "CLAUDE_SESSION_ID"
     command_marker: Final[str] = "--claude-hook"
+    agent: Final[str] = "claude-code"
 
 
 class _Command(TypedDict):
@@ -58,17 +66,38 @@ class _Entry(TypedDict, total=False):
     hooks: list[_Command]
 
 
+class _ToolInput(TypedDict, total=False):
+    """Represent the Bash tool input.
+
+    Attributes:
+        command: Shell command.
+
+    """
+
+    command: str
+
+
 class _Payload(TypedDict, total=False):
     """Represent Payload.
 
     Attributes:
         hook_event_name: Hook event name.
         session_id: Session id.
+        cwd: Working directory reported by Claude Code.
+        tool_name: Tool name.
+        tool_use_id: Tool-use identifier.
+        tool_input: Tool input.
+        tool_response: Tool response.
 
     """
 
     hook_event_name: str
     session_id: str
+    cwd: str
+    tool_name: str
+    tool_use_id: str
+    tool_input: _ToolInput
+    tool_response: JsonObject
 
 
 type HooksFile = dict[str, list[_Entry]]
@@ -131,11 +160,7 @@ class ClaudeHooks:
             entries.append(entry)
             hooks[event] = entries
         data["hooks"] = hooks
-        path.parent.mkdir(parents=True, exist_ok=True)
-        _ = path.write_text(
-            data=dumps(obj=data, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        cls._save(path=path, data=data)
         return path
 
     @classmethod
@@ -167,10 +192,7 @@ class ClaudeHooks:
             data["hooks"] = cleaned
         else:
             _ = data.pop("hooks", None)
-        _ = path.write_text(
-            data=dumps(obj=data, indent=2) + "\n",
-            encoding="utf-8",
-        )
+        cls._save(path=path, data=data)
 
     @classmethod
     def run_hook(cls, *, home: Path) -> int:
@@ -191,29 +213,22 @@ class ClaudeHooks:
         session_id: str | None = payload.get("session_id")
         if not session_id:
             return 0
-        ProviderState.record(
+        event: str = payload.get("hook_event_name", "")
+        cls._observe(
             home=home,
-            agent="claude-code",
-            agent_session=session_id,
-            hook_event=payload.get("hook_event_name", ""),
+            session_id=session_id,
+            event=event,
+            payload=payload,
         )
         out: Path = cls.session_path(home=home)
         out.parent.mkdir(parents=True, exist_ok=True)
         tmp: Path = out.with_suffix(suffix=".tmp")
         _ = tmp.write_text(data=f"{session_id}\n", encoding="utf-8")
         _ = tmp.replace(target=out)
-        if payload.get("hook_event_name") == "SessionStart" and (
+        if event == "SessionStart" and (
             env_file := environ.get("CLAUDE_ENV_FILE")
         ):
-            with Path(env_file).open(mode="a", encoding="utf-8") as stream:
-                _ = stream.write(
-                    (
-                        f"export {Constants.environment_variable}={
-                            quote(s=session_id)
-                        }\nexport LAKE_AGENT=claude-code\nexport "
-                        f"LAKE_AGENT_SESSION={quote(s=session_id)}\n"
-                    ),
-                )
+            cls._export(env_file=Path(env_file), session_id=session_id)
         return 0
 
     @staticmethod
@@ -243,8 +258,87 @@ class ClaudeHooks:
         return home / Constants.settings_relative
 
     @staticmethod
+    def _observe(
+        *,
+        home: Path,
+        session_id: str,
+        event: str,
+        payload: _Payload,
+    ) -> None:
+        """Mirror one Claude Code event into the hook-backed Lake session.
+
+        Args:
+            home: Home.
+            session_id: Claude Code session identifier.
+            event: Hook event name.
+            payload: Hook payload.
+
+        """
+        workspace: str = payload.get("cwd") or str(object=Path.cwd())
+        entry: SessionEntry | None = HookSessions.ensure(
+            home=home,
+            agent=Constants.agent,
+            agent_session=session_id,
+            workspace=workspace,
+            create=event != "SessionEnd",
+        )
+        is_bash: bool = payload.get("tool_name") == "Bash"
+        tool_use_id: str = payload.get("tool_use_id", "")
+        command: str = (payload.get("tool_input") or {}).get("command", "")
+        if entry is not None and is_bash and tool_use_id:
+            if event == "PreToolUse" and command:
+                HookSessions.command_started(
+                    home=home,
+                    entry=entry,
+                    tool_use_id=tool_use_id,
+                    command=command,
+                    cwd=workspace,
+                )
+            elif event in {"PostToolUse", "PostToolUseFailure"}:
+                HookSessions.command_finished(
+                    home=home,
+                    entry=entry,
+                    tool_use_id=tool_use_id,
+                    failed=event == "PostToolUseFailure",
+                    response=payload.get("tool_response"),
+                )
+        ProviderState.record(
+            home=home,
+            agent=Constants.agent,
+            agent_session=session_id,
+            hook_event=event,
+        )
+
+    @staticmethod
+    def _export(*, env_file: Path, session_id: str) -> None:
+        """Append the Lake identity to Claude Code's per-session env file.
+
+        Every later Bash tool call sources this file, so child shells and
+        ``lake --agent`` inherit the same provider session.
+
+        Args:
+            env_file: File named by ``CLAUDE_ENV_FILE``.
+            session_id: Claude Code session identifier.
+
+        """
+        identity: AgentIdentity | None = AgentIdentity.from_environment(
+            environment={
+                **environ,
+                "LAKE_AGENT": Constants.agent,
+                "LAKE_AGENT_SESSION": session_id,
+            },
+        )
+        variables: dict[str, str] = {
+            Constants.environment_variable: session_id,
+            **(identity.lake_variables() if identity else {}),
+        }
+        with env_file.open(mode="a", encoding="utf-8") as stream:
+            for name, value in variables.items():
+                _ = stream.write(f"export {name}={quote(s=value)}\n")
+
+    @staticmethod
     def _load(*, path: Path) -> dict[str, JsonValue]:
-        """Handle load.
+        """Load Claude's settings, refusing to touch invalid JSON.
 
         Args:
             path: Path.
@@ -252,20 +346,19 @@ class ClaudeHooks:
         Returns:
             The resulting value.
 
-        Raises:
-            TypeError: When the operation cannot complete.
+        """
+        return cast(typ="dict[str, JsonValue]", val=JsonConfig.load(path=path))
+
+    @staticmethod
+    def _save(*, path: Path, data: dict[str, JsonValue]) -> None:
+        """Atomically save Claude's settings with a one-time backup.
+
+        Args:
+            path: Path.
+            data: Data.
 
         """
-        if not path.exists():
-            return {}
-        payload: JsonValue = cast(
-            typ="JsonValue",
-            val=loads(s=path.read_text(encoding="utf-8")),
-        )
-        if not isinstance(payload, dict):
-            msg: str = f"Expected a JSON object in {path}."
-            raise TypeError(msg)
-        return cast(typ="dict[str, JsonValue]", val=payload)
+        JsonConfig.save(path=path, data=cast(typ="JsonObject", val=data))
 
     @staticmethod
     def _coerce_hooks(*, value: JsonValue) -> HooksFile:

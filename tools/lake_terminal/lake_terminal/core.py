@@ -16,6 +16,7 @@ from sys import executable, stdout
 from time import monotonic, sleep
 from typing import TYPE_CHECKING, Final, Protocol
 
+from .agent_identity import AgentIdentity
 from .conpty import ConPtyClient, ConPtyInfo
 from .daemon_control import DaemonControl
 from .events import (
@@ -586,6 +587,17 @@ class LakeTerminal:
         _ = run(
             args=(
                 "tmux",
+                "set-option",
+                "-t",
+                session_name,
+                "window-size",
+                "latest",
+            ),
+            check=True,
+        )
+        _ = run(
+            args=(
+                "tmux",
                 "set-hook",
                 "-t",
                 session_name,
@@ -604,11 +616,9 @@ class LakeTerminal:
             pid=pane_pid if pane_pid > 0 else getpid(),
         )
         host_id: str = self._identity.host_id()
-        agent: str = environ.get("LAKE_AGENT", "")
-        agent_session: str = environ.get(
-            "LAKE_AGENT_SESSION",
-            "",
-        )
+        identity: AgentIdentity | None = AgentIdentity.from_environment()
+        agent: str = identity.agent if identity else ""
+        agent_session: str = identity.session if identity else ""
         if initiator == "agent" and (not agent or not agent_session):
             context: tuple[str, str] | None = (
                 self.repository.database.agent_context(
@@ -701,19 +711,15 @@ class LakeTerminal:
             Backend exit status.
 
         """
-        agent: str = (
-            environ.get(
-                "LAKE_AGENT",
-                "",
-            )
-            .strip()
-            .lower()
-        )
+        identity: AgentIdentity | None = AgentIdentity.from_environment()
+        agent: str = identity.agent if identity else ""
+        agent_session: str = identity.session if identity else ""
         agents: list[SessionEntry] = [
             entry
             for entry in self.reconcile()
             if entry.initiator == "agent"
             and (not agent or entry.agent == agent)
+            and (not agent_session or entry.agent_session == agent_session)
         ]
         if not agents:
             return self.create(
@@ -1158,6 +1164,7 @@ class LakeTerminal:
         )
         session_uuid: str = IdentityStore.new_id()
         runtime: RuntimePlatform = RuntimePlatform.detect()
+        agent_identity: AgentIdentity | None = AgentIdentity.from_environment()
         client: ConPtyClient = ConPtyClient(
             home=self.repository.home,
         )
@@ -1201,14 +1208,13 @@ class LakeTerminal:
                 split_command=initial_command,
             ),
             agent=(
-                environ.get("LAKE_AGENT", "") if initiator == "agent" else ""
+                agent_identity.agent
+                if agent_identity and initiator == "agent"
+                else ""
             ),
             agent_session=(
-                environ.get(
-                    "LAKE_AGENT_SESSION",
-                    "",
-                )
-                if initiator == "agent"
+                agent_identity.session
+                if agent_identity and initiator == "agent"
                 else ""
             ),
             backend="conpty",
@@ -1299,15 +1305,15 @@ class LakeTerminal:
                 EOFError,
             ):
                 return False
-        if entry.pid <= 0:
-            return False
+        if entry.backend == "hook":
+            return entry.agent_state.upper() != "DEAD"
         try:
             identity: ProcessIdentity = ProcessIdentity.capture(
                 pid=entry.pid,
             )
         except OSError:
             return False
-        return (
+        return entry.pid > 0 and (
             not entry.process_started_token
             or identity.started_token == entry.process_started_token
         )
@@ -1351,6 +1357,7 @@ class LakeTerminal:
             f"{quote(s=session_name)} "
             "2>/dev/null; "
             f"sleep {Constants.respawn_delay_seconds}; "
+            "clear; "
             "done"
         )
         return f"{quote(s=shell)} -lc {quote(s=script)}"

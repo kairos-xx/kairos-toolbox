@@ -459,7 +459,7 @@ class ElevationURIManager:
             Unpadded URL-safe base64 text.
 
         """
-        return urlsafe_b64encode(s=value).rstrip(b"=").decode("ascii")
+        return urlsafe_b64encode(s=value).rstrip(b"=").decode(encoding="ascii")
 
     @staticmethod
     def _decode(*, value: str) -> bytes:
@@ -477,7 +477,9 @@ class ElevationURIManager:
         """
         padding: str = "=" * (-len(value) % 4)
         try:
-            return urlsafe_b64decode(s=(value + padding).encode("ascii"))
+            return urlsafe_b64decode(
+                s=(value + padding).encode(encoding="ascii"),
+            )
         except ValueError as error:
             msg: str = "Invalid elevation token encoding."
             raise ElevationError(msg) from error
