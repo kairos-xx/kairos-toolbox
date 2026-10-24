@@ -11,8 +11,8 @@ from subprocess import run
 from sys import executable
 from typing import Final
 
-from .platform import RuntimePlatform
 from .product import state_directory
+from .runtime import RuntimePlatform
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

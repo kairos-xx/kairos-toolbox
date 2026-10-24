@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser, Namespace
-from hashlib import sha256
 from pathlib import Path
+
+from tools.stationer.partition.checksums import write_sums
 
 
 def checksum_directory(*, directory: Path, name: str = "SHA256SUMS") -> Path:
@@ -22,22 +23,18 @@ def checksum_directory(*, directory: Path, name: str = "SHA256SUMS") -> Path:
 
     """
     output: Path = directory / name
-    files: tuple[Path, ...] = tuple(
+    files: tuple[str, ...] = tuple(
         sorted(
-            path
+            path.relative_to(directory).as_posix()
             for path in directory.rglob(pattern="*")
             if path.is_file() and path != output
         ),
     )
-    output.write_text(
-        data="".join(
-            f"{sha256(data=path.read_bytes()).hexdigest()}  "
-            f"{path.relative_to(directory).as_posix()}\n"
-            for path in files
-        ),
-        encoding="utf-8",
+    return write_sums(
+        directory=directory,
+        names=files,
+        output_name=name,
     )
-    return output
 
 
 def main(*, arguments: tuple[str, ...] | None = None) -> int:

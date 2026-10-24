@@ -31,11 +31,11 @@ from district.core import (
 from district.daemon_control import DaemonControl
 from district.identity import ProcessIdentity
 from district.models import SessionEntry
-from district.platform import (
+from district.privacy import PrivacyPolicy
+from district.runtime import (
     Capabilities,
     RuntimePlatform,
 )
-from district.privacy import PrivacyPolicy
 
 from .helpers import check, expect
 

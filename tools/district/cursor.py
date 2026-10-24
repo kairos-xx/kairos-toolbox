@@ -19,9 +19,9 @@ from .events import (
 )
 from .identity import IdentityStore
 from .models import SessionEntry
-from .platform import RuntimePlatform
 from .privacy import Redactor
 from .recorder import EventRecorder
+from .runtime import RuntimePlatform
 
 type JsonValue = (
     None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]

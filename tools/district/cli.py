@@ -55,13 +55,13 @@ from .mcp_registration import McpRegistration
 from .mcp_server import DistrictMcpServer
 from .monitoring import Monitor, SessionSnapshot
 from .pairing import PairingUnavailableError
-from .platform import (
-    Capabilities,
-    RuntimePlatform,
-)
 from .privacy import PrivacyPolicy
 from .product import Product, state_directory
 from .recorder import EventRecorder
+from .runtime import (
+    Capabilities,
+    RuntimePlatform,
+)
 from .selftest import self_test
 from .startup import StartupState, WebStartup
 from .storage import DistrictDatabase

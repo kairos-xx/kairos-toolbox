@@ -54,14 +54,14 @@ from district.lifecycle import (
 )
 from district.models import SessionEntry
 from district.monitoring import SessionSnapshot
-from district.platform import (
-    Capabilities,
-    RuntimePlatform,
-)
 from district.privacy import PrivacyPolicy
 from district.resources import (
     ProcessResource,
     ResourceSnapshot,
+)
+from district.runtime import (
+    Capabilities,
+    RuntimePlatform,
 )
 from district.startup import (
     StartupState,

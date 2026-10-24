@@ -14,7 +14,7 @@ from district.agent import (
     AgentConfiguration,
     AgentDetector,
 )
-from district.platform import RuntimePlatform
+from district.runtime import RuntimePlatform
 
 from .helpers import check, expect
 

@@ -20,6 +20,7 @@ from tools.stationer.builder import (
     SourceStaging,
     job_failure,
 )
+from tools.stationer.naming import asset_name
 from tools.stationer.sessions import HostConstants, open_host
 
 if TYPE_CHECKING:
@@ -161,7 +162,7 @@ def archive_name(*, name: str, version: str, tag: str) -> str:
         ``<name>-<version>-<tag>.pyz``.
 
     """
-    return f"{name}-{version}-{tag}.pyz"
+    return asset_name(project=name, version=version, tag=tag)
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

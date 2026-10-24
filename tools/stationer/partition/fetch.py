@@ -6,9 +6,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from http.client import IncompleteRead
 from importlib import import_module
+from json import loads as json_loads
 from os import fdopen as os_fdopen
 from pathlib import Path
-from tempfile import mkstemp
+from tempfile import TemporaryDirectory, mkstemp
 from time import sleep
 from typing import TYPE_CHECKING, Final, Protocol, cast, final
 from urllib.error import HTTPError, URLError
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
     from types import ModuleType
     from urllib.request import OpenerDirector, Request
     from urllib.response import addinfourl
+
+    from .json_types import Json
 
 
 class FetchError(RuntimeError):
@@ -204,3 +207,46 @@ def fetch(
         raise FetchError(failure)
     temporary.replace(target=destination)
     return destination
+
+
+def fetch_bytes(
+    *,
+    url: str,
+    options: FetchOptions | None = None,
+) -> bytes:
+    """Download ``url`` and return its body bytes.
+
+    Args:
+        url: URL to download.
+        options: Tuning for timeout, size limit, attempts, schemes.
+
+    Returns:
+        Response body bytes.
+
+    """
+    with TemporaryDirectory(prefix="partition-fetch-") as folder:
+        destination: Path = fetch(
+            url=url,
+            destination=Path(folder) / "body",
+            options=options,
+        )
+        return destination.read_bytes()
+
+
+def fetch_json(
+    *,
+    url: str,
+    options: FetchOptions | None = None,
+) -> Json:
+    """GET and decode a JSON document over the bounded transport.
+
+    Args:
+        url: URL to download.
+        options: Tuning for timeout, size limit, attempts, schemes.
+
+    Returns:
+        Decoded JSON value.
+
+    """
+    body: bytes = fetch_bytes(url=url, options=options)
+    return cast(typ="Json", val=json_loads(body))

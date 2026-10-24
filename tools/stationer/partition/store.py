@@ -14,6 +14,7 @@ from json import dumps as json_dumps
 from json import loads as json_loads
 from os import fsync as os_fsync
 from os import link as os_link
+from os import name as os_name
 from os import stat_result as os_stat_result
 from pathlib import Path, PurePosixPath
 from re import fullmatch as re_fullmatch
@@ -326,12 +327,19 @@ def hash_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def atomic_bytes(path: Path, data: bytes) -> None:
+def atomic_bytes(
+    path: Path,
+    data: bytes,
+    *,
+    private: bool = False,
+) -> None:
     """Publish bytes using a unique sibling and atomic replacement.
 
     Args:
         path: Filesystem path to inspect or publish.
         data: Input bytes or canonical document.
+        private: Restrict the written file to owner-read/write
+            (``0o600``) on POSIX.
 
     """
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -341,6 +349,8 @@ def atomic_bytes(path: Path, data: bytes) -> None:
             sink.write(data)
             sink.flush()
             os_fsync(fd=sink.fileno())
+        if private and os_name == "posix":
+            temporary.chmod(mode=0o600)
         temporary.replace(target=path)
     finally:
         temporary.unlink(missing_ok=True)

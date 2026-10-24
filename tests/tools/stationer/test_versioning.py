@@ -61,3 +61,44 @@ def test_replace_version_ignores_lookalike_names() -> None:
         actual=updated,
         expected='python_version = "1.0.0"\nversion = "2.0.0"\n',
     )
+
+
+def test_is_newer_orders_stable_over_prerelease() -> None:
+    """``1.2.0`` outranks ``1.2.0rc1``; prereleases opt in."""
+    check(
+        condition=is_newer(candidate="1.2.0", current="1.2.0rc1"),
+        reason="Stable did not outrank its prerelease.",
+    )
+    check(
+        condition=not is_newer(candidate="1.2.0rc1", current="1.2.0"),
+        reason="Prerelease outranked stable without opt-in.",
+    )
+    check(
+        condition=not is_newer(candidate="1.3.0rc1", current="1.2.0"),
+        reason="Prerelease counted on the stable channel.",
+    )
+    check(
+        condition=is_newer(
+            candidate="1.3.0rc1",
+            current="1.2.0",
+            allow_prerelease=True,
+        ),
+        reason="allow_prerelease ignored.",
+    )
+
+
+def test_is_newer_rejects_malformed_versions() -> None:
+    """Malformed input returns ``False`` rather than raising."""
+    for candidate in ("", "1.2", "x.y.z", "1.2.3.4", "v1"):
+        check(
+            condition=not is_newer(candidate=candidate, current="1.0.0"),
+            reason=f"{candidate!r} parsed as a version.",
+        )
+    check(
+        condition=is_newer(candidate="2.0.0", current="1.9.9"),
+        reason="Major bump not newer.",
+    )
+    check(
+        condition=not is_newer(candidate="1.0.0", current="1.0.0"),
+        reason="Equal version counted as newer.",
+    )

@@ -14,13 +14,13 @@ from typing import TYPE_CHECKING, Final
 
 from .daemon import DistrictDaemon
 from .mcp_registration import McpRegistration
-from .platform import RuntimePlatform
 from .product import Product, state_directory
+from .runtime import RuntimePlatform
 from .storage import DistrictDatabase
 
 if TYPE_CHECKING:
     from .json_config import JsonObject
-    from .platform import Capabilities
+    from .runtime import Capabilities
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

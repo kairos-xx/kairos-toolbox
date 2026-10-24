@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Final
 from .identity import IdentityStore
 from .lifecycle import CommandLifecycle
 from .models import SessionEntry
-from .platform import RuntimePlatform
+from .runtime import RuntimePlatform
 from .storage import DistrictDatabase
 
 if TYPE_CHECKING:

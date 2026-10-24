@@ -30,7 +30,6 @@ from .identity import (
 )
 from .keys import KeyGrammar
 from .models import SessionEntry
-from .platform import RuntimePlatform
 from .privacy import Redactor
 from .process import run
 from .process_tree import (
@@ -38,6 +37,7 @@ from .process_tree import (
     ProcessNode,
 )
 from .recorder import EventRecorder
+from .runtime import RuntimePlatform
 from .storage import DistrictDatabase
 
 if TYPE_CHECKING:

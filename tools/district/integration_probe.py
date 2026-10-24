@@ -15,7 +15,7 @@ from time import monotonic, sleep
 from typing import Final
 
 from .agent import AgentDetector
-from .platform import RuntimePlatform
+from .runtime import RuntimePlatform
 
 
 class Constants:

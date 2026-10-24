@@ -26,8 +26,8 @@ from psutil import (
 
 from .daemon import DistrictDaemon
 from .pairing import LanNetwork
-from .platform import RuntimePlatform
 from .product import Product, state_directory
+from .runtime import RuntimePlatform
 from .storage import DistrictDatabase
 
 if TYPE_CHECKING:
