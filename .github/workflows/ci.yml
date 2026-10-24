@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  lake-terminal:
+  district:
     strategy:
       fail-fast: false
       matrix:
@@ -18,16 +18,16 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install Lake Terminal
-        run: python -m pip install -e tools/arrow -e tools/lake_terminal pytest pytest-cov httpx ruff==0.15.22
+      - name: Install District Terminal
+        run: python -m pip install -e tools/bowman -e tools/district pytest pytest-cov httpx ruff==0.15.22
       - name: Lint
-        run: ruff check tools/lake_terminal tests/tools/lake_terminal tests/conftest.py
-      - name: Test Lake Terminal
-        run: python -m pytest tests/tools/lake_terminal -q
+        run: ruff check tools/district tests/tools/district tests/conftest.py
+      - name: Test District Terminal
+        run: python -m pytest tests/tools/district -q
       - name: Synthetic provider qualification
-        run: lake test integration synthetic all
+        run: district test integration synthetic all
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
       - name: Test dashboard assets
-        run: node --test tools/lake_terminal/lake_terminal/web_assets/app.test.mjs
+        run: node --test "tests/tools/district/js/*.test.mjs"

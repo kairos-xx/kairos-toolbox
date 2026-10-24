@@ -13,9 +13,9 @@ No runtime `npm install` is required.
 | `extension/extension.js` | VS Code activation, status-bar command, settings panel, SecretStorage credentials, shared gateway/ngrok lifecycle. |
 | `extension/lib/gateway-server.js` | Single loopback HTTP server, project routing, pairing/authentication, APIs, SSE, terminal streams, PWA assets. |
 | `media/web/index.html` | Mobile IDE shell: Dashboard, Agents, Explorer, Editor, Review/diff, Console, Settings and SVG icon sprite. |
-| `media/web/app.js` | Phone UI controller, agent/chat workflows, Explorer/Editor workbenches, unified/split diff review, terminals/tasks, models and device/session management. |
-| `media/web/app.css` | Responsive design system for phone/tablet/desktop, Explorer split layout, editor/status surfaces, side-by-side diff review, terminal console, dark/light modes and accessibility states. |
-| `media/web/service-worker.js` | Project-scoped installable PWA cache/network strategy. |
+| `media/web/js/app.js` | Phone UI controller, agent/chat workflows, Explorer/Editor workbenches, unified/split diff review, terminals/tasks, models and device/session management. |
+| `media/web/css/app.css` | Responsive design system for phone/tablet/desktop, Explorer split layout, editor/status surfaces, side-by-side diff review, terminal console, dark/light modes and accessibility states. |
+| `media/web/js/service-worker.js` | Project-scoped installable PWA cache/network strategy. |
 
 ## Backend services
 
@@ -30,7 +30,7 @@ No runtime `npm install` is required.
 | `extension/lib/project-registry.js` | Stable project IDs, multi-root discovery, live VS Code diagnostics and open-file desktop navigation. |
 | `extension/lib/task-service.js` | Detect runnable package/Python/Make tasks without executing discovery code. |
 | `extension/lib/activity-service.js` | Bounded per-project remote-operation timeline. |
-| `extension/lib/ngrok-manager.js` | One shared ngrok tunnel and public URL discovery. |
+| `extension/lib/ngrok-manager.js` | One shared ngrok charter and public URL discovery. |
 
 ## VS Code panel
 
@@ -66,7 +66,7 @@ All mutating routes require the project-scoped session plus its CSRF token.
 # Devin Remote Control 5
 
 A phone-first remote IDE and Devin operations console delivered as a VS Code
-extension. It keeps **one local gateway and one ngrok tunnel** for all workspace
+extension. It keeps **one local gateway and one ngrok charter** for all workspace
 folders in the VS Code window, while every open project receives an isolated
 public route:
 
@@ -150,7 +150,7 @@ project console one tap away.
 
 ### Project and model console
 
-- Switch between all open VS Code projects without a second gateway/tunnel.
+- Switch between all open VS Code projects without a second gateway/charter.
 - Per-project remote activity timeline.
 - OpenAI-compatible and Anthropic project chat.
 - Provider/model selection and per-request model override.
@@ -197,7 +197,7 @@ conceptually equivalent to:
 ngrok http <shared-gateway-port>
 ```
 
-The tunnel hostname is shared by all open projects. Isolation is enforced by
+The charter hostname is shared by all open projects. Isolation is enforced by
 `/p/<project-id>/` routing and project-scoped authentication.
 
 ## Pair a phone
@@ -240,7 +240,7 @@ Revoke the session immediately if the phone/browser is no longer trusted.
 | --- | --- | --- |
 | `devinRemote.gateway.autoStart` | `true` | Start one loopback gateway automatically. |
 | `devinRemote.gateway.port` | `0` | Shared fixed port, or `0` for an OS-selected port. |
-| `devinRemote.ngrok.autoStart` | `true` | Start one ngrok tunnel with the gateway. |
+| `devinRemote.ngrok.autoStart` | `true` | Start one ngrok charter with the gateway. |
 | `devinRemote.ngrok.command` | `ngrok` | ngrok executable or path. |
 | `devinRemote.devin.organizationId` | empty | Devin organization ID. |
 | `devinRemote.files.maxBytes` | `4194304` | Remote edit and transfer size limit. |
@@ -267,7 +267,7 @@ VS Code extension host
   ├─ ProviderService
   └─ GatewayServer 127.0.0.1:<port>
              │
-             └─ one ngrok HTTPS tunnel
+             └─ one ngrok HTTPS charter
                  ├─ /p/<A>/
                  └─ /p/<B>/
 ```

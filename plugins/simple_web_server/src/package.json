@@ -1,39 +1,39 @@
 {
-  "name": "simple-web-server",
-  "displayName": "Simple Workspace Web Server",
-  "description": "Start, stop and open a localhost static web server for the current workspace.",
-  "version": "1.0.0",
-  "publisher": "local",
-  "license": "MIT",
-  "engines": {
-    "vscode": "^1.90.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "simpleWebServer.start",
-        "title": "Web Server: Start"
-      },
-      {
-        "command": "simpleWebServer.stop",
-        "title": "Web Server: Stop"
-      },
-      {
-        "command": "simpleWebServer.open",
-        "title": "Web Server: Open in Browser"
-      }
-    ]
-  },
-  "scripts": {
-    "check": "node --check extension.js && node --check core.js",
-    "test": "node --test ../tests/*.test.js",
-    "coverage": "node --test --experimental-test-coverage ../tests/*.test.js"
-  }
+	"name": "simple-web-server",
+	"displayName": "Simple Workspace Web Server",
+	"description": "Start, stop and open a localhost static web server for the current workspace.",
+	"version": "1.0.0",
+	"publisher": "local",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.90.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"main": "./extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "simpleWebServer.start",
+				"title": "Web Server: Start"
+			},
+			{
+				"command": "simpleWebServer.stop",
+				"title": "Web Server: Stop"
+			},
+			{
+				"command": "simpleWebServer.open",
+				"title": "Web Server: Open in Browser"
+			}
+		]
+	},
+	"scripts": {
+		"check": "node --check extension.js && node --check core.js",
+		"test": "node --test ../tests/*.test.js",
+		"coverage": "node --test --experimental-test-coverage ../tests/*.test.js"
+	}
 }

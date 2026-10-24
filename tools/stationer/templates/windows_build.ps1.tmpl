@@ -1,0 +1,95 @@
+# Windows guest build worker (PowerShell 5.1 or later).
+# Rendered by tools.stationer.builder.WindowsQemuBuilder and
+# uploaded as build.ps1; it builds the frozen executable with PyInstaller,
+# the .pyz archive, and compiles the Inno Setup installer inside the guest.
+# Support files (make_pyz.py, ensure-python.ps1, <name>-pyz.cmd) are
+# expected under $Root\support, uploaded by the host next to this script.
+$ErrorActionPreference = 'Stop'
+$Root = @@ROOT@@
+$Source = Join-Path $Root 'source'
+$Out = Join-Path $Root 'out'
+New-Item -ItemType Directory -Force -Path $Source, $Out | Out-Null
+Expand-Archive -LiteralPath (Join-Path $Root 'source.zip') `
+  -DestinationPath $Source -Force
+# An x64 PowerShell emulated on ARM64 Windows (a VM guest agent starts one) reports X64 from
+# .NET, so ask the processor, which reports the machine's real architecture (12 = ARM64).
+$Processor = (Get-CimInstance -ClassName Win32_Processor | Select-Object -First 1).Architecture
+if ($Processor -ne 12) {
+  throw "Windows guest is not ARM64 (processor architecture code $Processor)"
+}
+Set-Location $Source
+& @@PYTHON@@ -m venv (Join-Path $Root 'venv')
+$Python = Join-Path $Root 'venv\Scripts\python.exe'
+& $Python -m pip install --disable-pip-version-check pyinstaller @@PIP_EXTRA@@ .
+& $Python -m PyInstaller `
+  --noconfirm --clean --onefile @@CONSOLE@@ `
+  --name @@NAME@@ `
+  --distpath $Out --workpath (Join-Path $Root 'pyinstaller-work') `
+  --specpath (Join-Path $Root 'spec') @@PYINSTALLER_EXTRA@@ `
+  @@ENTRYPOINT@@
+@@PYZ_BUILD@@
+$Iscc = @(
+  "$env:LOCALAPPDATA\Programs\Inno Setup 7\ISCC.exe",
+  "$env:ProgramFiles\Inno Setup 7\ISCC.exe",
+  "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+if (-not $Iscc) {
+  $Downloaded = Join-Path $Root 'innosetup.exe'
+  $InnoUrl = 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe'
+  try {
+    & curl.exe -fsSL -o $Downloaded $InnoUrl
+    if ($LASTEXITCODE -ne 0) { throw "curl exited $LASTEXITCODE" }
+  } catch {
+    Invoke-WebRequest -UseBasicParsing -Uri $InnoUrl -OutFile $Downloaded
+  }
+  $InnoDir = Join-Path $Root 'inno'
+  # The Inno setup launcher detaches, so wait for the compiler to appear.
+  & $Downloaded /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP- "/DIR=$InnoDir"
+  $Tries = 300
+  while (-not (Test-Path -LiteralPath (Join-Path $InnoDir 'ISCC.exe'))) {
+    if (--$Tries -le 0) { throw 'Inno Setup produced no ISCC.exe.' }
+    Start-Sleep -Seconds 1
+  }
+  $Iscc = Join-Path $InnoDir 'ISCC.exe'
+}
+if (-not $Iscc) {
+  throw 'Inno Setup compiler was not found after installation.'
+}
+$Iss = Join-Path $Root 'installer.iss'
+@'
+[Setup]
+AppId={{@@ISS_ID@@}}
+AppName=@@ISS_NAME@@
+AppVersion=@@ISS_VERSION@@
+AppPublisher=@@ISS_PUBLISHER@@
+DefaultDirName={autopf}\@@ISS_NAME@@
+DefaultGroupName=@@ISS_NAME@@
+OutputDir=@@ISS_REMOTE@@\out
+OutputBaseFilename=setup
+Compression=lzma2
+SolidCompression=yes
+ArchitecturesAllowed=arm64
+ArchitecturesInstallIn64BitMode=arm64
+PrivilegesRequired=lowest
+
+[Files]
+Source: "@@ISS_EXE@@"; DestDir: "{app}"; Flags: ignoreversion
+@@ISS_PYZ_FILES@@
+[Icons]
+Name: "{group}\@@ISS_NAME@@"; Filename: "{app}\@@ISS_NAME@@.exe"
+
+[Run]
+@@RUN_ENSURE@@
+@@RUN_LINE@@
+'@ | Set-Content -LiteralPath $Iss -Encoding utf8
+& $Iscc /Qp $Iss
+if (-not (
+  Test-Path -LiteralPath (Join-Path $Out @@EXE_NAME@@)
+)) {
+  throw 'PyInstaller output is missing.'
+}
+if (-not (
+  Test-Path -LiteralPath (Join-Path $Out 'setup.exe')
+)) {
+  throw 'Installer output is missing.'
+}

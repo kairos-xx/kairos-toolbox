@@ -7,13 +7,14 @@ Point pytest at the workspace source root for package imports.
 
 ### Files
 
-No direct files besides this README.
+- [`__init__.py`](__init__.py) — Tool test packages.
 
 ### Subdirectories
 
-- [`arrow/`](arrow/README.md) — Arrow native-elevation platform branch tests.
-- [`lake_terminal/`](lake_terminal/README.md) — Point pytest at the workspace source root for package imports.
-- [`release_builder/`](release_builder/README.md) — Tests for the cross-platform release builder.
-- [`release_publish/`](release_publish/README.md) — Tests for the release publishing tool.
+- [`bowman/`](bowman/README.md) — Bowman native-elevation platform branch tests.
+- [`conjure/`](conjure/README.md) — Additional AttachedVm coverage.
+- [`district/`](district/README.md) — Point pytest at the workspace source root for package imports.
+- [`charter/`](charter/README.md) — Tests for the charter package.
+- [`stationer/`](stationer/README.md) — Tests for the cross-platform release builder and publishing control plane.
 
 <!-- exactus:inventory:end -->

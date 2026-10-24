@@ -1,0 +1,33 @@
+[project]
+name = "my_app"
+version = "1.0.0"
+entrypoint = "src/my_app/__main__.py"
+identifier = "com.example.my-app"
+console = true
+pyinstaller_args = []
+pip_args = []
+
+[macos]
+# Defaults to the Python interpreter running builder.py.
+# python = "/opt/homebrew/bin/python3.13"
+# signing_identity = "Developer ID Installer: Example (TEAMID)"
+
+[linux]
+# docker_platforms lists every Docker --platform value built; it defaults
+# to [docker_platform]. musl_image adds musl (Alpine) cells that produce
+# unsigned .apk packages; omit it to build glibc (.deb) cells only.
+docker_platforms = ["linux/amd64", "linux/arm64"]
+image = "python:3.13-slim-bookworm"
+musl_image = "python:3.13-alpine"
+maintainer = "Example <dev@example.com>"
+description = "My application"
+
+[windows]
+# With QEMU hostfwd=tcp:127.0.0.1:2222-:22:
+host = "127.0.0.1"
+port = 2222
+user = "builder"
+identity_file = "~/.ssh/windows_builder_ed25519"
+python = ["py", "-3.13"]
+remote_root = "C:/stationer"
+publisher = "Example"

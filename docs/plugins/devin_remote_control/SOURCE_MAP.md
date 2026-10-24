@@ -10,9 +10,9 @@ are relative to `plugins/devin_remote_control/src/`.
 | `extension/extension.js` | VS Code activation, status-bar command, settings panel, SecretStorage credentials, shared gateway/ngrok lifecycle. |
 | `extension/lib/gateway-server.js` | Single loopback HTTP server, project routing, pairing/authentication, APIs, SSE, terminal streams, PWA assets, CSP headers. |
 | `media/web/index.html` | Mobile IDE shell: Dashboard, Agents, Explorer, Editor, Review/diff, Console, Settings and SVG icon sprite. |
-| `media/web/app.js` | Phone UI controller, agent/chat workflows, Explorer/Editor workbenches, unified/split diff review, terminals/tasks, models and device/session management. |
-| `media/web/app.css` | Responsive design system for phone/tablet/desktop, Explorer split layout, editor/status surfaces, side-by-side diff review, terminal console, dark/light modes and accessibility states. |
-| `media/web/service-worker.js` | Project-scoped installable PWA cache/network strategy. |
+| `media/web/js/app.js` | Phone UI controller, agent/chat workflows, Explorer/Editor workbenches, unified/split diff review, terminals/tasks, models and device/session management. |
+| `media/web/css/app.css` | Responsive design system for phone/tablet/desktop, Explorer split layout, editor/status surfaces, side-by-side diff review, terminal console, dark/light modes and accessibility states. |
+| `media/web/js/service-worker.js` | Project-scoped installable PWA cache/network strategy. |
 | `media/panel/` | Extension-side project settings panel: gateway state, project endpoint, QR code, pairing code, credential actions. |
 | `media/shared/qr.js` | Local QR encoder; pairing material never reaches a QR SaaS. |
 
@@ -29,7 +29,7 @@ are relative to `plugins/devin_remote_control/src/`.
 | `extension/lib/project-registry.js` | Stable project IDs, multi-root discovery, live VS Code diagnostics and open-file desktop navigation. |
 | `extension/lib/task-service.js` | Detect runnable package/Python/Make tasks without executing discovery code. |
 | `extension/lib/activity-service.js` | Bounded per-project remote-operation timeline. |
-| `extension/lib/ngrok-manager.js` | One shared ngrok tunnel and public URL discovery. |
+| `extension/lib/ngrok-manager.js` | One shared ngrok charter and public URL discovery. |
 | `extension/lib/constants.js` | Shared configuration keys and protocol constants. |
 | `extension/lib/errors.js` | Structured error types and HTTP status mapping. |
 

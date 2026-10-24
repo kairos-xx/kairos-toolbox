@@ -6,7 +6,6 @@ interface VsCodeWebviewApi {
 	getState(): unknown;
 	setState(state: unknown): void;
 }
-
 declare function acquireVsCodeApi(): VsCodeWebviewApi;
 
 /** Exposed on `globalThis` by `media/shared/qr.js` when loaded via a script tag. */

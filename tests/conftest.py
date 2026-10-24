@@ -28,7 +28,7 @@ class Constants:
         "CODEX_",
         "CURSOR_",
         "DEVIN_",
-        "LAKE_",
+        "DISTRICT_",
         "TERM_PROGRAM",
         "VSCODE_",
         "__CFBundleIdentifier",
@@ -75,14 +75,14 @@ def sibling_tree() -> SiblingTree:
 
 if str(object=(root := Path(__file__).resolve().parent.parent)) not in path:
     path.insert(0, str(object=root))
-arrow_root: Path = root / "tools" / "arrow"
-if str(object=arrow_root) not in path:
-    path.insert(0, str(object=arrow_root))
+tools_root: Path = root / "tools"
+if str(object=tools_root) not in path:
+    path.insert(0, str(object=tools_root))
 
 
 @pytest.fixture(autouse=True)
 def hermetic_agent_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Hide the host agent, editor and Lake identity from every test.
+    """Hide the host agent, editor and District identity from every test.
 
     Tests are routinely run from inside Claude Code, Devin or Cursor, whose
     exported markers would otherwise change detection results.
@@ -94,3 +94,21 @@ def hermetic_agent_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     for name in tuple(environ):
         if name.startswith(Constants.ambient_prefixes):
             monkeypatch.delenv(name=name, raising=False)
+
+
+@pytest.fixture(autouse=True)
+def hermetic_conjure_user_settings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep every test away from the real ``~/.conjure/settings.toml``.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+        monkeypatch: Monkeypatch.
+
+    """
+    monkeypatch.setattr(
+        "tools.conjure.settings.Constants.default_user_settings",
+        tmp_path / "no-user-settings.toml",
+    )

@@ -12,7 +12,7 @@ the design together.
                        │               │               │
                        ▼               ▼               ▼
               ┌────────────────────────────────────────────────┐
-              │                 LAKE TERMINAL                  │
+              │                 DISTRICT TERMINAL                  │
               │  canonical sessions · commands · events ·      │
               │  processes · hosts → all in one SQLite DB      │
               └───────┬───────────────────────┬────────────────┘
@@ -21,32 +21,32 @@ the design together.
         persistent PTY│                       │ CLI · editor bridge
                       ▼                       ▼
               ┌──────────────┐        ┌─────────────────────────┐
-              │    ARROW     │        │   devin_remote_control  │
+              │    BOWMAN     │        │   devin_remote_control  │
               │ signed local │        │   gateway → QR → phone  │
               │ URI trust    │        └─────────────────────────┘
               └──────────────┘
 
         ┌─────────────── SHIPPING ────────────────┐
-        │  release_builder → installers / .pyz    │
-        │  release_publish → plans → GH releases  │
+        │  stationer → installers / .pyz   │
+        │         → plans → GH releases  │
         └─────────────────────────────────────────┘
 ```
 
 ## Dependency direction
 
-- **`arrow_uri` is standalone.** It is a reusable package under
-  `tools/arrow/` with no Lake Terminal dependency; anything that exposes
+- **`bowman` is standalone.** It is a reusable package under
+  `tools/bowman/` with no District Terminal dependency; anything that exposes
   local URI endpoints can embed it.
-- **Lake Terminal consumes Arrow** through `lake_terminal/arrow_api.py`.
-  `arrow_uri` is a declared dependency of `lake-terminal`, installed into
+- **District Terminal consumes Bowman** through `district/bowman_api.py`.
+  `bowman` is a declared dependency of `district`, installed into
   every build as a `local_dependencies` sibling project (see
-  [Release Builder](Release-Builder)).
-- **release_builder** knows nothing about Lake Terminal — it builds any
-  Python project described by a manifest.
-- **release_publish** knows nothing about building — it plans and executes
-  releases described by `release.toml`. The two tools meet only through CI:
-  a pushed tag triggers the workflow that runs `release_builder`, then
-  `release_publish publish` attaches the artifacts (see [Releasing](Releasing)).
+  [Stationer](Stationer-Builder)).
+- **stationer's builder** knows nothing about District Terminal — it builds
+  any Python project described by a manifest.
+- **stationer's control plane** knows nothing about building — it plans and
+  executes releases described by `release.toml`. The two halves meet only
+  through CI: a pushed tag triggers the workflow that runs `stationer`, then
+  `stationer publish` attaches the artifacts (see [Releasing](Releasing)).
 - **Plugins are leaf nodes.** `devin_remote_control` is self-contained
   (no runtime npm dependencies); the small plugins depend only on the
   editor API.
@@ -56,20 +56,20 @@ the design together.
 1. **SQLite is the only persistent control-plane state.** No JSON session
    registry, no mirror files, no second source of truth. JSON is used only
    for configuration and explicit transport output such as `--status --json`.
-   See [Data Model & Privacy](Lake-Terminal-Data-Model).
+   See [Data Model & Privacy](District-Terminal-Data-Model).
 
 2. **Honest capability reporting.** When a platform cannot provide a
-   persistent PTY (e.g. a direct IDE extension-host process), Lake Terminal
+   persistent PTY (e.g. a direct IDE extension-host process), District Terminal
    reports *process-only observability* rather than claiming a session is
    reconnectable when it is not.
 
-3. **Local URIs are a security boundary.** `lake-terminal://` invocations
-   pass through [Arrow](Arrow)'s provenance/authentication/authorization
+3. **Local URIs are a security boundary.** `district://` invocations
+   pass through [Bowman](Bowman)'s provenance/authentication/authorization
    pipeline before any application code runs.
 
-4. **Releases are planned, then executed.** `release_publish` compiles
+4. **Releases are planned, then executed.** `stationer` compiles
    intent into immutable `Action` objects; nothing mutates the world during
-   planning. See [Release Publish](Release-Publish).
+   planning. See [Stationer Publish](Stationer-Publish).
 
 5. **Determinism everywhere.** Builders capture every external command
    through a `Runner` protocol; the `.pyz` pipeline copies the project
@@ -85,12 +85,11 @@ the design together.
 
 | Path | Contents |
 | --- | --- |
-| `tools/lake_terminal/` | Lake Terminal package, installer, `.pyz` entrypoint, integration assets |
-| `tools/arrow/arrow_uri/` | The Arrow trust framework package |
-| `tools/release_builder/` | Builder module + `pyz_builder` + Windows guest bootstrap |
-| `tools/release_publish/` | Engine, planner, providers, CLI, upload |
+| `tools/district/` | District Terminal package, installer, `.pyz` entrypoint, integration assets |
+| `tools/bowman/bowman/` | The Bowman trust framework package |
+| `tools/stationer/` | Builder (`builder`, `pyz_builder`, `publisher`, remote workers, Windows guest bootstrap) + release control plane (engine, planner, providers, CLI, upload) |
 | `plugins/*/src/` | Extension source per plugin |
 | `tests/` | Test suites mirroring the source tree |
 | `docs/` | Long-form technical documentation mirroring the tree |
 
-Next: [Lake Terminal](Lake-Terminal) · [Getting Started](Getting-Started)
+Next: [District Terminal](District-Terminal) · [Getting Started](Getting-Started)

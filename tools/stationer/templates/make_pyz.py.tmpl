@@ -1,0 +1,66 @@
+# Build a platform .pyz inside a worker or container (standard library only).
+# Rendered by tools.stationer.installer_support; the host substitutes
+# @@INTERPRETER@@ and passes every path through argv.
+import argparse
+import shutil
+import subprocess
+import sys
+import tempfile
+import zipapp
+from pathlib import Path
+
+INTERPRETER = "@@INTERPRETER@@"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--python", required=True)
+    parser.add_argument("--source", required=True, type=Path)
+    parser.add_argument("--bootstrap", required=True, type=Path)
+    parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("packages", nargs="*", default=[])
+    args = parser.parse_args(
+        [argument for argument in sys.argv[1:] if argument != "--"],
+    )
+    with tempfile.TemporaryDirectory(prefix="make-pyz-") as temporary:
+        stage = Path(temporary) / "stage"
+        stage.mkdir()
+        packages = [
+            str(args.source / package[2:])
+            if package.startswith("./")
+            else package
+            for package in args.packages
+        ]
+        subprocess.run(
+            [
+                args.python,
+                "-m",
+                "pip",
+                "install",
+                "--quiet",
+                "--disable-pip-version-check",
+                "--target",
+                str(stage),
+                "--only-binary",
+                ":all:",
+                *packages,
+                str(args.source),
+            ],
+            check=True,
+        )
+        shutil.rmtree(stage / "bin", ignore_errors=True)
+        for cache in stage.rglob("__pycache__"):
+            shutil.rmtree(cache, ignore_errors=True)
+        shutil.copy2(args.bootstrap, stage / "__main__.py")
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        zipapp.create_archive(
+            source=stage,
+            target=args.output,
+            interpreter=INTERPRETER,
+            compressed=True,
+        )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

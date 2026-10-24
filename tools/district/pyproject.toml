@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "district"
+dynamic = ["version"]
+description = "Cross-platform local execution control plane for humans and coding agents."
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+authors = [{ name = "Joao Lopes" }]
+dependencies = [
+    "bowman>=0.1",
+    "fastapi>=0.115",
+    "psutil>=7.0",
+    "uvicorn>=0.34",
+    "websockets>=13",
+]
+
+[project.scripts]
+district = "district.cli:main"
+bowm = "district.url_handler:main"
+
+[tool.setuptools]
+package-dir = {"district" = "."}
+packages = ["district"]
+include-package-data = true
+
+[tool.distutils.bdist_wheel]
+bdist-dir = "../../.build-cache/district/bdist"
+
+[tool.setuptools.dynamic]
+version = { attr = "district.__version__" }
+
+[tool.setuptools.package-data]
+district = ["web/*", "web/js/*", "web/css/*"]
+
+# Optional public exposure of `district --web` through a tools.charter backend.
+# Backend mechanics (executables, timeouts, shortener) live in [tool.charter].
+# The same keys are accepted on the CLI as --expose, --charter-authtoken,
+# --charter-alias and --charter-short, and through the Python API as the
+# district.exposure.Exposure dataclass.
+[tool.district.charter]
+# backend = "direct"          # direct | ngrok | pinggy | tunnl | runlocal
+# ngrok_authtoken = "…"       # or set NGROK_AUTHTOKEN / [tool.charter]
+# shorten = false             # shorten the public URL
+# alias = "district"              # requested short-link alias

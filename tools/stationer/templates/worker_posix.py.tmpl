@@ -1,0 +1,198 @@
+# Remote build worker for Linux and macOS (standard library only).
+# Rendered by tools.stationer.remote_workers; the host decides every
+# command (the "steps"), this program only runs them and returns the result.
+import base64
+import hashlib
+import json
+import pathlib
+import platform
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import traceback
+import urllib.request
+import zipfile
+
+BASE = @@BASE@@
+TOKEN = @@TOKEN@@
+EXPECTED = @@EXPECTED@@
+OS_NAME = @@OS@@
+SPEC = json.loads(base64.b64decode(@@SPEC@@).decode("utf-8"))
+
+
+def call(method, path, data=None, extra=None):
+    headers = {"Authorization": "Bearer " + TOKEN}
+    headers.update(extra or {})
+    request = urllib.request.Request(
+        BASE + path, data=data, method=method, headers=headers
+    )
+    with urllib.request.urlopen(request) as response:
+        return response.read()
+
+
+def progress(message):
+    try:
+        call("POST", "/v1/progress", message.encode("utf-8"))
+    except OSError:
+        pass
+
+
+FLUSH_SECONDS = 0.5
+FLUSH_BYTES = 8000
+SEND_LIMIT = 12000
+
+
+def step_started(index, message):
+    # A JSON event lets the host weigh the step; plain text is still accepted.
+    body = json.dumps({"step": index, "message": message})
+    progress(body)
+
+
+def forward(text):
+    try:
+        call("POST", "/v1/output", text[-SEND_LIMIT:].encode("utf-8"))
+    except OSError:
+        pass
+
+
+def stream(argv, cwd):
+    """Run one step, echoing its output and forwarding it to the host.
+
+    pip's raw progress bar prints a line per received chunk; only the newest
+    is forwarded per batch so the host sees progress without being flooded.
+    """
+    process = subprocess.Popen(
+        argv,
+        cwd=cwd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        errors="replace",
+        bufsize=1,
+    )
+    pending = []
+    newest_bar = None
+    size = 0
+    flushed = time.monotonic()
+    for line in process.stdout:
+        if line.startswith("Progress "):
+            newest_bar = line
+        else:
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            pending.append(line)
+            size += len(line)
+        if size >= FLUSH_BYTES or time.monotonic() - flushed >= FLUSH_SECONDS:
+            forward("".join(pending) + (newest_bar or ""))
+            pending, newest_bar, size = [], None, 0
+            flushed = time.monotonic()
+    code = process.wait()
+    if pending or newest_bar:
+        forward("".join(pending) + (newest_bar or ""))
+    if code:
+        raise subprocess.CalledProcessError(code, argv)
+
+
+def expand(value, paths):
+    for name, replacement in paths.items():
+        value = value.replace("{" + name + "}", replacement)
+    return value
+
+
+def package(work, dist):
+    files = sorted(path for path in dist.rglob("*") if path.is_file())
+    if not files:
+        raise RuntimeError("The build produced no artifacts.")
+    result = work / "result"
+    records = []
+    for path in files:
+        relative = path.relative_to(dist)
+        target = result / "artifacts" / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, target)
+        data = path.read_bytes()
+        records.append(
+            {
+                "path": relative.as_posix(),
+                "size": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
+        )
+    manifest = {
+        "schema": 1,
+        "os": OS_NAME,
+        "architecture": platform.machine(),
+        "artifacts": records,
+    }
+    (result / "manifest.json").write_text(
+        json.dumps(manifest, sort_keys=True), encoding="utf-8"
+    )
+    bundle = work / "result.zip"
+    with zipfile.ZipFile(bundle, "w", zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(result.rglob("*")):
+            if path.is_file():
+                archive.write(path, path.relative_to(result))
+    return bundle.read_bytes()
+
+
+def build(work):
+    progress("worker connected · downloading the source payload")
+    payload = call("GET", "/v1/payload")
+    if hashlib.sha256(payload).hexdigest() != EXPECTED:
+        raise RuntimeError("Payload SHA-256 mismatch.")
+    source = work / "src"
+    dist = work / "dist"
+    source.mkdir()
+    dist.mkdir()
+    archive = work / "payload.zip"
+    archive.write_bytes(payload)
+    with zipfile.ZipFile(archive) as bundle:
+        bundle.extractall(source)
+    progress("payload verified and unpacked")
+    paths = {
+        "python": sys.executable,
+        "venv": str(work / "venv"),
+        "venv_python": str(work / "venv" / "bin" / "python"),
+        "source": str(source),
+        "dist": str(dist),
+        "work": str(work),
+        "architecture": {
+            "x86_64": "amd64",
+            "aarch64": "arm64",
+        }.get(platform.machine(), platform.machine()),
+    }
+    for name, content in SPEC.get("files", {}).items():
+        destination = work / expand(name, paths)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(expand(content, paths), encoding="utf-8")
+    for index, step in enumerate(SPEC["steps"], start=1):
+        step_started(index, step["message"])
+        stream(
+            [expand(argument, paths) for argument in step["argv"]],
+            paths[step["cwd"]],
+        )
+    data = package(work, dist)
+    progress("artifact bundle ready · uploading for host validation")
+    call(
+        "PUT",
+        "/v1/result",
+        data,
+        {"X-Artifact-SHA256": hashlib.sha256(data).hexdigest()},
+    )
+
+
+def main():
+    with tempfile.TemporaryDirectory(prefix="stationer-") as name:
+        try:
+            build(pathlib.Path(name))
+        except BaseException:
+            try:
+                call("POST", "/v1/error", traceback.format_exc().encode("utf-8"))
+            except OSError:
+                pass
+            raise
+
+
+main()

@@ -4,11 +4,12 @@
 
 ```text
 tests/
-  tools/lake_terminal/        Lake Terminal suite (installer, update,
+  tools/district/        District Terminal suite (installer, update,
                               storage, URI handler, gate coverage, pyz)
-  tools/release_builder/      Builder, manifest, pyz, local deps
-  tools/release_publish/      Config, planner, engine, providers, CLI
-  plugins/<name>/             Node test files per plugin
+  tools/district/js/     Dashboard web-asset Node tests
+  tools/stationer/      Builder, manifest, pyz, local deps
+  tools/stationer/      Config, planner, engine, providers, CLI
+  plugins/<name>/js/          Node test files per plugin
 plugins/devin_remote_control/src/test_original/
                               Extension-side Node test suites
 ```
@@ -17,8 +18,9 @@ Run them:
 
 ```bash
 python -m pytest -q                                   # full Python suite
-python -m pytest tests/tools/lake_terminal -q         # one area
-node --test tests/plugins/devin_remote_control/*.test.js
+python -m pytest tests/tools/district -q         # one area
+node --test "tests/plugins/devin_remote_control/js/*.test.*"
+node --test "tests/tools/district/js/*.test.mjs"
 cd plugins/devin_remote_control/src && node --test test_original/*.test.mjs
 ```
 
@@ -48,7 +50,7 @@ layout: Layout = present(value=manifest_layout(home=tmp_path))
   the package by copy, so `.pyz` builds are exercised end-to-end without
   network.
 - **Subprocess isolation** — when pytest's package layout shadows the real
-  package (e.g. `tests/tools/lake_terminal` vs `lake_terminal`), the code
+  package (e.g. `tests/tools/district` vs `district`), the code
   under test runs in a subprocess with an explicit `sys.path`.
 - **`monkeypatch` + typed stubs** — patched callables are `def`s with full
   signatures, not lambdas; strict typing applies to tests too.
@@ -62,7 +64,7 @@ sources — dev tooling like `tools/*.mjs` needs tests too. Measured through
 
 ## Deterministic-build tests
 
-`tests/plugins/devin_remote_control/tools.test.js` runs `package.mjs`
+`tests/plugins/devin_remote_control/js/tools.test.js` runs `package.mjs`
 twice and asserts identical SHA-256 for every emitted artifact —
 reproducibility is a tested property, not a hope.
 

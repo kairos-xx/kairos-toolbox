@@ -1,4 +1,4 @@
-# Lake Terminal &amp; Friends
+# District Terminal &amp; Friends
 
 > **An execution control plane for the agentic era — plus the trust layer, release pipeline, and editor extensions built around it.**
 
@@ -6,11 +6,11 @@ Modern development isn't one human typing into one terminal anymore. It's a deve
 
 | Component | What it is | One-liner |
 | --- | --- | --- |
-| 🌊 [`lake_terminal/`](tools/lake_terminal/) | **Execution control plane** | Persistent terminals, agent attribution, durable command history — one SQLite-backed state model for humans *and* coding agents. |
-| 🏹 [`arrow/`](tools/arrow/) | **Local URI trust framework** | Signed, expiring, replay-proof envelopes for `scheme://` invocations — with provenance, delegation, audit chains, and native OS elevation. |
-| 📦 [`release_builder/`](tools/release_builder/) | **Cross-platform release builder** | One command → macOS `.pkg`, Debian `.deb`, Windows `.exe`, or a self-contained `.pyz` — with SHA-256 digests and a machine-readable manifest. |
-| 🚀 [`release_publish/`](tools/release_publish/) | **Deterministic release publisher** | Compile a release into an *immutable plan*, inspect it, dry-run it, journal it, resume it. Monorepo-native. |
-| 📱 [`devin_remote_control/`](plugins/devin_remote_control/) | **Phone-first remote IDE** | A VS Code-compatible extension that puts your projects, agents, git, and terminals in your pocket — via one local gateway and a QR code. |
+| 🌊 [`district/`](tools/district/) | **Execution control plane** | Persistent terminals, agent attribution, durable command history — one SQLite-backed state model for humans *and* coding agents. |
+| 🏹 [`bowman/`](tools/bowman/) | **Local URI trust framework** | Signed, expiring, replay-proof envelopes for `scheme://` invocations — with provenance, delegation, audit chains, and native OS elevation. |
+| 📦 [`stationer/`](tools/stationer/) | **Release builder & publisher** | One command → macOS `.pkg`, Debian `.deb`, Windows `.exe`, or a self-contained `.pyz` — then an immutable, dry-runnable, resumable release plan for GitHub and PyPI. Monorepo-native. |
+| �️ [`conjure/`](tools/conjure/) | **Host/guest-agnostic job layer** | One lifecycle — `start`, `run`, `upload`, `download`, `close` — over local hosts, Docker containers, QEMU/SSH guests, and a named VM registry. |
+| �📱 [`devin_remote_control/`](plugins/devin_remote_control/) | **Phone-first remote IDE** | A VS Code-compatible extension that puts your projects, agents, git, and terminals in your pocket — via one local gateway and a QR code. |
 | 🧩 [`plugins/`](plugins/) | **Editor micro-extensions** | Three more focused quality-of-life plugins for VS Code-compatible editors. |
 
 ```text
@@ -20,7 +20,7 @@ Modern development isn't one human typing into one terminal anymore. It's a deve
                        │               │               │
                        ▼               ▼               ▼
               ┌────────────────────────────────────────────────┐
-              │              LAKE TERMINAL                     │
+              │              DISTRICT TERMINAL                     │
               │  canonical sessions · commands · events ·      │
               │  processes · hosts  →  all in one SQLite DB    │
               └───────┬───────────────────────┬────────────────┘
@@ -29,59 +29,59 @@ Modern development isn't one human typing into one terminal anymore. It's a deve
         persistent PTY│                       │ CLI · editor bridge
                       ▼                       ▼
               ┌──────────────┐        ┌─────────────────────────┐
-              │   ARROW      │        │  devin_remote_control   │
+              │   BOWMAN      │        │  devin_remote_control   │
               │ signed local │        │  gateway → QR → phone   │
               │ URI trust    │        └─────────────────────────┘
               └──────────────┘
 
         ┌─────────────── SHIPPING ───────────────┐
-        │  release_builder → installers / .pyz   │
-        │  release_publish → plans → GH releases │
+        │  stationer → installers / .pyz  │
+        │         → plans → GH releases  │
         └────────────────────────────────────────┘
 ```
 
 ---
 
-## 🌊 Lake Terminal — the flagship
+## 🌊 District Terminal — the flagship
 
-**A cross-platform execution control plane for humans and coding agents.** `lake` gives every execution — yours, Claude's, Codex's, Cursor's, Devin's — a stable identity, a durable command record, a normalized event stream, and honest answers to "what's actually still running?"
+**A cross-platform execution control plane for humans and coding agents.** `district` gives every execution — yours, Claude's, Codex's, Cursor's, Devin's — a stable identity, a durable command record, a normalized event stream, and honest answers to "what's actually still running?"
 
 ```bash
-lake                    # attach to a managed persistent shell
-lake pytest -q          # run in a managed shell that survives you
-lake --status           # everything the control plane knows
-lake --watch            # interactive multi-session TUI
-lake --web              # live browser dashboard
-lake --status --json    # machine-readable, for editors & automation
-lake --subscribe        # normalized event stream
-lake --doctor --full    # deep diagnostics
+district                    # attach to a managed persistent shell
+district pytest -q          # run in a managed shell that survives you
+district --status           # everything the control plane knows
+district --watch            # interactive multi-session TUI
+district --web              # live browser dashboard
+district --status --json    # machine-readable, for editors & automation
+district --subscribe        # normalized event stream
+district --doctor --full    # deep diagnostics
 ```
 
 ### Why not tmux / zellij / PM2 / screen?
 
-Lake Terminal is not a terminal multiplexer — it *uses* them as backends and adds the layer they don't have: **a queryable control plane**.
+District Terminal is not a terminal multiplexer — it *uses* them as backends and adds the layer they don't have: **a queryable control plane**.
 
-| | tmux / zellij | PM2 / systemd | IDE integrated terminal | **Lake Terminal** |
+| | tmux / zellij | PM2 / systemd | IDE integrated terminal | **District Terminal** |
 | --- | --- | --- | --- | --- |
 | Survives disconnects | ✅ | ✅ | ❌ | ✅ (tmux on Unix, ConPTY on Windows) |
 | Queryable state model | ❌ (socket protocol) | ⚠️ (its own daemon db) | ❌ (UI state only) | ✅ normalized SQLite: `sessions`, `commands`, `events`, `processes`, `hosts` |
 | Agent attribution | ❌ | ❌ | ❌ | ✅ native hooks for Claude Code, Codex, Cursor, Devin |
 | Durable command history | ❌ scrollback only | ⚠️ logs | ❌ | ✅ transactional lifecycle records |
 | Honest degraded mode | n/a | n/a | ❌ | ✅ process-only observability instead of false "reconnectable" claims |
-| Event subscriptions | ❌ | ⚠️ | ❌ | ✅ authenticated local daemon + `lake --subscribe` |
+| Event subscriptions | ❌ | ⚠️ | ❌ | ✅ authenticated local daemon + `district --subscribe` |
 | Editor/machine API | ❌ | ❌ | ⚠️ | ✅ `--json`, IPC, extension bridge |
 | Privacy controls | ❌ | ❌ | ❌ | ✅ redaction before persistence, retention, purge |
 | Remote host aggregation | ❌ | ❌ | ❌ | ✅ named SSH execution hosts |
 
 **Design rule that makes it trustworthy:** SQLite is the *only* persistent control-plane state. No JSON session registry, no shadow files, no second source of truth.
 
-📖 [Full architecture &amp; API docs](docs/tools/lake_terminal/DOCS.md)
+📖 [Full architecture &amp; API docs](docs/tools/district/DOCS.md)
 
 ---
 
-## 🏹 Arrow — trust for local URIs
+## 🏹 Bowman — trust for local URIs
 
-Registering a `scheme://` handler is easy. Making it **safe** is not — any process can fire a URI at your handler. Arrow treats every local URI invocation as a security-boundary crossing:
+Registering a `scheme://` handler is easy. Making it **safe** is not — any process can fire a URI at your handler. Bowman treats every local URI invocation as a security-boundary crossing:
 
 1. **Provenance** — which executable called, at which trust level.
 2. **Authentication** — principals with declared strength.
@@ -91,36 +91,36 @@ Registering a `scheme://` handler is easy. Making it **safe** is not — any pro
 6. **Audit** — hash-chained audit records and traces.
 7. **Explicit elevation** — narrowly allowlisted commands through the OS's *native* consent surface (UAC, `sudo`, macOS authorization) — never silent privilege.
 
-**vs. JWT/OAuth libraries:** those solve *web* token validation. Arrow solves *local IPC* trust — provenance of the calling executable, revocation, delegation chains, and elevation through OS consent — things a JWT library doesn't even model.
+**vs. JWT/OAuth libraries:** those solve *web* token validation. Bowman solves *local IPC* trust — provenance of the calling executable, revocation, delegation chains, and elevation through OS consent — things a JWT library doesn't even model.
 
-📖 [Arrow docs](docs/tools/arrow/DOCS.md)
+📖 [Bowman docs](docs/tools/bowman/DOCS.md)
 
 ---
 
-## 📦 release_builder — one manifest, four artifact formats
+## 📦 stationer — one manifest, four artifact formats
 
 ```bash
-python -m tools.release_builder \
-  --project . --manifest release-builder.toml --output dist/
+python -m tools.stationer \
+  --project . --manifest stationer.toml --output dist/
 ```
 
 Out of a single TOML manifest you get: macOS `.pkg`, Debian `.deb`, Windows ARM64 setup `.exe`, or — with `--format pyz` — a self-contained `name-version-platform.pyz`.
 
 - **Every external command flows through a `Runner` protocol** → builds are deterministic, captured, and fail fast on any non-zero exit.
 - **`pip` never dirties your source tree** — the `.pyz` build installs into a throwaway copy (no stray `build/` or `*.egg-info`), strips console scripts and `__pycache__`, then smoke-tests the archive with an isolated home before shipping it.
-- **vs. PyInstaller/Nuitka:** those freeze an interpreter *into* the artifact. `release_builder` produces real OS installers and portable `.pyz` archives — smaller, standard, and updatable in place.
+- **vs. PyInstaller/Nuitka:** those freeze an interpreter *into* the artifact. `stationer` produces real OS installers and portable `.pyz` archives — smaller, standard, and updatable in place.
 
-📖 [Builder docs](docs/tools/release_builder/DOCS.md)
+📖 [Builder docs](docs/tools/stationer/BUILDER.md)
 
 ---
 
-## 🚀 release_publish — releases as immutable plans
+## 🚀 stationer — releases as immutable plans
 
-Most release tools *do things*. `release_publish` **plans** things — into immutable `Action` objects you can inspect, render, dry-run, journal, and *resume after failure*.
+Most release tools *do things*. `stationer` **plans** things — into immutable `Action` objects you can inspect, render, dry-run, journal, and *resume after failure*.
 
 ```bash
-python -m tools.release_publish --config release.toml plan      # compile & inspect
-python -m tools.release_publish --config release.toml release   # execute
+python -m tools.stationer --config release.toml plan      # compile & inspect
+python -m tools.stationer --config release.toml release   # execute
 ```
 
 - **Monorepo-native:** per-component tags (`demo/v1.2.3`), independent versions, `version_files` instead of version guessing.
@@ -130,13 +130,13 @@ python -m tools.release_publish --config release.toml release   # execute
 
 **vs. semantic-release / changesets / lerna:** those are Node-centric and do their work inline. This is language-agnostic, audit-first, and resumable by construction.
 
-📖 [Publisher docs](docs/tools/release_publish/DOCS.md)
+📖 [Publisher docs](docs/tools/stationer/PUBLISH.md)
 
 ---
 
 ## 📱 devin_remote_control — your IDE, in your pocket
 
-A VS Code-compatible extension that turns your desktop workspace into a phone-first remote console: agents, explorer, editor, diffs, git, terminals — all through **one loopback gateway + one ngrok tunnel**, with per-project isolated routes `https://<assigned>.ngrok.app/p/<project-id>/`.
+A VS Code-compatible extension that turns your desktop workspace into a phone-first remote console: agents, explorer, editor, diffs, git, terminals — all through **one loopback gateway + one ngrok charter**, with per-project isolated routes `https://<assigned>.ngrok.app/p/<project-id>/`.
 
 - **Zero runtime npm dependencies** — plain Node/CommonJS + browser JS.
 - **Real security model:** one-time pairing, scoped HttpOnly sessions, rotating CSRF, rate limiting, device revocation, CSP headers — not "obscure URL" security.
@@ -176,11 +176,11 @@ The unusual rules that make it interesting: **no `assert` in tests** (a `expect`
 ## 📂 Repository layout
 
 ```text
-tools/            Lake Terminal, Arrow, release_builder, release_publish
+tools/            District Terminal, Bowman, stationer
 plugins/          VS Code-compatible extensions (incl. devin_remote_control)
 tests/            Python + JS test suites mirroring the tree
 docs/             Full technical docs mirroring the tree
-release.toml      This repo's own release-publish configuration
+release.toml      This repo's own stationer configuration
 ```
 
 Requires **Python ≥ 3.13**; plugins target VS Code-compatible editors on macOS, Linux, and Windows.
@@ -190,19 +190,25 @@ Requires **Python ≥ 3.13**; plugins target VS Code-compatible editors on macOS
 
 ### Files
 
+- [`AGENTS.md`](AGENTS.md) — Provide AGENTS md content.
+- [`AGENTS_EXTENDED.md`](AGENTS_EXTENDED.md) — Companion to `AGENTS.md`. Where that file states the canonical standard, this file spells out the **concrete, mechanically checked requirements** your code must satisfy. Nothing here is aspirational: every item is verified automatically, and a change is incomplete while any applicable requirement fails.
+- [`TODO.md`](TODO.md) — Rule for everything below: **no lint suppressions, no skipped tests.**
 - [`eslint.config.mjs`](eslint.config.mjs) — ", "*
 - [`jsconfig.json`](jsconfig.json) — Provide jsconfig json content.
 - [`package-lock.json`](package-lock.json) — Provide package lock json content.
 - [`package.json`](package.json) — Provide package json content.
 - [`pyproject.toml`](pyproject.toml) — Provide pyproject toml content.
 - [`release.toml`](release.toml) — Provide release toml content.
+- [`stylelint.config.mjs`](stylelint.config.mjs) — ", "*
+- [`uv.lock`](uv.lock) — Provide uv lock content.
 
 ### Subdirectories
 
 - [`docs/`](docs/README.md) — Collects the technical documentation of every project folder, mirroring the workspace tree.
 - [`plugins/`](plugins/README.md) — > Keep your tab strip clean by closing editors whose files no longer exist on disk.
 - [`tests/`](tests/README.md) — Provide core.test js content.
-- [`tools/`](tools/README.md) — Developer tools: the Lake Terminal control plane, the Arrow URI trust framework, and the release builder and publisher.
+- [`tools/`](tools/README.md) — Developer tools: the District Terminal control plane, the Bowman URI trust framework, and the stationer release tool.
 - [`wiki/`](wiki/README.md) — GitHub-wiki pages for this repository — flat `.md` files in wiki convention:
+- [`zip_project/`](zip_project/README.md) — Provide project 001 zip content.
 
 <!-- exactus:inventory:end -->

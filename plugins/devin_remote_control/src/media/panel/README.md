@@ -8,11 +8,10 @@ Provide index html content.
 ### Files
 
 - [`index.html`](index.html) — Provide index html content.
-- [`panel.css`](panel.css) — Provide panel css content.
-- [`panel.js`](panel.js) — Read an index-signature property without dot/bracket lint conflicts.
 
 ### Subdirectories
 
-No subdirectories.
+- [`css/`](css/README.md) — Provide panel css content.
+- [`js/`](js/README.md) — Read an index-signature property without dot/bracket lint conflicts.
 
 <!-- exactus:inventory:end -->

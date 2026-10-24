@@ -17,7 +17,7 @@ Validation performed for release `5.0.0` from `src/` with Node.js.
 - [ ] Gateway binds `127.0.0.1` only (no external listener without ngrok).
 - [ ] `Devin Remote: Set Devin Credentials` stores the token in
       `SecretStorage` — the browser never receives it.
-- [ ] ngrok tunnel produces one shared hostname; each workspace folder maps
+- [ ] ngrok charter produces one shared hostname; each workspace folder maps
       to an isolated `/p/<project-id>/` route.
 - [ ] Phone pairing: QR opens the project URL only; the six-digit code is
       single-use and short-lived.

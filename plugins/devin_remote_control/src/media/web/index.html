@@ -15,8 +15,8 @@
     />
     <title>Devin Remote</title>
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="/assets/app.css" />
-    <script src="/assets/app.js" defer></script>
+    <link rel="stylesheet" href="/assets/css/app.css" />
+    <script src="/assets/js/app.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -190,7 +190,8 @@
           aria-live="polite"
         ></output>
         <div class="pair-security">
-          <svg class="icon"><use href="#i-shield"></use></svg
+          <svg class="icon">
+            <use href="#i-shield"></use></svg
           ><span>Project-scoped · HttpOnly session · CSRF protected</span>
         </div>
       </section>
@@ -209,7 +210,9 @@
               <strong data-slot="project-name">Project</strong
               ><span data-slot="project-meta">Connecting…</span>
             </div>
-            <svg class="icon chevron"><use href="#i-chevron"></use></svg>
+            <svg class="icon chevron">
+              <use href="#i-chevron"></use>
+            </svg>
           </button>
           <div class="topbar-actions">
             <button
@@ -218,7 +221,9 @@
               data-action="command-palette"
               aria-label="Command palette"
             >
-              <svg class="icon"><use href="#i-search"></use></svg>
+              <svg class="icon">
+                <use href="#i-search"></use>
+              </svg>
             </button>
             <button
               type="button"
@@ -226,7 +231,9 @@
               data-action="refresh"
               aria-label="Refresh"
             >
-              <svg class="icon"><use href="#i-refresh"></use></svg>
+              <svg class="icon">
+                <use href="#i-refresh"></use>
+              </svg>
             </button>
             <button
               type="button"
@@ -234,21 +241,26 @@
               data-action="settings"
               aria-label="Project settings"
             >
-              <svg class="icon"><use href="#i-settings"></use></svg>
+              <svg class="icon">
+                <use href="#i-settings"></use>
+              </svg>
             </button>
           </div>
         </header>
         <div class="project-statusbar" aria-label="Project status">
           <button type="button" data-nav="diff">
-            <svg class="icon"><use href="#i-branch"></use></svg
+            <svg class="icon">
+              <use href="#i-branch"></use></svg
             ><span data-slot="status-branch">HEAD</span>
           </button>
           <button type="button" data-nav="agents">
-            <svg class="icon"><use href="#i-agent"></use></svg
+            <svg class="icon">
+              <use href="#i-agent"></use></svg
             ><span data-slot="status-agents">0 active</span>
           </button>
           <button type="button" data-action="show-problems">
-            <svg class="icon"><use href="#i-warning"></use></svg
+            <svg class="icon">
+              <use href="#i-warning"></use></svg
             ><span data-slot="status-problems">0 problems</span>
           </button>
         </div>
@@ -272,7 +284,9 @@
                 class="button primary"
                 data-action="new-agent"
               >
-                <svg class="icon"><use href="#i-plus"></use></svg>New agent
+                <svg class="icon">
+                  <use href="#i-plus"></use></svg
+                >New agent
               </button>
             </div>
             <div class="metric-grid dashboard-metrics">
@@ -296,19 +310,23 @@
             </div>
             <div class="quick-grid" aria-label="Quick actions">
               <button type="button" data-action="new-agent">
-                <svg class="icon"><use href="#i-agent"></use></svg
+                <svg class="icon">
+                  <use href="#i-agent"></use></svg
                 ><span>Start agent</span>
               </button>
               <button type="button" data-action="workspace-search">
-                <svg class="icon"><use href="#i-search"></use></svg
+                <svg class="icon">
+                  <use href="#i-search"></use></svg
                 ><span>Search code</span>
               </button>
               <button type="button" data-action="new-terminal">
-                <svg class="icon"><use href="#i-terminal"></use></svg
+                <svg class="icon">
+                  <use href="#i-terminal"></use></svg
                 ><span>Terminal</span>
               </button>
               <button type="button" data-action="file-create-menu">
-                <svg class="icon"><use href="#i-plus"></use></svg
+                <svg class="icon">
+                  <use href="#i-plus"></use></svg
                 ><span>New file</span>
               </button>
             </div>
@@ -391,7 +409,9 @@
                 class="button compact primary"
                 data-action="new-agent"
               >
-                <svg class="icon"><use href="#i-plus"></use></svg>New
+                <svg class="icon">
+                  <use href="#i-plus"></use></svg
+                >New
               </button>
             </div>
             <div class="overview-strip">
@@ -410,7 +430,8 @@
               </div>
             </div>
             <label class="search-field"
-              ><svg class="icon"><use href="#i-search"></use></svg
+              ><svg class="icon">
+                <use href="#i-search"></use></svg
               ><span class="sr-only">Search agents</span
               ><input
                 type="search"
@@ -442,7 +463,9 @@
                 data-action="close-chat"
                 aria-label="Back"
               >
-                <svg class="icon"><use href="#i-back"></use></svg>
+                <svg class="icon">
+                  <use href="#i-back"></use>
+                </svg>
               </button>
               <div class="detail-copy">
                 <h1 id="chat-heading" data-slot="chat-title">Agent</h1>
@@ -454,7 +477,9 @@
                 data-action="agent-menu"
                 aria-label="Agent actions"
               >
-                <svg class="icon"><use href="#i-more"></use></svg>
+                <svg class="icon">
+                  <use href="#i-more"></use>
+                </svg>
               </button>
             </div>
             <div class="agent-toolbar">
@@ -489,7 +514,9 @@
                 required
               ></textarea
               ><button type="submit" class="send-button" aria-label="Send">
-                <svg class="icon"><use href="#i-send"></use></svg>
+                <svg class="icon">
+                  <use href="#i-send"></use>
+                </svg>
               </button>
             </form>
           </section>
@@ -511,7 +538,8 @@
                 class="command-tile"
                 data-action="file-create-menu"
               >
-                <svg class="icon"><use href="#i-plus"></use></svg
+                <svg class="icon">
+                  <use href="#i-plus"></use></svg
                 ><span
                   ><strong>Create</strong><small>File or folder</small></span
                 >
@@ -521,7 +549,8 @@
                 class="command-tile"
                 data-action="upload-file"
               >
-                <svg class="icon"><use href="#i-upload"></use></svg
+                <svg class="icon">
+                  <use href="#i-upload"></use></svg
                 ><span
                   ><strong>Upload</strong><small>Binary or text</small></span
                 >
@@ -531,13 +560,15 @@
                 class="command-tile"
                 data-action="workspace-search"
               >
-                <svg class="icon"><use href="#i-search"></use></svg
+                <svg class="icon">
+                  <use href="#i-search"></use></svg
                 ><span
                   ><strong>Search</strong><small>Entire workspace</small></span
                 >
               </button>
               <button type="button" class="command-tile" data-action="refresh">
-                <svg class="icon"><use href="#i-refresh"></use></svg
+                <svg class="icon">
+                  <use href="#i-refresh"></use></svg
                 ><span><strong>Refresh</strong><small>Reload tree</small></span>
               </button>
             </div>
@@ -548,7 +579,8 @@
                   ><span data-slot="explorer-count"></span>
                 </div>
                 <label class="search-field"
-                  ><svg class="icon"><use href="#i-search"></use></svg
+                  ><svg class="icon">
+                    <use href="#i-search"></use></svg
                   ><span class="sr-only">Filter files</span
                   ><input
                     type="search"
@@ -621,7 +653,9 @@
                   hidden
                 ></div>
                 <div class="explorer-help">
-                  <svg class="icon"><use href="#i-code"></use></svg>
+                  <svg class="icon">
+                    <use href="#i-code"></use>
+                  </svg>
                   <div>
                     <strong>Project-aware workspace</strong>
                     <p>
@@ -645,7 +679,9 @@
                 data-action="close-editor"
                 aria-label="Back to explorer"
               >
-                <svg class="icon"><use href="#i-back"></use></svg>
+                <svg class="icon">
+                  <use href="#i-back"></use>
+                </svg>
               </button>
               <div class="detail-copy">
                 <h1 id="editor-heading" data-slot="editor-title">File</h1>
@@ -658,20 +694,26 @@
                   data-action="toggle-bookmark"
                   aria-label="Bookmark file"
                 >
-                  <svg class="icon"><use href="#i-bookmark"></use></svg></button
+                  <svg class="icon">
+                    <use href="#i-bookmark"></use>
+                  </svg></button
                 ><button
                   type="button"
                   class="icon-button"
                   data-action="open-vscode"
                   aria-label="Open in VS Code"
                 >
-                  <svg class="icon"><use href="#i-external"></use></svg></button
+                  <svg class="icon">
+                    <use href="#i-external"></use>
+                  </svg></button
                 ><button
                   type="button"
                   class="button compact primary"
                   data-action="save-file"
                 >
-                  <svg class="icon"><use href="#i-save"></use></svg>Save
+                  <svg class="icon">
+                    <use href="#i-save"></use></svg
+                  >Save
                 </button>
               </div>
             </div>
@@ -707,27 +749,33 @@
                 class="button secondary"
                 data-action="download-file"
               >
-                <svg class="icon"><use href="#i-download"></use></svg
+                <svg class="icon">
+                  <use href="#i-download"></use></svg
                 >Download</button
               ><button
                 type="button"
                 class="button secondary"
                 data-action="rename-file"
               >
-                <svg class="icon"><use href="#i-edit"></use></svg>Rename</button
+                <svg class="icon">
+                  <use href="#i-edit"></use></svg
+                >Rename</button
               ><button
                 type="button"
                 class="button secondary"
                 data-action="duplicate-file"
               >
-                <svg class="icon"><use href="#i-copy"></use></svg
+                <svg class="icon">
+                  <use href="#i-copy"></use></svg
                 >Duplicate</button
               ><button
                 type="button"
                 class="button danger"
                 data-action="delete-file"
               >
-                <svg class="icon"><use href="#i-trash"></use></svg>Delete
+                <svg class="icon">
+                  <use href="#i-trash"></use></svg
+                >Delete
               </button>
             </div>
           </section>
@@ -846,7 +894,9 @@
                 data-action="close-diff"
                 aria-label="Back to changes"
               >
-                <svg class="icon"><use href="#i-back"></use></svg>
+                <svg class="icon">
+                  <use href="#i-back"></use>
+                </svg>
               </button>
               <div class="detail-copy">
                 <h1 id="diff-detail-heading" data-slot="diff-title">
@@ -883,8 +933,9 @@
                 class="button danger"
                 data-action="git-discard"
               >
-                <svg class="icon"><use href="#i-trash"></use></svg>Discard local
-                changes
+                <svg class="icon">
+                  <use href="#i-trash"></use></svg
+                >Discard local changes
               </button>
             </div>
           </section>
@@ -904,7 +955,9 @@
                 class="button compact primary"
                 data-action="new-terminal"
               >
-                <svg class="icon"><use href="#i-plus"></use></svg>New shell
+                <svg class="icon">
+                  <use href="#i-plus"></use></svg
+                >New shell
               </button>
             </div>
             <div class="runtime-summary" data-slot="runtime-summary"></div>
@@ -961,7 +1014,9 @@
                 spellcheck="false"
                 placeholder="command"
               /><button type="submit" class="send-button" aria-label="Send">
-                <svg class="icon"><use href="#i-send"></use></svg>
+                <svg class="icon">
+                  <use href="#i-send"></use>
+                </svg>
               </button>
             </form>
             <section class="surface task-panel">
@@ -1121,23 +1176,28 @@
         </div>
         <nav class="bottom-nav" aria-label="Primary">
           <button type="button" class="selected" data-nav="dashboard">
-            <svg class="icon"><use href="#i-home"></use></svg
+            <svg class="icon">
+              <use href="#i-home"></use></svg
             ><span>Dashboard</span>
           </button>
           <button type="button" data-nav="agents">
-            <svg class="icon"><use href="#i-agent"></use></svg
+            <svg class="icon">
+              <use href="#i-agent"></use></svg
             ><span>Agents</span><b data-badge="agents"></b>
           </button>
           <button type="button" data-nav="files">
-            <svg class="icon"><use href="#i-files"></use></svg
+            <svg class="icon">
+              <use href="#i-files"></use></svg
             ><span>Explorer</span>
           </button>
           <button type="button" data-nav="diff">
-            <svg class="icon"><use href="#i-diff"></use></svg><span>Review</span
-            ><b data-badge="changes"></b>
+            <svg class="icon">
+              <use href="#i-diff"></use></svg
+            ><span>Review</span><b data-badge="changes"></b>
           </button>
           <button type="button" data-nav="terminal">
-            <svg class="icon"><use href="#i-terminal"></use></svg
+            <svg class="icon">
+              <use href="#i-terminal"></use></svg
             ><span>Console</span>
           </button>
         </nav>
@@ -1153,7 +1213,9 @@
             class="icon-button"
             aria-label="Close"
           >
-            <svg class="icon"><use href="#i-back"></use></svg>
+            <svg class="icon">
+              <use href="#i-back"></use>
+            </svg>
           </button>
         </header>
         <div data-slot="modal-body"></div>

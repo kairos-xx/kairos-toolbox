@@ -1,0 +1,202 @@
+# Remote build worker for Windows (PowerShell 5.1 or later).
+# Rendered by tools.stationer.remote_workers; the host decides every
+# command (the "steps"), this script only runs them and returns the result.
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+$Base = @@BASE@@
+$Token = @@TOKEN@@
+$Expected = @@EXPECTED@@
+$OsName = @@OS@@
+$SpecJson = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(@@SPEC@@))
+$Spec = $SpecJson | ConvertFrom-Json
+$Headers = @{ Authorization = "Bearer $Token" }
+# PyInstaller refuses to run below the Windows directory, which is where TEMP points
+# for service accounts such as SYSTEM, so such workers build under ProgramData instead.
+$Root = $env:TEMP
+if ($Root.StartsWith($env:SystemRoot, [StringComparison]::OrdinalIgnoreCase)) { $Root = $env:ProgramData }
+$Work = Join-Path $Root ('stationer-' + [Guid]::NewGuid().ToString('N'))
+$Source = Join-Path $Work 'src'
+$Dist = Join-Path $Work 'dist'
+$Result = Join-Path $Work 'result'
+
+function Send-Progress([string]$Message) {
+    try {
+        $Bytes = [Text.Encoding]::UTF8.GetBytes($Message)
+        Invoke-WebRequest -UseBasicParsing -Method Post -Headers $Headers -Uri "$Base/v1/progress" -Body $Bytes | Out-Null
+    } catch {}
+}
+
+function Send-Step([int]$Index, [string]$Message) {
+    # A JSON event lets the host weigh the step; plain text is still accepted.
+    Send-Progress -Message (@{ step = $Index; message = $Message } | ConvertTo-Json -Compress)
+}
+
+function Send-Output([string]$Text) {
+    if (-not $Text) { return }
+    if ($Text.Length -gt 12000) { $Text = $Text.Substring($Text.Length - 12000) }
+    try {
+        $Bytes = [Text.Encoding]::UTF8.GetBytes($Text)
+        Invoke-WebRequest -UseBasicParsing -Method Post -Headers $Headers -Uri "$Base/v1/output" -Body $Bytes | Out-Null
+    } catch {}
+}
+
+function Invoke-Streamed([string[]]$Argv) {
+    # Echo the step's output and forward it to the host in throttled batches. pip's raw progress bar
+    # prints a line per received chunk, so only the newest one is forwarded per batch. Windows
+    # PowerShell 5.1 turns native stderr into terminating errors under 'Stop' once it is redirected,
+    # so success is judged by the exit code alone.
+    $Pending = New-Object Text.StringBuilder
+    $Newest = $null
+    $Clock = [Diagnostics.Stopwatch]::StartNew()
+    $Previous = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+        & $Argv[0] @($Argv | Select-Object -Skip 1) 2>&1 | ForEach-Object {
+            $Line = "$_"
+            if ($Line.StartsWith('Progress ')) {
+                $Newest = $Line
+            } else {
+                Write-Host $Line
+                [void]$Pending.AppendLine($Line)
+            }
+            if ($Pending.Length -ge 8000 -or $Clock.ElapsedMilliseconds -ge 500) {
+                Send-Output -Text ($Pending.ToString() + $(if ($Newest) { $Newest + "`n" } else { '' }))
+                [void]$Pending.Clear()
+                $Newest = $null
+                $Clock.Restart()
+            }
+        }
+        $Code = $LASTEXITCODE
+    } finally { $ErrorActionPreference = $Previous }
+    Send-Output -Text ($Pending.ToString() + $(if ($Newest) { $Newest + "`n" } else { '' }))
+    if ($Code -ne 0) { throw "Command failed with exit code ${Code}: $($Argv -join ' ')" }
+}
+
+function Send-Failure([string]$Message) {
+    try {
+        $Bytes = [Text.Encoding]::UTF8.GetBytes($Message)
+        Invoke-WebRequest -UseBasicParsing -Method Post -Headers $Headers -Uri "$Base/v1/error" -Body $Bytes | Out-Null
+    } catch {}
+}
+
+function Find-Python {
+    foreach ($Name in @('py', 'python', 'python3')) {
+        $Found = Get-Command $Name -ErrorAction SilentlyContinue
+        if ($Found) { return $Found.Source }
+    }
+    return $null
+}
+
+function Get-NativeArchitecture {
+    # An x64 PowerShell emulated on ARM64 Windows (a VM guest agent starts one) reports X64
+    # from .NET, so ask the processor, which reports the machine's real architecture.
+    $Code = (Get-CimInstance -ClassName Win32_Processor | Select-Object -First 1).Architecture
+    if ($Code -eq 12) { return 'arm64' }
+    if ($Code -eq 9) { return 'x64' }
+    return [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant()
+}
+
+function Get-TargetArchitecture {
+    # The host may ask for a specific CPU: an ARM64 guest builds x64 through emulation.
+    if ($Spec.architecture -eq 'amd64') { return 'x64' }
+    if ($Spec.architecture -eq 'arm64') { return 'arm64' }
+    return Get-NativeArchitecture
+}
+
+function Install-Python {
+    # The NuGet packages are plain archives: extracting one installs nothing, needs no
+    # user profile (service accounts such as a VM guest agent lack one) and leaves no
+    # registry or Windows Installer state behind when the work folder is deleted.
+    $Arch = Get-TargetArchitecture
+    if ($Arch -eq 'arm64') { $Name = 'pythonarm64' } elseif ($Arch -eq 'x64') { $Name = 'python' } else { throw "Unsupported Windows architecture: $Arch" }
+    $Version = $Spec.python_version
+    $Package = Join-Path $Work 'python.zip'
+    Invoke-WebRequest -UseBasicParsing -Uri "https://api.nuget.org/v3-flatcontainer/$Name/$Version/$Name.$Version.nupkg" -OutFile $Package
+    $Target = Join-Path $Work 'python'
+    Expand-Archive -Path $Package -DestinationPath $Target -Force
+    $Python = Join-Path $Target 'tools\python.exe'
+    if (-not (Test-Path -LiteralPath $Python)) { throw "The $Name package has no tools\python.exe." }
+    return $Python
+}
+
+function Expand-Value([string]$Value, [hashtable]$Paths) {
+    foreach ($Key in $Paths.Keys) { $Value = $Value.Replace('{' + $Key + '}', $Paths[$Key]) }
+    return $Value
+}
+
+New-Item -ItemType Directory -Force -Path $Work, $Source, $Dist | Out-Null
+try {
+    $Archive = Join-Path $Work 'payload.zip'
+    Invoke-WebRequest -UseBasicParsing -Headers $Headers -Uri "$Base/v1/payload" -OutFile $Archive
+    $Actual = (Get-FileHash -Algorithm SHA256 $Archive).Hash.ToLowerInvariant()
+    if ($Actual -ne $Expected) { throw 'Payload SHA-256 mismatch.' }
+    Expand-Archive -Path $Archive -DestinationPath $Source -Force
+    Send-Progress -Message 'payload verified and unpacked'
+    $Python = if ($Spec.architecture -eq 'native') { Find-Python } else { $null }
+    if (-not $Python) {
+        if (-not $Spec.python_bootstrap) { throw 'Python is unavailable and bootstrap is disabled.' }
+        $Python = Install-Python
+    }
+    $Paths = @{
+        python = $Python
+        venv = (Join-Path $Work 'venv')
+        venv_python = (Join-Path $Work 'venv\Scripts\python.exe')
+        source = $Source
+        dist = $Dist
+        work = $Work
+        architecture = Get-TargetArchitecture
+    }
+    if ($Spec.files) {
+        foreach ($Property in $Spec.files.PSObject.Properties) {
+            $Destination = Join-Path $Work (Expand-Value -Value $Property.Name -Paths $Paths)
+            New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Destination) | Out-Null
+            [IO.File]::WriteAllText($Destination, (Expand-Value -Value $Property.Value -Paths $Paths), (New-Object Text.UTF8Encoding($false)))
+        }
+    }
+    $StepIndex = 0
+    foreach ($Step in @($Spec.steps)) {
+        $StepIndex++
+        Send-Step -Index $StepIndex -Message $Step.message
+        $Argv = @(@($Step.argv) | ForEach-Object { Expand-Value -Value $_ -Paths $Paths })
+        Push-Location $Paths[$Step.cwd]
+        try {
+            Invoke-Streamed -Argv $Argv
+        } finally { Pop-Location }
+    }
+    $Files = @(Get-ChildItem -Path $Dist -File -Recurse | Sort-Object FullName)
+    if ($Files.Count -eq 0) { throw 'The build produced no artifacts.' }
+    $Records = @($Files | ForEach-Object {
+        $Relative = $_.FullName.Substring($Dist.Length).TrimStart('\', '/').Replace('\', '/')
+        $Target = Join-Path (Join-Path $Result 'artifacts') $Relative
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Target) | Out-Null
+        Copy-Item $_.FullName $Target
+        @{ path = $Relative; size = $_.Length; sha256 = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLowerInvariant() }
+    })
+    $Architecture = Get-TargetArchitecture
+    $Manifest = @{ schema = 1; os = $OsName; architecture = $Architecture; artifacts = $Records } | ConvertTo-Json -Depth 6
+    # Windows PowerShell 5.1 writes a byte-order mark with -Encoding UTF8; JSON must not have one.
+    [IO.File]::WriteAllText((Join-Path $Result 'manifest.json'), $Manifest, (New-Object Text.UTF8Encoding($false)))
+    $Bundle = Join-Path $Work 'result.zip'
+    # Compress-Archive in Windows PowerShell 5.1 writes backslash entry names, so build the zip directly.
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $Zip = [IO.Compression.ZipFile]::Open($Bundle, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $ResultRoot = (Get-Item -LiteralPath $Result).FullName
+        foreach ($File in (Get-ChildItem -LiteralPath $Result -File -Recurse)) {
+            $Entry = $File.FullName.Substring($ResultRoot.Length).TrimStart('\', '/').Replace('\', '/')
+            [void][IO.Compression.ZipFileExtensions]::CreateEntryFromFile($Zip, $File.FullName, $Entry)
+        }
+    } finally { $Zip.Dispose() }
+    $Hash = (Get-FileHash -Algorithm SHA256 $Bundle).Hash.ToLowerInvariant()
+    Send-Progress -Message 'artifact bundle ready · uploading for host validation'
+    Invoke-WebRequest -UseBasicParsing -Method Put -Headers ($Headers + @{ 'X-Artifact-SHA256' = $Hash }) -Uri "$Base/v1/result" -InFile $Bundle | Out-Null
+    Write-Host 'Remote build completed successfully.'
+} catch {
+    $Detail = $_.Exception.ToString()
+    if ($_.Exception.Response) { $Detail = "Host answered: " + $_.Exception.Response.StatusCode + " " + $_.Exception.Response.StatusDescription + "`n" + $Detail }
+    Send-Failure -Message $Detail
+    throw
+} finally {
+    Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $Work
+}

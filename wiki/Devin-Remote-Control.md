@@ -12,7 +12,7 @@ your pocket.
 ```text
 VS Code window ── extension.js ── gateway-server.js (loopback HTTP)
                                        │              │
-                              media/panel (QR,     ngrok tunnel
+                              media/panel (QR,     ngrok charter
                               pairing, state)          │
                                                        ▼
                                     https://<assigned>.ngrok.app/p/<project-id>/
@@ -24,9 +24,9 @@ VS Code window ── extension.js ── gateway-server.js (loopback HTTP)
                     Review/diff · Console · Settings
 ```
 
-**One gateway, one tunnel, isolated per-project routes.** Every open
+**One gateway, one charter, isolated per-project routes.** Every open
 workspace folder gets its own `/p/<project-id>/` endpoint sharing a single
-loopback HTTP server and a single ngrok tunnel.
+loopback HTTP server and a single ngrok charter.
 
 ## What's inside
 

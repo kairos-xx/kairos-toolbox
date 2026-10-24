@@ -43,5 +43,5 @@ Docs: `docs/plugins/simple_web_server/DOCS.md`.
 ## Common traits
 
 - Plain Node/CommonJS + the editor API — no heavy dependency trees.
-- Tests under `tests/plugins/<name>/` run with `node --test`.
+- Tests under `tests/plugins/<name>/js/` run with `node --test`.
 - Every plugin carries a long-form `DOCS.md` under `docs/plugins/`.

@@ -1,47 +1,47 @@
 {
-  "name": "open-selected-editor-panel",
-  "displayName": "Open in Selected Editor Panel",
-  "description": "Open selected Explorer files, including folders recursively, in the currently selected editor group.",
-  "version": "1.0.0",
-  "publisher": "local",
-  "license": "MIT",
-  "engines": {
-    "vscode": "^1.90.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "openSelectedEditorPanel.open",
-        "title": "Open in the Selected Editor Panel"
-      },
-      {
-        "command": "openSelectedEditorPanel.openAll",
-        "title": "Open All Files in the Selected Editor Panel"
-      }
-    ],
-    "menus": {
-      "explorer/context": [
-        {
-          "command": "openSelectedEditorPanel.open",
-          "when": "explorerResourceIsFolder == false",
-          "group": "navigation@20"
-        },
-        {
-          "command": "openSelectedEditorPanel.openAll",
-          "when": "explorerResourceIsFolder == true",
-          "group": "navigation@20"
-        }
-      ]
-    }
-  },
-  "scripts": {
-    "check": "node --check extension.js && node --check file-tree.js",
-    "test": "node --test ../tests/*.test.js",
-    "coverage": "node --test --experimental-test-coverage ../tests/*.test.js"
-  }
+	"name": "open-selected-editor-panel",
+	"displayName": "Open in Selected Editor Panel",
+	"description": "Open selected Explorer files, including folders recursively, in the currently selected editor group.",
+	"version": "1.0.0",
+	"publisher": "local",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.90.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [],
+	"main": "./extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "openSelectedEditorPanel.open",
+				"title": "Open in the Selected Editor Panel"
+			},
+			{
+				"command": "openSelectedEditorPanel.openAll",
+				"title": "Open All Files in the Selected Editor Panel"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "openSelectedEditorPanel.open",
+					"when": "explorerResourceIsFolder == false",
+					"group": "navigation@20"
+				},
+				{
+					"command": "openSelectedEditorPanel.openAll",
+					"when": "explorerResourceIsFolder == true",
+					"group": "navigation@20"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"check": "node --check extension.js && node --check file-tree.js",
+		"test": "node --test ../tests/*.test.js",
+		"coverage": "node --test --experimental-test-coverage ../tests/*.test.js"
+	}
 }

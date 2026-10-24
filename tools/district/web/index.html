@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="dark light" />
+    <title>District Terminal</title>
+    <link rel="stylesheet" href="/assets/css/styles.css" />
+    <script type="module" src="/assets/js/app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <a class="brand" href="#/">District Terminal</a>
+        <div class="connection" role="status" aria-live="polite">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connection-label">Connecting</span>
+        </div>
+      </header>
+      <main>
+        <header class="view-head">
+          <p class="crumb" id="crumb" hidden></p>
+          <h1 id="view-title">Overview</h1>
+          <p class="view-sub" id="view-sub" hidden></p>
+        </header>
+        <section class="stats" id="stats" aria-label="Totals">
+          <a class="stat" data-stat="sessions" href="#/sessions">
+            <span class="stat-value" id="stat-sessions">0</span>
+            <span class="stat-label">sessions</span>
+          </a>
+          <a class="stat" data-stat="active" href="#/sessions">
+            <span class="stat-value" id="stat-active">0</span>
+            <span class="stat-label">live</span>
+          </a>
+          <a class="stat" data-stat="idle" href="#/sessions">
+            <span class="stat-value" id="stat-idle">0</span>
+            <span class="stat-label">idle</span>
+          </a>
+          <a class="stat" data-stat="dead" href="#/sessions">
+            <span class="stat-value" id="stat-dead">0</span>
+            <span class="stat-label">dead</span>
+          </a>
+          <a class="stat" data-stat="cpu" href="#/sessions">
+            <span class="stat-value" id="stat-cpu">0%</span>
+            <span class="stat-label">total CPU</span>
+          </a>
+          <a class="stat" data-stat="mem" href="#/sessions">
+            <span class="stat-value" id="stat-mem">0 MiB</span>
+            <span class="stat-label">memory</span>
+          </a>
+          <a class="stat" data-stat="procs" href="#/sessions">
+            <span class="stat-value" id="stat-procs">0</span>
+            <span class="stat-label">processes</span>
+          </a>
+          <a class="stat" data-stat="consumers" href="#/sessions">
+            <span class="stat-value" id="stat-consumers">0</span>
+            <span class="stat-label">attached</span>
+          </a>
+        </section>
+        <section class="filters" id="filters" aria-label="Filters" hidden>
+          <div class="controls">
+            <input
+              id="filter"
+              type="search"
+              placeholder="Search agent, session, folder, command"
+              aria-label="Search"
+            />
+            <select id="agent-filter" aria-label="Filter by agent">
+              <option value="">All agents</option>
+            </select>
+            <select id="state-filter" aria-label="Filter by state">
+              <option value="">All states</option>
+              <option value="live">Live</option>
+              <option value="EXECUTING">Executing</option>
+              <option value="IDLE">Idle</option>
+              <option value="DEAD">Dead</option>
+            </select>
+            <select id="sort" aria-label="Sort sessions">
+              <option value="newest">Newest</option>
+              <option value="cpu">Highest CPU</option>
+              <option value="memory">Most memory</option>
+              <option value="processes">Most processes</option>
+              <option value="agent">By agent</option>
+            </select>
+          </div>
+          <nav
+            class="scope"
+            id="scope"
+            aria-label="Active filters"
+            hidden
+          ></nav>
+        </section>
+        <section class="view" data-view="overview" hidden>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Agents</h2>
+            </div>
+            <ol class="agent-list" id="agent-list"></ol>
+          </div>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Recent activity</h2>
+              <a class="more-link" href="#/activity">All activity</a>
+            </div>
+            <ol class="activity-feed" id="overview-activity"></ol>
+          </div>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Latest commands</h2>
+              <a class="more-link" href="#/commands">All commands</a>
+            </div>
+            <ol class="command-feed" id="overview-commands"></ol>
+          </div>
+          <p class="server-line">
+            <span id="server-version">v–</span>
+            <span id="server-uptime">up –</span>
+            <span id="updated-ago">updated –</span>
+            <span id="server-mode">–</span>
+          </p>
+        </section>
+        <section class="view" data-view="sessions" hidden>
+          <ol class="session-list" id="session-list"></ol>
+          <p class="empty-state" id="empty-state" hidden>
+            <span id="empty-text"
+              >No sessions. Start one with <code>district --new</code>.</span
+            >
+            <a id="empty-clear" href="#/sessions" hidden>Clear filters</a>
+          </p>
+        </section>
+        <section class="view" data-view="agent" hidden>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Sessions</h2>
+            </div>
+            <ol class="session-list" id="agent-sessions"></ol>
+          </div>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Activity</h2>
+            </div>
+            <ol class="activity-feed" id="agent-activity"></ol>
+          </div>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Commands</h2>
+            </div>
+            <ol class="command-feed" id="agent-commands"></ol>
+          </div>
+        </section>
+        <section class="view" data-view="session" hidden>
+          <div id="sessions" class="session-detail" aria-live="polite"></div>
+          <p class="empty-state" id="missing" hidden>
+            That session has ended. <a href="#/sessions">All sessions</a>
+          </p>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Activity</h2>
+            </div>
+            <ol class="activity-feed" id="session-activity"></ol>
+          </div>
+          <div class="block">
+            <div class="block-head">
+              <h2 class="block-title">Commands</h2>
+            </div>
+            <ol class="command-feed" id="session-commands"></ol>
+          </div>
+        </section>
+        <section class="view" data-view="activity" hidden>
+          <ol class="activity-feed" id="activity-feed"></ol>
+        </section>
+        <section class="view" data-view="commands" hidden>
+          <ol class="command-feed" id="command-feed"></ol>
+        </section>
+      </main>
+      <nav class="tabbar" aria-label="Sections">
+        <a class="tab-link" data-tab="overview" href="#/">Overview</a>
+        <a class="tab-link" data-tab="sessions" href="#/sessions">Sessions</a>
+        <a class="tab-link" data-tab="activity" href="#/activity">Activity</a>
+        <a class="tab-link" data-tab="commands" href="#/commands">Commands</a>
+        <a class="console-link" href="/console" target="district-console"
+          >Console</a
+        >
+      </nav>
+      <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+      <template id="session-template">
+        <article class="session-card">
+          <header class="session-header">
+            <div>
+              <span class="state-dot" aria-hidden="true"></span
+              ><strong class="agent"></strong>
+            </div>
+            <span class="state"></span>
+          </header>
+          <div class="badges">
+            <span class="badge badge-age"></span
+            ><span class="badge badge-clients"></span
+            ><span class="badge badge-provider"></span
+            ><span class="badge badge-editor"></span>
+          </div>
+          <div class="metadata"></div>
+          <div class="metrics">
+            <div class="metric">
+              <div class="metric-head">
+                <span>CPU</span><span class="cpu-value"></span>
+              </div>
+              <meter
+                class="cpu-meter"
+                min="0"
+                max="100"
+                low="60"
+                high="85"
+                optimum="0"
+                value="0"
+                aria-label="CPU percent"
+              ></meter>
+              <div
+                class="sparkline cpu-spark"
+                role="img"
+                aria-label="CPU history"
+              ></div>
+            </div>
+            <div class="metric">
+              <div class="metric-head">
+                <span>Memory</span><span class="rss-value"></span>
+              </div>
+              <div class="io-text"></div>
+              <div
+                class="sparkline rss-spark"
+                role="img"
+                aria-label="Memory history"
+              ></div>
+            </div>
+          </div>
+          <div class="ports" aria-label="Listening ports"></div>
+          <div class="terminal-toolbar">
+            <code class="command"></code>
+            <div class="actions">
+              <details class="more">
+                <summary>More</summary>
+                <div class="more-menu">
+                  <button type="button" class="copy">Copy</button
+                  ><button type="button" class="view">View</button
+                  ><button type="button" class="history">History</button
+                  ><button type="button" class="attach-command">
+                    Attach command
+                  </button>
+                </div>
+              </details>
+              <button type="button" class="attach">Attach</button
+              ><button type="button" class="kill">Kill</button>
+            </div>
+          </div>
+          <details class="session-tools" open>
+            <summary>Run &amp; type</summary>
+            <form class="exec" aria-label="Run command in session">
+              <input
+                class="exec-input"
+                type="text"
+                placeholder="Run a command"
+                aria-label="Command to run"
+              />
+              <button type="submit" class="exec-run">Run</button>
+            </form>
+            <form class="type" aria-label="Type input in session">
+              <input
+                class="type-input"
+                type="text"
+                placeholder="Type into the pane"
+                aria-label="Text to type"
+              />
+              <button type="submit" class="type-send">Type</button>
+              <details class="more type-keys">
+                <summary>Keys</summary>
+                <div class="more-menu type-menu">
+                  <button
+                    type="button"
+                    class="type-key key-enter"
+                    aria-label="Enter"
+                  >
+                    ⏎</button
+                  ><button
+                    type="button"
+                    class="type-key key-escape"
+                    aria-label="Escape"
+                  >
+                    Esc</button
+                  ><button
+                    type="button"
+                    class="type-key key-tab"
+                    aria-label="Tab"
+                  >
+                    ⇥</button
+                  ><button
+                    type="button"
+                    class="type-key key-interrupt"
+                    aria-label="Interrupt"
+                  >
+                    ⌃C</button
+                  ><button
+                    type="button"
+                    class="type-key key-up"
+                    aria-label="Bowman up"
+                  >
+                    ↑</button
+                  ><button
+                    type="button"
+                    class="type-key key-down"
+                    aria-label="Bowman down"
+                  >
+                    ↓
+                  </button>
+                </div>
+              </details>
+            </form>
+            <pre class="exec-output" hidden></pre>
+          </details>
+          <div class="resources"></div>
+          <details class="process-details">
+            <summary>Process tree / sockets</summary>
+            <pre class="process-tree"></pre>
+          </details>
+          <div
+            class="terminal"
+            role="log"
+            aria-label="Terminal output"
+            tabindex="0"
+          ></div>
+        </article>
+      </template>
+    </div>
+  </body>
+</html>

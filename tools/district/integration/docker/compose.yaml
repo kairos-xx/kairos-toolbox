@@ -1,0 +1,6 @@
+services:
+  district-linux:
+    build:
+      context: ../../../..
+      dockerfile: tools/district/integration/docker/Dockerfile
+    command: ["district", "--test-integration", "synthetic", "all"]

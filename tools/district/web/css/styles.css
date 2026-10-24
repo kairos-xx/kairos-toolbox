@@ -1,0 +1,2127 @@
+:root {
+  --primary-space-unit: 4px;
+  --primary-radius-unit: 4px;
+  --primary-card-minimum: 480px;
+  --primary-terminal-minimum: 220px;
+  --primary-terminal-maximum: 520px;
+  --primary-line-height: 1.4;
+  --primary-font-ui: Inter, ui-sans-serif, system-ui, sans-serif;
+  --primary-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --primary-color-bg: #101214ff;
+  --primary-color-panel: #181b1fff;
+  --primary-color-raised: #20242aff;
+  --primary-color-text: #eef1f5ff;
+  --primary-color-muted: #9ca6b4ff;
+  --primary-color-border: #343a43ff;
+  --primary-color-accent: #69a8ffff;
+  --primary-color-good: #65d58aff;
+  --primary-color-warn: #f0b35aff;
+  --primary-color-bad: #f46f72ff;
+  --primary-color-terminal: #0b0d0fff;
+  --primary-color-shadow: #00000066;
+  --primary-color-black: #000000ff;
+  --primary-color-red: #cd3131ff;
+  --primary-color-green: #0dbc79ff;
+  --primary-color-yellow: #e5e510ff;
+  --primary-color-blue: #2472c8ff;
+  --primary-color-magenta: #bc3fbcff;
+  --primary-color-cyan: #11a8cdff;
+  --primary-color-white: #e5e5e5ff;
+  --primary-opacity-dim: 65%;
+  --base-space-small: calc(var(--primary-space-unit) * 2);
+  --base-space-medium: calc(var(--primary-space-unit) * 4);
+  --base-space-large: calc(var(--primary-space-unit) * 6);
+  --base-radius-control: var(--primary-radius-unit);
+  --base-radius-card: calc(var(--primary-radius-unit) * 1.5);
+  --base-measure-card-minimum: var(--primary-card-minimum);
+  --base-measure-terminal-minimum: var(--primary-terminal-minimum);
+  --base-measure-terminal-maximum: var(--primary-terminal-maximum);
+  --base-typography-line-height: var(--primary-line-height);
+  --base-typography-ui: var(--primary-font-ui);
+  --base-typography-mono: var(--primary-font-mono);
+  --base-color-bg: var(--primary-color-bg);
+  --base-color-panel: var(--primary-color-panel);
+  --base-color-raised: var(--primary-color-raised);
+  --base-color-text: var(--primary-color-text);
+  --base-color-muted: var(--primary-color-muted);
+  --base-color-border: var(--primary-color-border);
+  --base-color-accent: var(--primary-color-accent);
+  --base-color-good: var(--primary-color-good);
+  --base-color-warn: var(--primary-color-warn);
+  --base-color-bad: var(--primary-color-bad);
+  --base-color-terminal: var(--primary-color-terminal);
+  --base-color-shadow: var(--primary-color-shadow);
+  --base-color-black: var(--primary-color-black);
+  --base-color-red: var(--primary-color-red);
+  --base-color-green: var(--primary-color-green);
+  --base-color-yellow: var(--primary-color-yellow);
+  --base-color-blue: var(--primary-color-blue);
+  --base-color-magenta: var(--primary-color-magenta);
+  --base-color-cyan: var(--primary-color-cyan);
+  --base-color-white: var(--primary-color-white);
+  --base-effect-dim: var(--primary-opacity-dim);
+  --catalog-surface-color-page: var(--base-color-bg);
+  --catalog-surface-color-panel: var(--base-color-panel);
+  --catalog-surface-color-raised: var(--base-color-raised);
+  --catalog-surface-color-terminal: var(--base-color-terminal);
+  --catalog-text-color-primary: var(--base-color-text);
+  --catalog-text-color-secondary: var(--base-color-muted);
+  --catalog-outline-color-border: var(--base-color-border);
+  --catalog-outline-color-focus: var(--base-color-accent);
+  --catalog-status-color-active: var(--base-color-good);
+  --catalog-status-color-waiting: var(--base-color-warn);
+  --catalog-status-color-dead: var(--base-color-bad);
+  --catalog-terminal-color-black: var(--base-color-black);
+  --catalog-terminal-color-red: var(--base-color-red);
+  --catalog-terminal-color-green: var(--base-color-green);
+  --catalog-terminal-color-yellow: var(--base-color-yellow);
+  --catalog-terminal-color-blue: var(--base-color-blue);
+  --catalog-terminal-color-magenta: var(--base-color-magenta);
+  --catalog-terminal-color-cyan: var(--base-color-cyan);
+  --catalog-terminal-color-white: var(--base-color-white);
+  --catalog-layout-measure-small-gap: var(--base-space-small);
+  --catalog-layout-measure-medium-gap: var(--base-space-medium);
+  --catalog-layout-measure-large-gap: var(--base-space-large);
+  --catalog-panel-border-default: 1px solid var(--base-color-border);
+  --catalog-panel-border-card-radius: var(--base-radius-card);
+  --catalog-control-border-radius: var(--base-radius-control);
+  --catalog-panel-effect-shadow: 0 var(--base-space-small)
+    var(--base-space-medium) var(--base-color-shadow);
+  --catalog-interface-typography-ui: var(--base-typography-ui);
+  --catalog-terminal-typography-mono: var(--base-typography-mono);
+  --catalog-terminal-typography-line-height: var(--base-typography-line-height);
+  --catalog-terminal-measure-minimum: var(--base-measure-terminal-minimum);
+  --catalog-terminal-measure-maximum: var(--base-measure-terminal-maximum);
+  --catalog-grid-measure-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--base-measure-card-minimum)), 1fr)
+  );
+  --catalog-muted-effect-opacity: var(--base-effect-dim);
+  --catalog-layout-measure-zero: 0;
+  --catalog-shape-measure-circle: 100%;
+  --catalog-layout-measure-main-padding: 0 var(--base-space-medium)
+    var(--base-space-medium);
+  --catalog-layout-measure-metadata-padding: 0 var(--base-space-medium)
+    var(--base-space-small);
+  --catalog-layout-measure-toolbar-padding: var(--base-space-small)
+    var(--base-space-medium);
+  --catalog-layout-measure-detail-padding: var(--base-space-small)
+    var(--base-space-medium);
+  --catalog-text-typography-wrap-anywhere: anywhere;
+  --catalog-text-typography-overflow-ellipsis: ellipsis;
+  --catalog-text-typography-space-nowrap: nowrap;
+  --catalog-text-typography-space-pre: pre;
+  --catalog-text-typography-space-pre-wrap: pre-wrap;
+  --primary-control-cursor: pointer;
+  --base-control-cursor: var(--primary-control-cursor);
+  --catalog-control-effect-cursor: var(--base-control-cursor);
+  --catalog-font-typography-weight-bold: 700;
+  --catalog-font-typography-style-italic: italic;
+  --catalog-text-typography-decoration-underline: underline;
+  --semantic-page-background: var(--catalog-surface-color-page);
+  --semantic-page-text: var(--catalog-text-color-primary);
+  --semantic-page-font: var(--catalog-interface-typography-ui);
+  --semantic-muted-text: var(--catalog-text-color-secondary);
+  --semantic-small-gap: var(--catalog-layout-measure-small-gap);
+  --semantic-medium-gap: var(--catalog-layout-measure-medium-gap);
+  --semantic-large-gap: var(--catalog-layout-measure-large-gap);
+  --semantic-grid-columns: var(--catalog-grid-measure-columns);
+  --semantic-card-background: var(--catalog-surface-color-panel);
+  --semantic-card-border: var(--catalog-panel-border-default);
+  --semantic-card-radius: var(--catalog-panel-border-card-radius);
+  --semantic-card-shadow: var(--catalog-panel-effect-shadow);
+  --semantic-toolbar-background: var(--catalog-surface-color-raised);
+  --semantic-control-radius: var(--catalog-control-border-radius);
+  --semantic-terminal-background: var(--catalog-surface-color-terminal);
+  --semantic-terminal-font: var(--catalog-terminal-typography-mono);
+  --semantic-terminal-line-height: var(
+    --catalog-terminal-typography-line-height
+  );
+  --semantic-terminal-minimum: var(--catalog-terminal-measure-minimum);
+  --semantic-terminal-maximum: var(--catalog-terminal-measure-maximum);
+  --semantic-focus: var(--catalog-outline-color-focus);
+  --semantic-active: var(--catalog-status-color-active);
+  --semantic-waiting: var(--catalog-status-color-waiting);
+  --semantic-dead: var(--catalog-status-color-dead);
+  --semantic-dim-opacity: var(--catalog-muted-effect-opacity);
+  --semantic-zero: var(--catalog-layout-measure-zero);
+  --semantic-circle: var(--catalog-shape-measure-circle);
+  --semantic-main-padding: var(--catalog-layout-measure-main-padding);
+  --semantic-metadata-padding: var(--catalog-layout-measure-metadata-padding);
+  --semantic-toolbar-padding: var(--catalog-layout-measure-toolbar-padding);
+  --semantic-detail-padding: var(--catalog-layout-measure-detail-padding);
+  --semantic-wrap-anywhere: var(--catalog-text-typography-wrap-anywhere);
+  --semantic-overflow-ellipsis: var(
+    --catalog-text-typography-overflow-ellipsis
+  );
+  --semantic-space-nowrap: var(--catalog-text-typography-space-nowrap);
+  --semantic-space-pre: var(--catalog-text-typography-space-pre);
+  --semantic-space-pre-wrap: var(--catalog-text-typography-space-pre-wrap);
+  --semantic-control-cursor: var(--catalog-control-effect-cursor);
+  --catalog-control-color-action: var(--base-color-accent);
+  --semantic-action-background: var(--catalog-control-color-action);
+  --semantic-action-text: var(--catalog-surface-color-page);
+  --semantic-bold-weight: var(--catalog-font-typography-weight-bold);
+  --semantic-italic-style: var(--catalog-font-typography-style-italic);
+  --semantic-underline-decoration: var(
+    --catalog-text-typography-decoration-underline
+  );
+  --semantic-ansi-black: var(--catalog-terminal-color-black);
+  --semantic-ansi-red: var(--catalog-terminal-color-red);
+  --semantic-ansi-green: var(--catalog-terminal-color-green);
+  --semantic-ansi-yellow: var(--catalog-terminal-color-yellow);
+  --semantic-ansi-blue: var(--catalog-terminal-color-blue);
+  --semantic-ansi-magenta: var(--catalog-terminal-color-magenta);
+  --semantic-ansi-cyan: var(--catalog-terminal-color-cyan);
+  --semantic-ansi-white: var(--catalog-terminal-color-white);
+  --primary-measure-stat-minimum: 110px;
+  --base-measure-stat-minimum: var(--primary-measure-stat-minimum);
+  --catalog-stat-measure-minimum: var(--base-measure-stat-minimum);
+  --semantic-stat-minimum: var(--catalog-stat-measure-minimum);
+  --primary-measure-panel-minimum: 360px;
+  --base-measure-panel-minimum: var(--primary-measure-panel-minimum);
+  --catalog-panel-measure-minimum: var(--base-measure-panel-minimum);
+  --semantic-panel-minimum: var(--catalog-panel-measure-minimum);
+  --primary-measure-output-maximum: 160px;
+  --base-measure-output-maximum: var(--primary-measure-output-maximum);
+  --catalog-output-measure-maximum: var(--base-measure-output-maximum);
+  --semantic-output-maximum: var(--catalog-output-measure-maximum);
+  --primary-measure-filter-flex: 1 1 220px;
+  --base-measure-filter-flex: var(--primary-measure-filter-flex);
+  --catalog-filter-measure-flex: var(--base-measure-filter-flex);
+  --semantic-filter-flex: var(--catalog-filter-measure-flex);
+  --primary-measure-fill: 100%;
+  --base-measure-fill: var(--primary-measure-fill);
+  --catalog-layout-measure-fill: var(--base-measure-fill);
+  --semantic-layout-fill: var(--catalog-layout-measure-fill);
+  --primary-measure-half: 1fr 1fr;
+  --base-measure-half: var(--primary-measure-half);
+  --catalog-layout-measure-half: var(--base-measure-half);
+  --semantic-layout-half: var(--catalog-layout-measure-half);
+  --primary-measure-metric-minimum: 240px;
+  --base-measure-metric-minimum: var(--primary-measure-metric-minimum);
+  --catalog-metrics-measure-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--base-measure-metric-minimum)), 1fr)
+  );
+  --semantic-metrics-columns: var(--catalog-metrics-measure-columns);
+  --primary-measure-input-grow: 1;
+  --base-measure-input-grow: var(--primary-measure-input-grow);
+  --catalog-input-measure-grow: var(--base-measure-input-grow);
+  --semantic-input-grow: var(--catalog-input-measure-grow);
+  --primary-layout-toast-layer: 10;
+  --base-layout-toast-layer: var(--primary-layout-toast-layer);
+  --catalog-toast-measure-layer: var(--base-layout-toast-layer);
+  --semantic-toast-layer: var(--catalog-toast-measure-layer);
+  --primary-layout-menu-layer: 20;
+  --base-layout-menu-layer: var(--primary-layout-menu-layer);
+  --catalog-menu-measure-layer: var(--base-layout-menu-layer);
+  --semantic-menu-layer: var(--catalog-menu-measure-layer);
+  --primary-layout-offset-zero: 0;
+  --base-layout-offset-zero: var(--primary-layout-offset-zero);
+  --catalog-layout-measure-offset: var(--base-layout-offset-zero);
+  --semantic-offset-zero: var(--catalog-layout-measure-offset);
+  --primary-typography-text-align-start: left;
+  --base-typography-text-align-start: var(
+    --primary-typography-text-align-start
+  );
+  --catalog-text-typography-align-start: var(
+    --base-typography-text-align-start
+  );
+  --semantic-text-align-start: var(--catalog-text-typography-align-start);
+  --primary-typography-text-align-center: center;
+  --base-typography-text-align-center: var(
+    --primary-typography-text-align-center
+  );
+  --catalog-text-typography-align-center: var(
+    --base-typography-text-align-center
+  );
+  --semantic-text-align-center: var(--catalog-text-typography-align-center);
+  --primary-effect-border-none: none;
+  --base-effect-border-none: var(--primary-effect-border-none);
+  --catalog-panel-effect-none: var(--base-effect-border-none);
+  --semantic-border-none: var(--catalog-panel-effect-none);
+  --primary-layout-list-none: none;
+  --base-layout-list-none: var(--primary-layout-list-none);
+  --catalog-feed-effect-none: var(--base-layout-list-none);
+  --semantic-list-none: var(--catalog-feed-effect-none);
+  --primary-text-toast-marker: "! ";
+  --base-text-toast-marker: var(--primary-text-toast-marker);
+  --catalog-toast-typography-marker: var(--base-text-toast-marker);
+  --semantic-toast-marker: var(--catalog-toast-typography-marker);
+  --primary-measure-sparkline-height: 28px;
+  --base-measure-sparkline-height: var(--primary-measure-sparkline-height);
+  --catalog-widget-measure-sparkline-height: var(
+    --base-measure-sparkline-height
+  );
+  --semantic-widget-sparkline-height: var(
+    --catalog-widget-measure-sparkline-height
+  );
+  --primary-measure-meter-height: 6px;
+  --base-measure-meter-height: var(--primary-measure-meter-height);
+  --catalog-widget-measure-meter-height: var(--base-measure-meter-height);
+  --semantic-widget-meter-height: var(--catalog-widget-measure-meter-height);
+  --primary-measure-control-height: 44px;
+  --base-measure-control-height: var(--primary-measure-control-height);
+  --catalog-control-measure-height: var(--base-measure-control-height);
+  --semantic-control-height: var(--catalog-control-measure-height);
+  --primary-typography-badge-size: 0.72rem;
+  --base-typography-badge-size: var(--primary-typography-badge-size);
+  --catalog-badge-typography-size: var(--base-typography-badge-size);
+  --semantic-badge-size: var(--catalog-badge-typography-size);
+  --primary-typography-stat-value: 1.25rem;
+  --base-typography-stat-value: var(--primary-typography-stat-value);
+  --catalog-stat-typography-value: var(--base-typography-stat-value);
+  --semantic-stat-value: var(--catalog-stat-typography-value);
+  --primary-measure-panel-maximum: 260px;
+  --base-measure-panel-maximum: var(--primary-measure-panel-maximum);
+  --catalog-panel-measure-maximum: var(--base-measure-panel-maximum);
+  --semantic-panel-maximum: var(--catalog-panel-measure-maximum);
+  --primary-measure-toast-edge: 20px;
+  --base-measure-toast-edge: var(--primary-measure-toast-edge);
+  --catalog-toast-measure-edge: var(--base-measure-toast-edge);
+  --semantic-toast-edge: var(--catalog-toast-measure-edge);
+  --catalog-chip-measure-inset: 0 var(--base-space-small);
+  --semantic-inset-chip: var(--catalog-chip-measure-inset);
+  --catalog-block-measure-inset: var(--base-space-small)
+    var(--base-space-medium);
+  --semantic-inset-block: var(--catalog-block-measure-inset);
+  --catalog-row-measure-inset: 0 var(--base-space-medium)
+    var(--base-space-small);
+  --semantic-inset-row: var(--catalog-row-measure-inset);
+  --catalog-card-measure-inset-top: var(--base-space-small)
+    var(--base-space-medium);
+  --semantic-inset-row-top: var(--catalog-card-measure-inset-top);
+  --catalog-stat-measure-inset: calc(var(--base-space-small) / 2);
+  --semantic-inset-stat: var(--catalog-stat-measure-inset);
+  --catalog-cell-measure-inset: calc(var(--base-space-small) / 2)
+    var(--base-space-small);
+  --semantic-inset-cell: var(--catalog-cell-measure-inset);
+  --catalog-meter-measure-inset: var(--base-space-small) 0;
+  --semantic-inset-meter: var(--catalog-meter-measure-inset);
+  --catalog-stats-measure-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--base-measure-stat-minimum)), 1fr)
+  );
+  --semantic-stats-columns: var(--catalog-stats-measure-columns);
+  --catalog-observability-measure-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--base-measure-panel-minimum)), 1fr)
+  );
+  --semantic-observability-columns: var(
+    --catalog-observability-measure-columns
+  );
+  --primary-typography-block-tracking: 0.08em;
+  --base-typography-block-tracking: var(--primary-typography-block-tracking);
+  --catalog-block-typography-block-tracking: var(
+    --base-typography-block-tracking
+  );
+  --semantic-typography-block-tracking: var(
+    --catalog-block-typography-block-tracking
+  );
+  --primary-measure-block-gap: 32px;
+  --base-measure-block-gap: var(--primary-measure-block-gap);
+  --catalog-block-measure-block-gap: var(--base-measure-block-gap);
+  --semantic-measure-block-gap: var(--catalog-block-measure-block-gap);
+  --catalog-panel-border-ok: 2px solid var(--base-color-good);
+  --semantic-edge-ok: var(--catalog-panel-border-ok);
+  --catalog-panel-border-bad: 2px solid var(--base-color-bad);
+  --semantic-edge-bad: var(--catalog-panel-border-bad);
+  --primary-type-h1: 1.5rem;
+  --base-type-h1: var(--primary-type-h1);
+  --catalog-font-typography-h1: var(--base-type-h1);
+  --semantic-type-h1: var(--catalog-font-typography-h1);
+  --primary-type-stat: 1.625rem;
+  --base-type-stat: var(--primary-type-stat);
+  --catalog-font-typography-stat: var(--base-type-stat);
+  --semantic-type-stat: var(--catalog-font-typography-stat);
+  --primary-type-title: 1.125rem;
+  --base-type-title: var(--primary-type-title);
+  --catalog-font-typography-title: var(--base-type-title);
+  --semantic-type-title: var(--catalog-font-typography-title);
+  --primary-type-body: 0.9375rem;
+  --base-type-body: var(--primary-type-body);
+  --catalog-font-typography-body: var(--base-type-body);
+  --semantic-type-body: var(--catalog-font-typography-body);
+  --primary-type-code: 0.8125rem;
+  --base-type-code: var(--primary-type-code);
+  --catalog-font-typography-code: var(--base-type-code);
+  --semantic-type-code: var(--catalog-font-typography-code);
+  --primary-type-meta: 0.75rem;
+  --base-type-meta: var(--primary-type-meta);
+  --catalog-font-typography-meta: var(--base-type-meta);
+  --semantic-type-meta: var(--catalog-font-typography-meta);
+  --primary-type-micro: 0.6875rem;
+  --base-type-micro: var(--primary-type-micro);
+  --catalog-font-typography-micro: var(--base-type-micro);
+  --semantic-type-micro: var(--catalog-font-typography-micro);
+  --primary-measure-tabbar: 56px;
+  --base-measure-tabbar: var(--primary-measure-tabbar);
+  --catalog-layout-measure-tabbar: var(--base-measure-tabbar);
+  --semantic-measure-tabbar: var(--catalog-layout-measure-tabbar);
+  --primary-measure-content: 960px;
+  --base-measure-content: var(--primary-measure-content);
+  --catalog-layout-measure-content: var(--base-measure-content);
+  --semantic-measure-content: var(--catalog-layout-measure-content);
+  --primary-effect-seam: 2px;
+  --base-effect-seam: var(--primary-effect-seam);
+  --catalog-layout-effect-seam: var(--base-effect-seam);
+  --semantic-effect-seam: var(--catalog-layout-effect-seam);
+  --primary-dashboard-390-text-decoration: none;
+  --base-dashboard-390-text-decoration: var(
+    --primary-dashboard-390-text-decoration
+  );
+  --catalog-layout-measure-dashboard-390-text-decoration: var(
+    --base-dashboard-390-text-decoration
+  );
+  --semantic-dashboard-390-text-decoration: var(
+    --catalog-layout-measure-dashboard-390-text-decoration
+  );
+  --base-dashboard-405-outline: 2px solid var(--primary-color-accent);
+  --catalog-layout-measure-dashboard-405-outline: var(
+    --base-dashboard-405-outline
+  );
+  --semantic-dashboard-405-outline: var(
+    --catalog-layout-measure-dashboard-405-outline
+  );
+  --primary-dashboard-406-outline-offset: 2px;
+  --base-dashboard-406-outline-offset: var(
+    --primary-dashboard-406-outline-offset
+  );
+  --catalog-layout-measure-dashboard-406-outline-offset: var(
+    --base-dashboard-406-outline-offset
+  );
+  --semantic-dashboard-406-outline-offset: var(
+    --catalog-layout-measure-dashboard-406-outline-offset
+  );
+  --primary-dashboard-441-min-height: 100dvh;
+  --base-dashboard-441-min-height: var(--primary-dashboard-441-min-height);
+  --catalog-layout-measure-dashboard-441-min-height: var(
+    --base-dashboard-441-min-height
+  );
+  --semantic-dashboard-441-min-height: var(
+    --catalog-layout-measure-dashboard-441-min-height
+  );
+  --base-dashboard-442-padding-bottom: calc(
+    var(--primary-measure-tabbar) + env(safe-area-inset-bottom)
+  );
+  --catalog-layout-measure-dashboard-442-padding-bottom: var(
+    --base-dashboard-442-padding-bottom
+  );
+  --semantic-dashboard-442-padding-bottom: var(
+    --catalog-layout-measure-dashboard-442-padding-bottom
+  );
+  --base-dashboard-450-padding: calc(
+      calc(var(--primary-space-unit) * 2) + env(safe-area-inset-top)
+    )
+    calc(var(--primary-space-unit) * 4) calc(var(--primary-space-unit) * 2);
+  --catalog-layout-measure-dashboard-450-padding: var(
+    --base-dashboard-450-padding
+  );
+  --semantic-dashboard-450-padding: var(
+    --catalog-layout-measure-dashboard-450-padding
+  );
+  --primary-dashboard-458-text-transform: uppercase;
+  --base-dashboard-458-text-transform: var(
+    --primary-dashboard-458-text-transform
+  );
+  --catalog-layout-measure-dashboard-458-text-transform: var(
+    --base-dashboard-458-text-transform
+  );
+  --semantic-dashboard-458-text-transform: var(
+    --catalog-layout-measure-dashboard-458-text-transform
+  );
+  --primary-dashboard-479-width: 100%;
+  --base-dashboard-479-width: var(--primary-dashboard-479-width);
+  --catalog-layout-measure-dashboard-479-width: var(--base-dashboard-479-width);
+  --semantic-dashboard-479-width: var(
+    --catalog-layout-measure-dashboard-479-width
+  );
+  --primary-dashboard-481-margin: 0 auto;
+  --base-dashboard-481-margin: var(--primary-dashboard-481-margin);
+  --catalog-layout-measure-dashboard-481-margin: var(
+    --base-dashboard-481-margin
+  );
+  --semantic-dashboard-481-margin: var(
+    --catalog-layout-measure-dashboard-481-margin
+  );
+  --base-dashboard-482-padding: 0 calc(var(--primary-space-unit) * 4)
+    calc(var(--primary-space-unit) * 6);
+  --catalog-layout-measure-dashboard-482-padding: var(
+    --base-dashboard-482-padding
+  );
+  --semantic-dashboard-482-padding: var(
+    --catalog-layout-measure-dashboard-482-padding
+  );
+  --base-dashboard-485-margin: calc(var(--primary-space-unit) * 2) 0
+    calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-485-margin: var(
+    --base-dashboard-485-margin
+  );
+  --semantic-dashboard-485-margin: var(
+    --catalog-layout-measure-dashboard-485-margin
+  );
+  --primary-dashboard-490-line-height: 1.2;
+  --base-dashboard-490-line-height: var(--primary-dashboard-490-line-height);
+  --catalog-layout-measure-dashboard-490-line-height: var(
+    --base-dashboard-490-line-height
+  );
+  --semantic-dashboard-490-line-height: var(
+    --catalog-layout-measure-dashboard-490-line-height
+  );
+  --base-dashboard-494-margin: 0 0 calc(var(--primary-space-unit) * 2);
+  --catalog-layout-measure-dashboard-494-margin: var(
+    --base-dashboard-494-margin
+  );
+  --semantic-dashboard-494-margin: var(
+    --catalog-layout-measure-dashboard-494-margin
+  );
+  --primary-dashboard-502-margin: 4px 0 0;
+  --base-dashboard-502-margin: var(--primary-dashboard-502-margin);
+  --catalog-layout-measure-dashboard-502-margin: var(
+    --base-dashboard-502-margin
+  );
+  --semantic-dashboard-502-margin: var(
+    --catalog-layout-measure-dashboard-502-margin
+  );
+  --primary-dashboard-510-right: 0;
+  --base-dashboard-510-right: var(--primary-dashboard-510-right);
+  --catalog-layout-measure-dashboard-510-right: var(--base-dashboard-510-right);
+  --semantic-dashboard-510-right: var(
+    --catalog-layout-measure-dashboard-510-right
+  );
+  --primary-dashboard-511-bottom: 0;
+  --base-dashboard-511-bottom: var(--primary-dashboard-511-bottom);
+  --catalog-layout-measure-dashboard-511-bottom: var(
+    --base-dashboard-511-bottom
+  );
+  --semantic-dashboard-511-bottom: var(
+    --catalog-layout-measure-dashboard-511-bottom
+  );
+  --primary-dashboard-512-left: 0;
+  --base-dashboard-512-left: var(--primary-dashboard-512-left);
+  --catalog-layout-measure-dashboard-512-left: var(--base-dashboard-512-left);
+  --semantic-dashboard-512-left: var(
+    --catalog-layout-measure-dashboard-512-left
+  );
+  --base-dashboard-515-grid-template-columns: repeat(5, 1fr);
+  --catalog-layout-measure-dashboard-515-grid-template-columns: var(
+    --base-dashboard-515-grid-template-columns
+  );
+  --semantic-dashboard-515-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-515-grid-template-columns
+  );
+  --base-dashboard-516-padding-bottom: env(safe-area-inset-bottom);
+  --catalog-layout-measure-dashboard-516-padding-bottom: var(
+    --base-dashboard-516-padding-bottom
+  );
+  --semantic-dashboard-516-padding-bottom: var(
+    --catalog-layout-measure-dashboard-516-padding-bottom
+  );
+  --base-dashboard-529-box-shadow: inset 0 2px var(--primary-color-accent);
+  --catalog-layout-measure-dashboard-529-box-shadow: var(
+    --base-dashboard-529-box-shadow
+  );
+  --semantic-dashboard-529-box-shadow: var(
+    --catalog-layout-measure-dashboard-529-box-shadow
+  );
+  --base-dashboard-537-grid-template-columns: repeat(2, minmax(0, 1fr));
+  --catalog-layout-measure-dashboard-537-grid-template-columns: var(
+    --base-dashboard-537-grid-template-columns
+  );
+  --semantic-dashboard-537-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-537-grid-template-columns
+  );
+  --primary-dashboard-544-gap: 2px;
+  --base-dashboard-544-gap: var(--primary-dashboard-544-gap);
+  --catalog-layout-measure-dashboard-544-gap: var(--base-dashboard-544-gap);
+  --semantic-dashboard-544-gap: var(--catalog-layout-measure-dashboard-544-gap);
+  --base-dashboard-545-padding: calc(var(--primary-space-unit) * 2)
+    calc(var(--primary-space-unit) * 4) 12px;
+  --catalog-layout-measure-dashboard-545-padding: var(
+    --base-dashboard-545-padding
+  );
+  --semantic-dashboard-545-padding: var(
+    --catalog-layout-measure-dashboard-545-padding
+  );
+  --primary-dashboard-552-line-height: 1.2;
+  --base-dashboard-552-line-height: var(--primary-dashboard-552-line-height);
+  --catalog-layout-measure-dashboard-552-line-height: var(
+    --base-dashboard-552-line-height
+  );
+  --semantic-dashboard-552-line-height: var(
+    --catalog-layout-measure-dashboard-552-line-height
+  );
+  --primary-dashboard-559-text-transform: uppercase;
+  --base-dashboard-559-text-transform: var(
+    --primary-dashboard-559-text-transform
+  );
+  --catalog-layout-measure-dashboard-559-text-transform: var(
+    --base-dashboard-559-text-transform
+  );
+  --semantic-dashboard-559-text-transform: var(
+    --catalog-layout-measure-dashboard-559-text-transform
+  );
+  --base-dashboard-567-grid-template-columns: repeat(2, minmax(0, 1fr));
+  --catalog-layout-measure-dashboard-567-grid-template-columns: var(
+    --base-dashboard-567-grid-template-columns
+  );
+  --semantic-dashboard-567-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-567-grid-template-columns
+  );
+  --primary-dashboard-571-grid-column: 1 / -1;
+  --base-dashboard-571-grid-column: var(--primary-dashboard-571-grid-column);
+  --catalog-layout-measure-dashboard-571-grid-column: var(
+    --base-dashboard-571-grid-column
+  );
+  --semantic-dashboard-571-grid-column: var(
+    --catalog-layout-measure-dashboard-571-grid-column
+  );
+  --primary-dashboard-577-padding: 0 12px;
+  --base-dashboard-577-padding: var(--primary-dashboard-577-padding);
+  --catalog-layout-measure-dashboard-577-padding: var(
+    --base-dashboard-577-padding
+  );
+  --semantic-dashboard-577-padding: var(
+    --catalog-layout-measure-dashboard-577-padding
+  );
+  --primary-dashboard-581-font-size: 1rem;
+  --base-dashboard-581-font-size: var(--primary-dashboard-581-font-size);
+  --catalog-layout-measure-dashboard-581-font-size: var(
+    --base-dashboard-581-font-size
+  );
+  --semantic-dashboard-581-font-size: var(
+    --catalog-layout-measure-dashboard-581-font-size
+  );
+  --primary-dashboard-597-min-height: 32px;
+  --base-dashboard-597-min-height: var(--primary-dashboard-597-min-height);
+  --catalog-layout-measure-dashboard-597-min-height: var(
+    --base-dashboard-597-min-height
+  );
+  --semantic-dashboard-597-min-height: var(
+    --catalog-layout-measure-dashboard-597-min-height
+  );
+  --primary-dashboard-598-padding: 0 10px;
+  --base-dashboard-598-padding: var(--primary-dashboard-598-padding);
+  --catalog-layout-measure-dashboard-598-padding: var(
+    --base-dashboard-598-padding
+  );
+  --semantic-dashboard-598-padding: var(
+    --catalog-layout-measure-dashboard-598-padding
+  );
+  --primary-dashboard-625-text-transform: uppercase;
+  --base-dashboard-625-text-transform: var(
+    --primary-dashboard-625-text-transform
+  );
+  --catalog-layout-measure-dashboard-625-text-transform: var(
+    --base-dashboard-625-text-transform
+  );
+  --semantic-dashboard-625-text-transform: var(
+    --catalog-layout-measure-dashboard-625-text-transform
+  );
+  --base-dashboard-652-grid-template-columns: auto minmax(0, 1fr) auto;
+  --catalog-layout-measure-dashboard-652-grid-template-columns: var(
+    --base-dashboard-652-grid-template-columns
+  );
+  --semantic-dashboard-652-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-652-grid-template-columns
+  );
+  --base-dashboard-653-gap: 2px calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-653-gap: var(--base-dashboard-653-gap);
+  --semantic-dashboard-653-gap: var(--catalog-layout-measure-dashboard-653-gap);
+  --primary-dashboard-655-min-height: 56px;
+  --base-dashboard-655-min-height: var(--primary-dashboard-655-min-height);
+  --catalog-layout-measure-dashboard-655-min-height: var(
+    --base-dashboard-655-min-height
+  );
+  --semantic-dashboard-655-min-height: var(
+    --catalog-layout-measure-dashboard-655-min-height
+  );
+  --base-dashboard-656-padding: 12px calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-656-padding: var(
+    --base-dashboard-656-padding
+  );
+  --semantic-dashboard-656-padding: var(
+    --catalog-layout-measure-dashboard-656-padding
+  );
+  --primary-dashboard-660-grid-row: 1;
+  --base-dashboard-660-grid-row: var(--primary-dashboard-660-grid-row);
+  --catalog-layout-measure-dashboard-660-grid-row: var(
+    --base-dashboard-660-grid-row
+  );
+  --semantic-dashboard-660-grid-row: var(
+    --catalog-layout-measure-dashboard-660-grid-row
+  );
+  --primary-dashboard-682-text-transform: uppercase;
+  --base-dashboard-682-text-transform: var(
+    --primary-dashboard-682-text-transform
+  );
+  --catalog-layout-measure-dashboard-682-text-transform: var(
+    --base-dashboard-682-text-transform
+  );
+  --semantic-dashboard-682-text-transform: var(
+    --catalog-layout-measure-dashboard-682-text-transform
+  );
+  --primary-dashboard-685-grid-column: 2 / -1;
+  --base-dashboard-685-grid-column: var(--primary-dashboard-685-grid-column);
+  --catalog-layout-measure-dashboard-685-grid-column: var(
+    --base-dashboard-685-grid-column
+  );
+  --semantic-dashboard-685-grid-column: var(
+    --catalog-layout-measure-dashboard-685-grid-column
+  );
+  --primary-dashboard-689--webkit-line-clamp: 2;
+  --base-dashboard-689--webkit-line-clamp: var(
+    --primary-dashboard-689--webkit-line-clamp
+  );
+  --catalog-layout-measure-dashboard-689--webkit-line-clamp: var(
+    --base-dashboard-689--webkit-line-clamp
+  );
+  --semantic-dashboard-689--webkit-line-clamp: var(
+    --catalog-layout-measure-dashboard-689--webkit-line-clamp
+  );
+  --primary-dashboard-694-grid-column: 2 / -1;
+  --base-dashboard-694-grid-column: var(--primary-dashboard-694-grid-column);
+  --catalog-layout-measure-dashboard-694-grid-column: var(
+    --base-dashboard-694-grid-column
+  );
+  --semantic-dashboard-694-grid-column: var(
+    --catalog-layout-measure-dashboard-694-grid-column
+  );
+  --base-dashboard-716-grid-template-columns: minmax(0, 1fr) auto;
+  --catalog-layout-measure-dashboard-716-grid-template-columns: var(
+    --base-dashboard-716-grid-template-columns
+  );
+  --semantic-dashboard-716-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-716-grid-template-columns
+  );
+  --primary-dashboard-717-grid-template-areas: "actor actor" "detail detail"
+    "type time";
+  --base-dashboard-717-grid-template-areas: var(
+    --primary-dashboard-717-grid-template-areas
+  );
+  --catalog-layout-measure-dashboard-717-grid-template-areas: var(
+    --base-dashboard-717-grid-template-areas
+  );
+  --semantic-dashboard-717-grid-template-areas: var(
+    --catalog-layout-measure-dashboard-717-grid-template-areas
+  );
+  --base-dashboard-721-gap: 4px calc(var(--primary-space-unit) * 2);
+  --catalog-layout-measure-dashboard-721-gap: var(--base-dashboard-721-gap);
+  --semantic-dashboard-721-gap: var(--catalog-layout-measure-dashboard-721-gap);
+  --base-dashboard-723-padding: 12px calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-723-padding: var(
+    --base-dashboard-723-padding
+  );
+  --semantic-dashboard-723-padding: var(
+    --catalog-layout-measure-dashboard-723-padding
+  );
+  --primary-dashboard-727-grid-area: actor;
+  --base-dashboard-727-grid-area: var(--primary-dashboard-727-grid-area);
+  --catalog-layout-measure-dashboard-727-grid-area: var(
+    --base-dashboard-727-grid-area
+  );
+  --semantic-dashboard-727-grid-area: var(
+    --catalog-layout-measure-dashboard-727-grid-area
+  );
+  --primary-dashboard-734-margin-left: 2px;
+  --base-dashboard-734-margin-left: var(--primary-dashboard-734-margin-left);
+  --catalog-layout-measure-dashboard-734-margin-left: var(
+    --base-dashboard-734-margin-left
+  );
+  --semantic-dashboard-734-margin-left: var(
+    --catalog-layout-measure-dashboard-734-margin-left
+  );
+  --primary-dashboard-737-font-weight: normal;
+  --base-dashboard-737-font-weight: var(--primary-dashboard-737-font-weight);
+  --catalog-layout-measure-dashboard-737-font-weight: var(
+    --base-dashboard-737-font-weight
+  );
+  --semantic-dashboard-737-font-weight: var(
+    --catalog-layout-measure-dashboard-737-font-weight
+  );
+  --primary-dashboard-740-grid-area: detail;
+  --base-dashboard-740-grid-area: var(--primary-dashboard-740-grid-area);
+  --catalog-layout-measure-dashboard-740-grid-area: var(
+    --base-dashboard-740-grid-area
+  );
+  --semantic-dashboard-740-grid-area: var(
+    --catalog-layout-measure-dashboard-740-grid-area
+  );
+  --primary-dashboard-744--webkit-line-clamp: 2;
+  --base-dashboard-744--webkit-line-clamp: var(
+    --primary-dashboard-744--webkit-line-clamp
+  );
+  --catalog-layout-measure-dashboard-744--webkit-line-clamp: var(
+    --base-dashboard-744--webkit-line-clamp
+  );
+  --semantic-dashboard-744--webkit-line-clamp: var(
+    --catalog-layout-measure-dashboard-744--webkit-line-clamp
+  );
+  --primary-dashboard-752-grid-area: type;
+  --base-dashboard-752-grid-area: var(--primary-dashboard-752-grid-area);
+  --catalog-layout-measure-dashboard-752-grid-area: var(
+    --base-dashboard-752-grid-area
+  );
+  --semantic-dashboard-752-grid-area: var(
+    --catalog-layout-measure-dashboard-752-grid-area
+  );
+  --primary-dashboard-756-text-transform: uppercase;
+  --base-dashboard-756-text-transform: var(
+    --primary-dashboard-756-text-transform
+  );
+  --catalog-layout-measure-dashboard-756-text-transform: var(
+    --base-dashboard-756-text-transform
+  );
+  --semantic-dashboard-756-text-transform: var(
+    --catalog-layout-measure-dashboard-756-text-transform
+  );
+  --primary-dashboard-759-grid-area: time;
+  --base-dashboard-759-grid-area: var(--primary-dashboard-759-grid-area);
+  --catalog-layout-measure-dashboard-759-grid-area: var(
+    --base-dashboard-759-grid-area
+  );
+  --semantic-dashboard-759-grid-area: var(
+    --catalog-layout-measure-dashboard-759-grid-area
+  );
+  --primary-dashboard-772-gap: 4px;
+  --base-dashboard-772-gap: var(--primary-dashboard-772-gap);
+  --catalog-layout-measure-dashboard-772-gap: var(--base-dashboard-772-gap);
+  --semantic-dashboard-772-gap: var(--catalog-layout-measure-dashboard-772-gap);
+  --base-dashboard-773-padding: 12px calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-773-padding: var(
+    --base-dashboard-773-padding
+  );
+  --semantic-dashboard-773-padding: var(
+    --catalog-layout-measure-dashboard-773-padding
+  );
+  --primary-dashboard-780--webkit-line-clamp: 3;
+  --base-dashboard-780--webkit-line-clamp: var(
+    --primary-dashboard-780--webkit-line-clamp
+  );
+  --catalog-layout-measure-dashboard-780--webkit-line-clamp: var(
+    --base-dashboard-780--webkit-line-clamp
+  );
+  --semantic-dashboard-780--webkit-line-clamp: var(
+    --catalog-layout-measure-dashboard-780--webkit-line-clamp
+  );
+  --base-dashboard-787-gap: 2px calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-787-gap: var(--base-dashboard-787-gap);
+  --semantic-dashboard-787-gap: var(--catalog-layout-measure-dashboard-787-gap);
+  --primary-dashboard-795-margin-left: auto;
+  --base-dashboard-795-margin-left: var(--primary-dashboard-795-margin-left);
+  --catalog-layout-measure-dashboard-795-margin-left: var(
+    --base-dashboard-795-margin-left
+  );
+  --semantic-dashboard-795-margin-left: var(
+    --catalog-layout-measure-dashboard-795-margin-left
+  );
+  --base-dashboard-815-padding: calc(var(--primary-space-unit) * 6)
+    calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-815-padding: var(
+    --base-dashboard-815-padding
+  );
+  --semantic-dashboard-815-padding: var(
+    --catalog-layout-measure-dashboard-815-padding
+  );
+  --base-dashboard-840-padding: calc(var(--primary-space-unit) * 4)
+    calc(var(--primary-space-unit) * 4) calc(var(--primary-space-unit) * 2);
+  --catalog-layout-measure-dashboard-840-padding: var(
+    --base-dashboard-840-padding
+  );
+  --semantic-dashboard-840-padding: var(
+    --catalog-layout-measure-dashboard-840-padding
+  );
+  --primary-dashboard-852-font-weight: normal;
+  --base-dashboard-852-font-weight: var(--primary-dashboard-852-font-weight);
+  --catalog-layout-measure-dashboard-852-font-weight: var(
+    --base-dashboard-852-font-weight
+  );
+  --semantic-dashboard-852-font-weight: var(
+    --catalog-layout-measure-dashboard-852-font-weight
+  );
+  --primary-dashboard-867-text-transform: uppercase;
+  --base-dashboard-867-text-transform: var(
+    --primary-dashboard-867-text-transform
+  );
+  --catalog-layout-measure-dashboard-867-text-transform: var(
+    --base-dashboard-867-text-transform
+  );
+  --semantic-dashboard-867-text-transform: var(
+    --catalog-layout-measure-dashboard-867-text-transform
+  );
+  --base-dashboard-889-padding: 0 calc(var(--primary-space-unit) * 4)
+    calc(var(--primary-space-unit) * 2);
+  --catalog-layout-measure-dashboard-889-padding: var(
+    --base-dashboard-889-padding
+  );
+  --semantic-dashboard-889-padding: var(
+    --catalog-layout-measure-dashboard-889-padding
+  );
+  --base-dashboard-897-padding: 2px calc(var(--primary-space-unit) * 2);
+  --catalog-layout-measure-dashboard-897-padding: var(
+    --base-dashboard-897-padding
+  );
+  --semantic-dashboard-897-padding: var(
+    --catalog-layout-measure-dashboard-897-padding
+  );
+  --base-dashboard-909-padding: 0 calc(var(--primary-space-unit) * 4)
+    calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-909-padding: var(
+    --base-dashboard-909-padding
+  );
+  --semantic-dashboard-909-padding: var(
+    --catalog-layout-measure-dashboard-909-padding
+  );
+  --base-dashboard-916-grid-template-columns: repeat(2, minmax(0, 1fr));
+  --catalog-layout-measure-dashboard-916-grid-template-columns: var(
+    --base-dashboard-916-grid-template-columns
+  );
+  --semantic-dashboard-916-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-916-grid-template-columns
+  );
+  --primary-dashboard-924-gap: 2px;
+  --base-dashboard-924-gap: var(--primary-dashboard-924-gap);
+  --catalog-layout-measure-dashboard-924-gap: var(--base-dashboard-924-gap);
+  --semantic-dashboard-924-gap: var(--catalog-layout-measure-dashboard-924-gap);
+  --primary-dashboard-928-text-transform: uppercase;
+  --base-dashboard-928-text-transform: var(
+    --primary-dashboard-928-text-transform
+  );
+  --catalog-layout-measure-dashboard-928-text-transform: var(
+    --base-dashboard-928-text-transform
+  );
+  --semantic-dashboard-928-text-transform: var(
+    --catalog-layout-measure-dashboard-928-text-transform
+  );
+  --primary-dashboard-934-letter-spacing: normal;
+  --base-dashboard-934-letter-spacing: var(
+    --primary-dashboard-934-letter-spacing
+  );
+  --catalog-layout-measure-dashboard-934-letter-spacing: var(
+    --base-dashboard-934-letter-spacing
+  );
+  --semantic-dashboard-934-letter-spacing: var(
+    --catalog-layout-measure-dashboard-934-letter-spacing
+  );
+  --primary-dashboard-935-text-transform: none;
+  --base-dashboard-935-text-transform: var(
+    --primary-dashboard-935-text-transform
+  );
+  --catalog-layout-measure-dashboard-935-text-transform: var(
+    --base-dashboard-935-text-transform
+  );
+  --semantic-dashboard-935-text-transform: var(
+    --catalog-layout-measure-dashboard-935-text-transform
+  );
+  --primary-dashboard-988--webkit-line-clamp: 3;
+  --base-dashboard-988--webkit-line-clamp: var(
+    --primary-dashboard-988--webkit-line-clamp
+  );
+  --catalog-layout-measure-dashboard-988--webkit-line-clamp: var(
+    --base-dashboard-988--webkit-line-clamp
+  );
+  --semantic-dashboard-988--webkit-line-clamp: var(
+    --catalog-layout-measure-dashboard-988--webkit-line-clamp
+  );
+  --primary-dashboard-993-content: "$ ";
+  --base-dashboard-993-content: var(--primary-dashboard-993-content);
+  --catalog-layout-measure-dashboard-993-content: var(
+    --base-dashboard-993-content
+  );
+  --semantic-dashboard-993-content: var(
+    --catalog-layout-measure-dashboard-993-content
+  );
+  --base-dashboard-998-grid-template-columns: repeat(3, minmax(0, 1fr));
+  --catalog-layout-measure-dashboard-998-grid-template-columns: var(
+    --base-dashboard-998-grid-template-columns
+  );
+  --semantic-dashboard-998-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-998-grid-template-columns
+  );
+  --primary-dashboard-1008-padding: 0 12px;
+  --base-dashboard-1008-padding: var(--primary-dashboard-1008-padding);
+  --catalog-layout-measure-dashboard-1008-padding: var(
+    --base-dashboard-1008-padding
+  );
+  --semantic-dashboard-1008-padding: var(
+    --catalog-layout-measure-dashboard-1008-padding
+  );
+  --primary-dashboard-1014--webkit-tap-highlight-color: transparent;
+  --base-dashboard-1014--webkit-tap-highlight-color: var(
+    --primary-dashboard-1014--webkit-tap-highlight-color
+  );
+  --catalog-layout-measure-dashboard-1014--webkit-tap-highlight-color: var(
+    --base-dashboard-1014--webkit-tap-highlight-color
+  );
+  --semantic-dashboard-1014--webkit-tap-highlight-color: var(
+    --catalog-layout-measure-dashboard-1014--webkit-tap-highlight-color
+  );
+  --primary-dashboard-1017-opacity: 40%;
+  --base-dashboard-1017-opacity: var(--primary-dashboard-1017-opacity);
+  --catalog-layout-measure-dashboard-1017-opacity: var(
+    --base-dashboard-1017-opacity
+  );
+  --semantic-dashboard-1017-opacity: var(
+    --catalog-layout-measure-dashboard-1017-opacity
+  );
+  --primary-dashboard-1031-grid-column: 1 / -1;
+  --base-dashboard-1031-grid-column: var(--primary-dashboard-1031-grid-column);
+  --catalog-layout-measure-dashboard-1031-grid-column: var(
+    --base-dashboard-1031-grid-column
+  );
+  --semantic-dashboard-1031-grid-column: var(
+    --catalog-layout-measure-dashboard-1031-grid-column
+  );
+  --base-dashboard-1036-padding: calc(var(--primary-space-unit) * 2) 0 0;
+  --catalog-layout-measure-dashboard-1036-padding: var(
+    --base-dashboard-1036-padding
+  );
+  --semantic-dashboard-1036-padding: var(
+    --catalog-layout-measure-dashboard-1036-padding
+  );
+  --primary-dashboard-1039-flex: 1 1 0;
+  --base-dashboard-1039-flex: var(--primary-dashboard-1039-flex);
+  --catalog-layout-measure-dashboard-1039-flex: var(--base-dashboard-1039-flex);
+  --semantic-dashboard-1039-flex: var(
+    --catalog-layout-measure-dashboard-1039-flex
+  );
+  --base-dashboard-1046-padding: 0 calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-1046-padding: var(
+    --base-dashboard-1046-padding
+  );
+  --semantic-dashboard-1046-padding: var(
+    --catalog-layout-measure-dashboard-1046-padding
+  );
+  --primary-dashboard-1052-text-transform: uppercase;
+  --base-dashboard-1052-text-transform: var(
+    --primary-dashboard-1052-text-transform
+  );
+  --catalog-layout-measure-dashboard-1052-text-transform: var(
+    --base-dashboard-1052-text-transform
+  );
+  --semantic-dashboard-1052-text-transform: var(
+    --catalog-layout-measure-dashboard-1052-text-transform
+  );
+  --base-dashboard-1060-padding: calc(var(--primary-space-unit) * 2)
+    calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-1060-padding: var(
+    --base-dashboard-1060-padding
+  );
+  --semantic-dashboard-1060-padding: var(
+    --catalog-layout-measure-dashboard-1060-padding
+  );
+  --primary-dashboard-1064-flex: 1 1 0;
+  --base-dashboard-1064-flex: var(--primary-dashboard-1064-flex);
+  --catalog-layout-measure-dashboard-1064-flex: var(--base-dashboard-1064-flex);
+  --semantic-dashboard-1064-flex: var(
+    --catalog-layout-measure-dashboard-1064-flex
+  );
+  --primary-dashboard-1067-padding: 0 12px;
+  --base-dashboard-1067-padding: var(--primary-dashboard-1067-padding);
+  --catalog-layout-measure-dashboard-1067-padding: var(
+    --base-dashboard-1067-padding
+  );
+  --semantic-dashboard-1067-padding: var(
+    --catalog-layout-measure-dashboard-1067-padding
+  );
+  --primary-dashboard-1071-font-size: 1rem;
+  --base-dashboard-1071-font-size: var(--primary-dashboard-1071-font-size);
+  --catalog-layout-measure-dashboard-1071-font-size: var(
+    --base-dashboard-1071-font-size
+  );
+  --semantic-dashboard-1071-font-size: var(
+    --catalog-layout-measure-dashboard-1071-font-size
+  );
+  --primary-dashboard-1078-flex: 1 1 0;
+  --base-dashboard-1078-flex: var(--primary-dashboard-1078-flex);
+  --catalog-layout-measure-dashboard-1078-flex: var(--base-dashboard-1078-flex);
+  --semantic-dashboard-1078-flex: var(
+    --catalog-layout-measure-dashboard-1078-flex
+  );
+  --primary-dashboard-1084-max-height: none;
+  --base-dashboard-1084-max-height: var(--primary-dashboard-1084-max-height);
+  --catalog-layout-measure-dashboard-1084-max-height: var(
+    --base-dashboard-1084-max-height
+  );
+  --semantic-dashboard-1084-max-height: var(
+    --catalog-layout-measure-dashboard-1084-max-height
+  );
+  --base-dashboard-1085-margin: calc(var(--primary-space-unit) * 2)
+    calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-1085-margin: var(
+    --base-dashboard-1085-margin
+  );
+  --semantic-dashboard-1085-margin: var(
+    --catalog-layout-measure-dashboard-1085-margin
+  );
+  --base-dashboard-1086-padding: calc(var(--primary-space-unit) * 2) 12px;
+  --catalog-layout-measure-dashboard-1086-padding: var(
+    --base-dashboard-1086-padding
+  );
+  --semantic-dashboard-1086-padding: var(
+    --catalog-layout-measure-dashboard-1086-padding
+  );
+  --base-dashboard-1095-box-shadow: inset 2px 0 var(--primary-color-good);
+  --catalog-layout-measure-dashboard-1095-box-shadow: var(
+    --base-dashboard-1095-box-shadow
+  );
+  --semantic-dashboard-1095-box-shadow: var(
+    --catalog-layout-measure-dashboard-1095-box-shadow
+  );
+  --base-dashboard-1098-box-shadow: inset 2px 0 var(--primary-color-bad);
+  --catalog-layout-measure-dashboard-1098-box-shadow: var(
+    --base-dashboard-1098-box-shadow
+  );
+  --semantic-dashboard-1098-box-shadow: var(
+    --catalog-layout-measure-dashboard-1098-box-shadow
+  );
+  --base-dashboard-1102-padding: calc(var(--primary-space-unit) * 2)
+    calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-1102-padding: var(
+    --base-dashboard-1102-padding
+  );
+  --semantic-dashboard-1102-padding: var(
+    --catalog-layout-measure-dashboard-1102-padding
+  );
+  --primary-dashboard-1118-max-height: 60vh;
+  --base-dashboard-1118-max-height: var(--primary-dashboard-1118-max-height);
+  --catalog-layout-measure-dashboard-1118-max-height: var(
+    --base-dashboard-1118-max-height
+  );
+  --semantic-dashboard-1118-max-height: var(
+    --catalog-layout-measure-dashboard-1118-max-height
+  );
+  --base-dashboard-1173-bottom: calc(
+    var(--primary-measure-tabbar) + calc(var(--primary-space-unit) * 4) +
+      env(safe-area-inset-bottom)
+  );
+  --catalog-layout-measure-dashboard-1173-bottom: var(
+    --base-dashboard-1173-bottom
+  );
+  --semantic-dashboard-1173-bottom: var(
+    --catalog-layout-measure-dashboard-1173-bottom
+  );
+  --base-dashboard-1185-padding: 12px calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-1185-padding: var(
+    --base-dashboard-1185-padding
+  );
+  --semantic-dashboard-1185-padding: var(
+    --catalog-layout-measure-dashboard-1185-padding
+  );
+  --catalog-layout-measure-dashboard-1192-box-shadow:
+    var(--base-dashboard-1098-box-shadow),
+    0 var(--base-space-small) var(--base-space-medium) var(--base-color-shadow);
+  --semantic-dashboard-1192-box-shadow: var(
+    --catalog-layout-measure-dashboard-1192-box-shadow
+  );
+  --primary-dashboard-1205-text-decoration: underline;
+  --base-dashboard-1205-text-decoration: var(
+    --primary-dashboard-1205-text-decoration
+  );
+  --catalog-layout-measure-dashboard-1205-text-decoration: var(
+    --base-dashboard-1205-text-decoration
+  );
+  --semantic-dashboard-1205-text-decoration: var(
+    --catalog-layout-measure-dashboard-1205-text-decoration
+  );
+  --base-dashboard-1209-filter: brightness(1.15);
+  --catalog-layout-measure-dashboard-1209-filter: var(
+    --base-dashboard-1209-filter
+  );
+  --semantic-dashboard-1209-filter: var(
+    --catalog-layout-measure-dashboard-1209-filter
+  );
+  --primary-dashboard-1215-padding-bottom: 0;
+  --base-dashboard-1215-padding-bottom: var(
+    --primary-dashboard-1215-padding-bottom
+  );
+  --catalog-layout-measure-dashboard-1215-padding-bottom: var(
+    --base-dashboard-1215-padding-bottom
+  );
+  --semantic-dashboard-1215-padding-bottom: var(
+    --catalog-layout-measure-dashboard-1215-padding-bottom
+  );
+  --primary-dashboard-1219-top: 0;
+  --base-dashboard-1219-top: var(--primary-dashboard-1219-top);
+  --catalog-layout-measure-dashboard-1219-top: var(--base-dashboard-1219-top);
+  --semantic-dashboard-1219-top: var(
+    --catalog-layout-measure-dashboard-1219-top
+  );
+  --primary-dashboard-1220-bottom: auto;
+  --base-dashboard-1220-bottom: var(--primary-dashboard-1220-bottom);
+  --catalog-layout-measure-dashboard-1220-bottom: var(
+    --base-dashboard-1220-bottom
+  );
+  --semantic-dashboard-1220-bottom: var(
+    --catalog-layout-measure-dashboard-1220-bottom
+  );
+  --primary-dashboard-1221-order: 1;
+  --base-dashboard-1221-order: var(--primary-dashboard-1221-order);
+  --catalog-layout-measure-dashboard-1221-order: var(
+    --base-dashboard-1221-order
+  );
+  --semantic-dashboard-1221-order: var(
+    --catalog-layout-measure-dashboard-1221-order
+  );
+  --base-dashboard-1222-grid-template-columns: repeat(5, max-content);
+  --catalog-layout-measure-dashboard-1222-grid-template-columns: var(
+    --base-dashboard-1222-grid-template-columns
+  );
+  --semantic-dashboard-1222-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-1222-grid-template-columns
+  );
+  --base-dashboard-1225-padding: 0 calc(var(--primary-space-unit) * 4);
+  --catalog-layout-measure-dashboard-1225-padding: var(
+    --base-dashboard-1225-padding
+  );
+  --semantic-dashboard-1225-padding: var(
+    --catalog-layout-measure-dashboard-1225-padding
+  );
+  --primary-dashboard-1229-order: 2;
+  --base-dashboard-1229-order: var(--primary-dashboard-1229-order);
+  --catalog-layout-measure-dashboard-1229-order: var(
+    --base-dashboard-1229-order
+  );
+  --semantic-dashboard-1229-order: var(
+    --catalog-layout-measure-dashboard-1229-order
+  );
+  --base-dashboard-1232-grid-template-columns: repeat(4, minmax(0, 1fr));
+  --catalog-layout-measure-dashboard-1232-grid-template-columns: var(
+    --base-dashboard-1232-grid-template-columns
+  );
+  --semantic-dashboard-1232-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-1232-grid-template-columns
+  );
+  --base-dashboard-1235-grid-template-columns: 2fr repeat(3, 1fr);
+  --catalog-layout-measure-dashboard-1235-grid-template-columns: var(
+    --base-dashboard-1235-grid-template-columns
+  );
+  --semantic-dashboard-1235-grid-template-columns: var(
+    --catalog-layout-measure-dashboard-1235-grid-template-columns
+  );
+  --primary-dashboard-1238-grid-column: auto;
+  --base-dashboard-1238-grid-column: var(--primary-dashboard-1238-grid-column);
+  --catalog-layout-measure-dashboard-1238-grid-column: var(
+    --base-dashboard-1238-grid-column
+  );
+  --semantic-dashboard-1238-grid-column: var(
+    --catalog-layout-measure-dashboard-1238-grid-column
+  );
+  --primary-dashboard-1241-left: auto;
+  --base-dashboard-1241-left: var(--primary-dashboard-1241-left);
+  --catalog-layout-measure-dashboard-1241-left: var(--base-dashboard-1241-left);
+  --semantic-dashboard-1241-left: var(
+    --catalog-layout-measure-dashboard-1241-left
+  );
+  --primary-dashboard-1243-width: 360px;
+  --base-dashboard-1243-width: var(--primary-dashboard-1243-width);
+  --catalog-layout-measure-dashboard-1243-width: var(
+    --base-dashboard-1243-width
+  );
+  --semantic-dashboard-1243-width: var(
+    --catalog-layout-measure-dashboard-1243-width
+  );
+  --primary-dashboard-1250-transition:
+    background-color 120ms ease-out, color 120ms ease-out;
+  --base-dashboard-1250-transition: var(--primary-dashboard-1250-transition);
+  --catalog-layout-measure-dashboard-1250-transition: var(
+    --base-dashboard-1250-transition
+  );
+  --semantic-dashboard-1250-transition: var(
+    --catalog-layout-measure-dashboard-1250-transition
+  );
+}
+html,
+body,
+a,
+button,
+input,
+select,
+div,
+main,
+section,
+article,
+header,
+footer,
+nav,
+ol,
+ul,
+li,
+pre,
+span,
+p,
+h1,
+h2,
+h3,
+code,
+time,
+summary,
+strong {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: var(--semantic-zero);
+  background: var(--semantic-page-background);
+  color: var(--semantic-page-text);
+  font-family: var(--semantic-page-font);
+  font-size: var(--semantic-type-body);
+  line-height: var(--semantic-terminal-line-height);
+}
+a {
+  color: inherit;
+  text-decoration: var(--semantic-dashboard-390-text-decoration);
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+  touch-action: manipulation;
+}
+/* Everything that is a command, id, path, time or measurement is monospace. */
+code,
+time,
+input,
+.row-id,
+.row-command,
+.row-stats,
+.row-state,
+.event-detail,
+.event-type,
+.command-text,
+.command-meta,
+.id-link,
+.stat-value,
+.chip,
+.badge,
+.port,
+.metadata,
+.command,
+.resources,
+.process-tree,
+.io-text,
+.metric-head span:last-child,
+.server-line,
+.sparkline,
+.scope-chip,
+.scope-clear {
+  font-family: var(--semantic-terminal-font);
+}
+/* Frame */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--semantic-dashboard-441-min-height);
+  padding-bottom: var(--semantic-dashboard-442-padding-bottom);
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--semantic-dashboard-450-padding);
+}
+.brand {
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  font-weight: var(--semantic-bold-weight);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-458-text-transform);
+}
+.connection {
+  display: flex;
+  align-items: center;
+  gap: var(--semantic-small-gap);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+}
+.connection-dot,
+.row-dot,
+.state-dot {
+  width: var(--semantic-small-gap);
+  height: var(--semantic-small-gap);
+  border-radius: var(--semantic-circle);
+  background: var(--semantic-waiting);
+}
+.connection[data-connected="true"] .connection-dot {
+  background: var(--semantic-active);
+}
+main {
+  width: var(--semantic-dashboard-479-width);
+  max-width: var(--semantic-measure-content);
+  margin: var(--semantic-dashboard-481-margin);
+  padding: var(--semantic-dashboard-482-padding);
+}
+.view-head {
+  margin: var(--semantic-dashboard-485-margin);
+}
+.view-head h1 {
+  margin: var(--semantic-zero);
+  font-size: var(--semantic-type-h1);
+  line-height: var(--semantic-dashboard-490-line-height);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.crumb {
+  margin: var(--semantic-dashboard-494-margin);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+}
+.crumb-link {
+  color: var(--semantic-focus);
+}
+.view-sub {
+  margin: var(--semantic-dashboard-502-margin);
+  color: var(--semantic-muted-text);
+  font-family: var(--semantic-terminal-font);
+  font-size: var(--semantic-type-meta);
+}
+/* Tab bar: at the thumb on a phone, along the top on a wide screen. */
+.tabbar {
+  position: fixed;
+  right: var(--semantic-dashboard-510-right);
+  bottom: var(--semantic-dashboard-511-bottom);
+  left: var(--semantic-dashboard-512-left);
+  z-index: var(--semantic-menu-layer);
+  display: grid;
+  grid-template-columns: var(--semantic-dashboard-515-grid-template-columns);
+  padding-bottom: var(--semantic-dashboard-516-padding-bottom);
+  background: var(--semantic-card-background);
+}
+.tabbar a {
+  display: grid;
+  place-items: center;
+  min-height: var(--semantic-measure-tabbar);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+  font-weight: var(--semantic-bold-weight);
+}
+.tabbar a[aria-current="page"] {
+  color: var(--semantic-page-text);
+  box-shadow: var(--semantic-dashboard-529-box-shadow);
+}
+.tabbar .console-link {
+  color: var(--semantic-focus);
+}
+/* Totals */
+.stats {
+  display: grid;
+  grid-template-columns: var(--semantic-dashboard-537-grid-template-columns);
+  gap: var(--semantic-small-gap);
+  margin-bottom: var(--semantic-measure-block-gap);
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--semantic-dashboard-544-gap);
+  padding: var(--semantic-dashboard-545-padding);
+  border-radius: var(--semantic-card-radius);
+  background: var(--semantic-card-background);
+}
+.stat-value {
+  font-size: var(--semantic-type-stat);
+  font-weight: var(--semantic-bold-weight);
+  line-height: var(--semantic-dashboard-552-line-height);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.stat-label {
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-559-text-transform);
+}
+/* Filters */
+.filters {
+  margin-bottom: var(--semantic-medium-gap);
+}
+.controls {
+  display: grid;
+  grid-template-columns: var(--semantic-dashboard-567-grid-template-columns);
+  gap: var(--semantic-small-gap);
+}
+.controls input[type="search"] {
+  grid-column: var(--semantic-dashboard-571-grid-column);
+}
+.controls input,
+.controls select {
+  min-width: var(--semantic-zero);
+  height: var(--semantic-control-height);
+  padding: var(--semantic-dashboard-577-padding);
+  border: var(--semantic-border-none);
+  border-radius: var(--semantic-control-radius);
+  background: var(--semantic-toolbar-background);
+  font-size: var(--semantic-dashboard-581-font-size);
+}
+.controls select {
+  font-family: var(--semantic-page-font);
+  font-size: var(--semantic-type-body);
+}
+.scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--semantic-small-gap);
+  margin-top: var(--semantic-small-gap);
+}
+.scope-chip,
+.scope-clear {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--semantic-dashboard-597-min-height);
+  padding: var(--semantic-dashboard-598-padding);
+  border-radius: var(--semantic-control-radius);
+  font-size: var(--semantic-type-meta);
+}
+.scope-chip {
+  background: var(--semantic-toolbar-background);
+  color: var(--semantic-page-text);
+}
+.scope-clear {
+  color: var(--semantic-focus);
+}
+/* Sections */
+.block {
+  margin-bottom: var(--semantic-measure-block-gap);
+}
+.block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--semantic-small-gap);
+}
+.block-title {
+  margin: var(--semantic-zero);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  font-weight: var(--semantic-bold-weight);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-625-text-transform);
+}
+.more-link {
+  color: var(--semantic-focus);
+  font-size: var(--semantic-type-meta);
+}
+/* Lists: rows separated by a seam of page colour, not by borders. */
+.agent-list,
+.session-list,
+.activity-feed,
+.command-feed {
+  display: grid;
+  gap: var(--semantic-effect-seam);
+  margin: var(--semantic-zero);
+  padding: var(--semantic-zero);
+  overflow: hidden;
+  border-radius: var(--semantic-card-radius);
+  list-style: var(--semantic-list-none);
+}
+.agent-list:empty,
+.session-list:empty,
+.activity-feed:empty,
+.command-feed:empty {
+  display: none;
+}
+.row {
+  display: grid;
+  grid-template-columns: var(--semantic-dashboard-652-grid-template-columns);
+  gap: var(--semantic-dashboard-653-gap);
+  align-items: baseline;
+  min-height: var(--semantic-dashboard-655-min-height);
+  padding: var(--semantic-dashboard-656-padding);
+  background: var(--semantic-card-background);
+}
+.row-dot {
+  grid-row: var(--semantic-dashboard-660-grid-row);
+  align-self: center;
+}
+.row-title {
+  min-width: var(--semantic-zero);
+  overflow: hidden;
+  text-overflow: var(--semantic-overflow-ellipsis);
+  white-space: var(--semantic-space-nowrap);
+}
+.row-agent {
+  font-size: var(--semantic-type-title);
+  font-weight: var(--semantic-bold-weight);
+}
+.row-id {
+  margin-left: var(--semantic-small-gap);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+}
+.row-state {
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-682-text-transform);
+}
+.row-command {
+  grid-column: var(--semantic-dashboard-685-grid-column);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--semantic-dashboard-689--webkit-line-clamp);
+  font-size: var(--semantic-type-code);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.row-stats {
+  grid-column: var(--semantic-dashboard-694-grid-column);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+}
+[data-state="ACTIVE"] .row-dot,
+[data-state="EXECUTING"] .row-dot,
+[data-state="THINKING"] .row-dot {
+  background: var(--semantic-active);
+}
+[data-state="DEAD"] .row-dot {
+  background: var(--semantic-dead);
+}
+[data-state="ACTIVE"] .row-state,
+[data-state="EXECUTING"] .row-state {
+  color: var(--semantic-active);
+}
+[data-state="DEAD"] .row-state {
+  color: var(--semantic-dead);
+}
+/* Activity: who, then what happened, then a small line of kind and time. */
+.activity-feed li {
+  display: grid;
+  grid-template-columns: var(--semantic-dashboard-716-grid-template-columns);
+  grid-template-areas: var(--semantic-dashboard-717-grid-template-areas);
+  gap: var(--semantic-dashboard-721-gap);
+  align-items: baseline;
+  padding: var(--semantic-dashboard-723-padding);
+  background: var(--semantic-card-background);
+}
+.activity-feed .event-actor {
+  grid-area: var(--semantic-dashboard-727-grid-area);
+  min-width: var(--semantic-zero);
+  font-size: var(--semantic-type-title);
+  font-weight: var(--semantic-bold-weight);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.activity-feed .id-link {
+  margin-left: var(--semantic-dashboard-734-margin-left);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+  font-weight: var(--semantic-dashboard-737-font-weight);
+}
+.activity-feed .event-detail {
+  grid-area: var(--semantic-dashboard-740-grid-area);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--semantic-dashboard-744--webkit-line-clamp);
+  font-size: var(--semantic-type-code);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.activity-feed .event-detail:empty {
+  display: none;
+}
+.activity-feed .event-type {
+  grid-area: var(--semantic-dashboard-752-grid-area);
+  color: var(--semantic-focus);
+  font-size: var(--semantic-type-micro);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-756-text-transform);
+}
+.activity-feed time {
+  grid-area: var(--semantic-dashboard-759-grid-area);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+}
+.event-type[data-kind="COMMAND"] {
+  color: var(--semantic-active);
+}
+.event-type[data-kind="SESSION"] {
+  color: var(--semantic-waiting);
+}
+/* Commands: the command leads; the record around it is small. */
+.command-feed li {
+  display: grid;
+  gap: var(--semantic-dashboard-772-gap);
+  padding: var(--semantic-dashboard-773-padding);
+  background: var(--semantic-card-background);
+}
+.command-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--semantic-dashboard-780--webkit-line-clamp);
+  font-size: var(--semantic-type-code);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.command-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--semantic-dashboard-787-gap);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+}
+.command-meta .command-who {
+  min-width: var(--semantic-zero);
+}
+.command-exit {
+  margin-left: var(--semantic-dashboard-795-margin-left);
+}
+.command-feed li[data-exit="ok"] .command-exit {
+  color: var(--semantic-active);
+}
+.command-feed li[data-exit="failed"] .command-exit {
+  color: var(--semantic-dead);
+}
+.command-feed li[data-exit="running"] .command-exit {
+  color: var(--semantic-waiting);
+}
+.server-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--semantic-medium-gap);
+  margin: var(--semantic-zero);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+}
+.empty-state {
+  padding: var(--semantic-dashboard-815-padding);
+  border-radius: var(--semantic-card-radius);
+  background: var(--semantic-card-background);
+  color: var(--semantic-muted-text);
+  text-align: var(--semantic-text-align-center);
+}
+.empty-state a {
+  display: block;
+  margin-top: var(--semantic-small-gap);
+  color: var(--semantic-focus);
+}
+/* A session on its own screen */
+.session-detail {
+  margin-bottom: var(--semantic-measure-block-gap);
+}
+.session-card {
+  overflow: hidden;
+  border-radius: var(--semantic-card-radius);
+  background: var(--semantic-card-background);
+}
+.session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--semantic-small-gap);
+  padding: var(--semantic-dashboard-840-padding);
+}
+.session-header > div {
+  display: flex;
+  align-items: center;
+  gap: var(--semantic-small-gap);
+  min-width: var(--semantic-zero);
+}
+.agent {
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+  font-weight: var(--semantic-dashboard-852-font-weight);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.agent .agent-link {
+  color: var(--semantic-page-text);
+  font-size: var(--semantic-type-h1);
+  font-weight: var(--semantic-bold-weight);
+}
+.agent .id-link {
+  font-size: var(--semantic-type-meta);
+}
+.state {
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-867-text-transform);
+}
+.session-card[data-state="ACTIVE"] .state-dot,
+.session-card[data-state="EXECUTING"] .state-dot,
+.session-card[data-state="THINKING"] .state-dot {
+  background: var(--semantic-active);
+}
+.session-card[data-state="DEAD"] .state-dot {
+  background: var(--semantic-dead);
+}
+.session-card[data-state="ACTIVE"] .state,
+.session-card[data-state="EXECUTING"] .state {
+  color: var(--semantic-active);
+}
+.session-card[data-state="DEAD"] .state {
+  color: var(--semantic-dead);
+}
+.badges,
+.ports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--semantic-small-gap);
+  padding: var(--semantic-dashboard-889-padding);
+}
+.chip,
+.badge,
+.port {
+  display: inline-block;
+  max-width: var(--semantic-layout-fill);
+  overflow: hidden;
+  padding: var(--semantic-dashboard-897-padding);
+  border-radius: var(--semantic-control-radius);
+  background: var(--semantic-toolbar-background);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  text-overflow: var(--semantic-overflow-ellipsis);
+  white-space: var(--semantic-space-nowrap);
+}
+.port {
+  color: var(--semantic-active);
+}
+.metadata {
+  padding: var(--semantic-dashboard-909-padding);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.metrics {
+  display: grid;
+  grid-template-columns: var(--semantic-dashboard-916-grid-template-columns);
+  gap: var(--semantic-medium-gap);
+  padding: var(--semantic-medium-gap);
+  background: var(--semantic-page-background);
+}
+.metric-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--semantic-dashboard-924-gap);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-928-text-transform);
+}
+.metric-head span:last-child {
+  color: var(--semantic-page-text);
+  font-size: var(--semantic-type-title);
+  font-weight: var(--semantic-bold-weight);
+  letter-spacing: var(--semantic-dashboard-934-letter-spacing);
+  text-transform: var(--semantic-dashboard-935-text-transform);
+}
+.io-text {
+  min-height: var(--semantic-widget-meter-height);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.cpu-meter {
+  width: var(--semantic-layout-fill);
+  height: var(--semantic-widget-meter-height);
+  margin: var(--semantic-inset-meter);
+}
+.cpu-meter::-webkit-meter-bar {
+  background: var(--semantic-toolbar-background);
+  border: var(--semantic-border-none);
+  border-radius: var(--semantic-control-radius);
+}
+.cpu-meter::-webkit-meter-optimum-value {
+  background: var(--semantic-active);
+  border-radius: var(--semantic-control-radius);
+}
+.cpu-meter::-webkit-meter-suboptimum-value {
+  background: var(--semantic-waiting);
+  border-radius: var(--semantic-control-radius);
+}
+.cpu-meter::-webkit-meter-even-less-good-value {
+  background: var(--semantic-dead);
+  border-radius: var(--semantic-control-radius);
+}
+.cpu-meter::-moz-meter-bar {
+  background: var(--semantic-active);
+  border-radius: var(--semantic-control-radius);
+}
+.sparkline {
+  min-height: var(--semantic-widget-sparkline-height);
+  overflow: hidden;
+  color: var(--semantic-active);
+  font-size: var(--semantic-type-micro);
+  white-space: var(--semantic-space-nowrap);
+}
+.rss-spark {
+  color: var(--semantic-waiting);
+}
+.terminal-toolbar {
+  display: grid;
+  gap: var(--semantic-small-gap);
+  padding: var(--semantic-medium-gap);
+}
+.command {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--semantic-dashboard-988--webkit-line-clamp);
+  font-size: var(--semantic-type-code);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.command::before {
+  content: var(--semantic-dashboard-993-content);
+  color: var(--semantic-muted-text);
+}
+.actions {
+  display: grid;
+  grid-template-columns: var(--semantic-dashboard-998-grid-template-columns);
+  gap: var(--semantic-small-gap);
+}
+button,
+.more summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--semantic-control-height);
+  min-height: var(--semantic-control-height);
+  padding: var(--semantic-dashboard-1008-padding);
+  border: var(--semantic-border-none);
+  border-radius: var(--semantic-control-radius);
+  background: var(--semantic-toolbar-background);
+  cursor: var(--semantic-control-cursor);
+  list-style: var(--semantic-list-none);
+  -webkit-tap-highlight-color: var(
+    --semantic-dashboard-1014--webkit-tap-highlight-color
+  );
+}
+button:disabled {
+  opacity: var(--semantic-dashboard-1017-opacity);
+}
+.attach {
+  background: var(--semantic-action-background);
+  color: var(--semantic-action-text);
+  font-weight: var(--semantic-bold-weight);
+}
+.kill {
+  color: var(--semantic-dead);
+}
+.more {
+  position: relative;
+}
+.more[open] {
+  grid-column: var(--semantic-dashboard-1031-grid-column);
+}
+.more-menu {
+  display: flex;
+  gap: var(--semantic-small-gap);
+  padding: var(--semantic-dashboard-1036-padding);
+}
+.more-menu > button {
+  flex: var(--semantic-dashboard-1039-flex);
+  font-size: var(--semantic-type-meta);
+}
+.session-tools > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--semantic-control-height);
+  padding: var(--semantic-dashboard-1046-padding);
+  background: var(--semantic-page-background);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-micro);
+  font-weight: var(--semantic-bold-weight);
+  letter-spacing: var(--semantic-typography-block-tracking);
+  text-transform: var(--semantic-dashboard-1052-text-transform);
+  cursor: var(--semantic-control-cursor);
+}
+.exec,
+.type {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--semantic-small-gap);
+  padding: var(--semantic-dashboard-1060-padding);
+}
+.exec-input,
+.type-input {
+  flex: var(--semantic-dashboard-1064-flex);
+  min-width: var(--semantic-zero);
+  height: var(--semantic-control-height);
+  padding: var(--semantic-dashboard-1067-padding);
+  border: var(--semantic-border-none);
+  border-radius: var(--semantic-control-radius);
+  background: var(--semantic-toolbar-background);
+  font-size: var(--semantic-dashboard-1071-font-size);
+}
+.type-input {
+  flex-basis: var(--semantic-layout-fill);
+}
+.type > button,
+.type > .more {
+  flex: var(--semantic-dashboard-1078-flex);
+}
+.exec-run {
+  color: var(--semantic-focus);
+}
+.exec-output {
+  max-height: var(--semantic-dashboard-1084-max-height);
+  margin: var(--semantic-dashboard-1085-margin);
+  padding: var(--semantic-dashboard-1086-padding);
+  border-radius: var(--semantic-control-radius);
+  background: var(--semantic-terminal-background);
+  font-family: var(--semantic-terminal-font);
+  font-size: var(--semantic-type-code);
+  white-space: var(--semantic-space-pre-wrap);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.exec-output[data-exit="0"] {
+  box-shadow: var(--semantic-dashboard-1095-box-shadow);
+}
+.exec-output:not([data-exit="0"]) {
+  box-shadow: var(--semantic-dashboard-1098-box-shadow);
+}
+.resources,
+.process-details {
+  padding: var(--semantic-dashboard-1102-padding);
+  color: var(--semantic-muted-text);
+  font-size: var(--semantic-type-meta);
+}
+.process-details summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--semantic-control-height);
+  cursor: var(--semantic-control-cursor);
+}
+.process-tree {
+  overflow-wrap: var(--semantic-wrap-anywhere);
+  white-space: var(--semantic-space-pre-wrap);
+}
+/* The pane mirror is the one place that scrolls inside the page, and only vertically. */
+.terminal {
+  max-height: var(--semantic-dashboard-1118-max-height);
+  margin-top: var(--semantic-small-gap);
+  padding: var(--semantic-medium-gap);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  background: var(--semantic-terminal-background);
+  font-family: var(--semantic-terminal-font);
+  font-size: var(--semantic-type-code);
+  line-height: var(--semantic-terminal-line-height);
+  white-space: var(--semantic-space-pre-wrap);
+  overflow-wrap: var(--semantic-wrap-anywhere);
+}
+.terminal:empty {
+  display: none;
+}
+.ansi-bold {
+  font-weight: var(--semantic-bold-weight);
+}
+.ansi-dim {
+  opacity: var(--semantic-dim-opacity);
+}
+.ansi-italic {
+  font-style: var(--semantic-italic-style);
+}
+.ansi-underline {
+  text-decoration: var(--semantic-underline-decoration);
+}
+.ansi-fg-black {
+  color: var(--semantic-ansi-black);
+}
+.ansi-fg-red {
+  color: var(--semantic-ansi-red);
+}
+.ansi-fg-green {
+  color: var(--semantic-ansi-green);
+}
+.ansi-fg-yellow {
+  color: var(--semantic-ansi-yellow);
+}
+.ansi-fg-blue {
+  color: var(--semantic-ansi-blue);
+}
+.ansi-fg-magenta {
+  color: var(--semantic-ansi-magenta);
+}
+.ansi-fg-cyan {
+  color: var(--semantic-ansi-cyan);
+}
+.ansi-fg-white {
+  color: var(--semantic-ansi-white);
+}
+.toasts {
+  position: fixed;
+  right: var(--semantic-medium-gap);
+  bottom: var(--semantic-dashboard-1173-bottom);
+  left: var(--semantic-medium-gap);
+  z-index: var(--semantic-toast-layer);
+  display: flex;
+  flex-direction: column;
+  gap: var(--semantic-small-gap);
+  pointer-events: none;
+}
+.toast {
+  padding: var(--semantic-dashboard-1185-padding);
+  border-radius: var(--semantic-control-radius);
+  background: var(--semantic-toolbar-background);
+  box-shadow: var(--semantic-card-shadow);
+  font-size: var(--semantic-type-meta);
+}
+.toast[data-kind="bad"] {
+  box-shadow: var(--semantic-dashboard-1192-box-shadow);
+}
+@media (hover: hover) and (pointer: fine) {
+  .row:hover,
+  .stat:hover {
+    background: var(--semantic-toolbar-background);
+  }
+  .agent-link:hover,
+  .id-link:hover,
+  .more-link:hover,
+  .crumb-link:hover {
+    text-decoration: var(--semantic-dashboard-1205-text-decoration);
+  }
+  button:not(:disabled):hover,
+  .more summary:hover {
+    filter: var(--semantic-dashboard-1209-filter);
+  }
+}
+/* Wide screens: navigation moves to the top, totals spread out. */
+@media (width >=900px) {
+  .app {
+    padding-bottom: var(--semantic-dashboard-1215-padding-bottom);
+  }
+  .tabbar {
+    position: sticky;
+    top: var(--semantic-dashboard-1219-top);
+    bottom: var(--semantic-dashboard-1220-bottom);
+    order: var(--semantic-dashboard-1221-order);
+    grid-template-columns: var(--semantic-dashboard-1222-grid-template-columns);
+    justify-content: start;
+    gap: var(--semantic-medium-gap);
+    padding: var(--semantic-dashboard-1225-padding);
+    background: var(--semantic-page-background);
+  }
+  main {
+    order: var(--semantic-dashboard-1229-order);
+  }
+  .stats {
+    grid-template-columns: var(--semantic-dashboard-1232-grid-template-columns);
+  }
+  .controls {
+    grid-template-columns: var(--semantic-dashboard-1235-grid-template-columns);
+  }
+  .controls input[type="search"] {
+    grid-column: var(--semantic-dashboard-1238-grid-column);
+  }
+  .toasts {
+    left: var(--semantic-dashboard-1241-left);
+    bottom: var(--semantic-medium-gap);
+    width: var(--semantic-dashboard-1243-width);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tabbar a,
+  .row,
+  .stat {
+    transition: var(--semantic-dashboard-1250-transition);
+  }
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+.terminal:focus-visible {
+  outline: var(--semantic-dashboard-405-outline);
+  outline-offset: var(--semantic-dashboard-406-outline-offset);
+}

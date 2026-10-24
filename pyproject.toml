@@ -15,20 +15,25 @@ py-modules = []
 #
 
 [project]
-name = "vscode-plugins-workspace"
+name = "kairos-toolbox"
 version = "1.0.0"
-description = "Shared development workspace for VS Code-compatible plugins."
+description = "Kairos toolbox: execution control plane, trust layer, release pipeline, and editor extensions."
 readme = "README.md"
 requires-python = ">=3.13"
 license = "MIT"
 authors = [{ name = "Joao Lopes" }]
 dependencies = [
     "coverage>=7.6",
-    "fastapi>=0.115",
     "uvicorn>=0.34",
+    "websockets>=13",
     "pytest>=8.4",
-    "httpx2>=0.2",
+    "fastapi>=0.115,<0.160",
+    "starlette>=0.46,<1",
+    "httpx>=0.28,<1",
     "psutil>=7.1",
+    "types-psutil",
+    "numpy>=2.0",
+    "opencv-python>=4.10",
 ]
 
 #
@@ -77,7 +82,7 @@ pythonVersion = "3.13"
 typeCheckingMode = "strict"
 venvPath = "."
 venv = ".venv"
-extraPaths = ["tools/arrow"]
+extraPaths = ["tools"]
 
 [[tool.basedpyright.executionEnvironments]]
 root = "plugins/close_deleted_editors"
@@ -92,11 +97,11 @@ root = "plugins/open_selected_editor_panel"
 root = "plugins/simple_web_server"
 
 [[tool.basedpyright.executionEnvironments]]
-root = "tools/lake_terminal"
-extraPaths = ["tools/arrow"]
+root = "tools/district"
+extraPaths = ["tools"]
 
 [[tool.basedpyright.executionEnvironments]]
-root = "tools/arrow"
+root = "tools/bowman"
 
 #
 # PYREFLY
@@ -111,9 +116,9 @@ project-excludes = [
     "**/.build-cache/**",
     "**/vsix/**",
 ]
-project-includes = ["**/lake_terminal/**"]
+project-includes = ["**/district/**"]
 python-version = "3.13"
-search-path = [".", "tools/arrow", "tools/lake_terminal"]
+search-path = [".", "tools"]
 
 #
 # COVERAGE
@@ -142,37 +147,151 @@ per-file-minimum = 80 # per-source-file coverage floor
 #
 # RELEASE AUTOMATION
 #
-# A bare `python ./tools/release_builder` reads this table and runs every
+# A bare `python ./tools/stationer` reads this table and runs every
 # listed format, then publishes the GitHub release (synchronizing wiki/
 # when it exists) and uploads the built distributions to PyPI.
+# Every key the tool understands is listed; command-line arguments win.
 #
 
-[tool.release_builder]
-project = "tools/lake_terminal"
-manifest = "tools/lake_terminal/release-builder.toml"
+[tool.stationer.builder]
+project = "tools/district"
+manifest = "tools/district/templates/stationer.toml"
 output = "build"
 release_config = "release.toml"
-# "windows" additionally needs the [windows] QEMU worker table in the
-# manifest (host/port/user/identity_file for the SSH-reachable guest).
+# macos | linux | windows ("windows" also needs the [windows] worker table
+# in the manifest).
 platforms = ["macos", "linux"]
+# native | pyz | pypi
 formats = ["native", "pyz", "pypi"]
 # GitHub release target: a project name from release.toml. Remove the key
 # to build without publishing.
-publish = "lake-terminal"
+publish = "district"
+# Operating systems also built on remote pull workers after the formats,
+# and the VM that runs them ("windows" builds arm64 and amd64; the ARM64
+# guest produces amd64 through emulation). A registered conjure VM name,
+# utm:<name> for a UTM VM (driven through its guest agent), or empty for
+# [tool.conjure]'s default.
+remote = ["windows"]
+vm = "utm:Windows 2"
+# Use the already-running guest instead of booting one.
+attach = false
 # Upload the distributions that `--format pypi` produced (sdist + wheel for
 # every local_dependencies entry, then the project) through
-# `python -m tools.release_publish.upload`.
+# `python -m tools.stationer.upload`.
 pypi_upload = true
 dry_run = false
 
-# A bare `python ./tools/release_publish` synthesizes the command line
+# A bare `python ./tools/stationer` synthesizes the command line
 # below: `release` bumps the version, runs pre_hooks, tags and pushes —
 # the pushed tag hands off to CI, which creates the hosted release.
-[tool.release_publish]
+# command: init | status | show | plan | release | publish | repo-sync
+[tool.stationer.publish]
 config = "release.toml"
 command = "release"
-projects = ["lake-terminal"]
+projects = ["district"]
 bump = "patch"
-dry_run = false
-resume = false
-skip_hooks = false
+# version = "1.2.3"   # replaces `bump`
+all_projects = false # plan, release
+changed = false      # plan, release
+no_publish = false   # plan, release
+skip_hooks = false   # plan, release
+dry_run = false      # release, publish
+resume = false       # release
+update = false       # publish
+artifacts = []       # publish
+
+# Real-environment tests (tests/tools/stationer/test_real_pipelines.py).
+# They discover their Windows guest here instead of being skipped; the guest
+# is driven through the UTM guest agent.
+[tool.stationer.tests]
+windows_vm = "utm:Windows 2"
+
+# `python -m tools.charter` exposes a local port through ngrok, pinggy,
+# tunnl or runlocal. The stationer's `--remote` workers reuse these
+# settings when their `--expose` selects a charter backend.
+[tool.charter]
+backend = "direct"  # direct | ngrok | pinggy | tunnl | runlocal
+json_output = false
+# ngrok_authtoken = "…"         # or set NGROK_AUTHTOKEN
+# ngrok_executable = "ngrok"    # name or path; auto-installed when absent
+ssh_executable = "ssh"                         # pinggy and tunnl (they charter over OpenSSH)
+expect_executable = "expect"                   # pinggy
+npx_executable = "npx"                         # runlocal
+url_timeout_seconds = 20.0                     # log-discovered URL wait
+ngrok_timeout_seconds = 15.0                   # ngrok charter establishment wait
+stop_timeout_seconds = 5.0                     # graceful stop grace period
+shortener = "https://shrtr.top/api/v1/shorten"
+keep_alive = false                             # outlive the process; end with `stop`
+# ttl_seconds = 3600.0          # stop each charter after this long
+# registry_path = "~/.charter/tunnels.json"
+
+# `district --web --expose …` reads its own charter table (the ngrok token and
+# the rest of the backend settings come from [tool.charter]).
+[tool.district.charter]
+backend = "direct" # direct | ngrok | pinggy | tunnl | runlocal
+# ngrok_authtoken = "…"
+# alias = "my-district"
+# shorten = true
+
+# conjure reads configuration from [tool.conjure]. Machine-local settings
+# (user names, home paths, VM disks) belong in ~/.conjure/settings.toml,
+# which uses the same [tool.conjure.*] tables.
+# Precedence is: built-in defaults < ~/.conjure/settings.toml < this file
+# < explicit CLI arguments. Every supported setting is shown below.
+
+[tool.conjure]
+
+[tool.conjure.general]
+json_output = false
+# registry_path = "/Users/<you>/.conjure/vms.json"   # default: ~/.conjure/vms.json
+
+[tool.conjure.local]
+# working_directory = "/path/to/working/directory"
+
+[tool.conjure.docker]
+executable = "docker"
+# image = "python:3.13-slim"   # default image for `docker run`
+# working_directory = "/work"
+create_arguments = []
+command = ["sleep", "infinity"]
+remove_on_close = true
+stop_timeout_seconds = 10
+owns_container = true
+
+[tool.conjure.qemu]
+# executable = "qemu-system-aarch64"
+arguments = []
+network_device = "e1000"
+network_id = "conjure_net"
+automatic_host_forward = true
+startup_timeout_seconds = 1200.0
+shutdown_timeout_seconds = 30.0
+terminate_timeout_seconds = 5.0
+img_executable = "qemu-img"
+process_executable = "ps"
+image_roots = []
+# Snapshot/revert: the disk is put back to `baseline_snapshot` before every
+# boot and again once the guest is stopped. The first run captures the disk's
+# current state as the baseline. `qemu-img` refuses a disk a running VM holds,
+# so shut the VM down first. Both keys must be set together, and
+# `snapshot_image` points at a machine-local disk, so the pair belongs in
+# ~/.conjure/settings.toml rather than in a committed file.
+# snapshot_image = "/path/to/disk.qcow2"
+# baseline_snapshot = "conjure_baseline"
+
+# The QEMU and attached runners drive the guest over OpenSSH. UTM guests
+# (`utm:<name>`) use the UTM guest agent and ignore these two tables.
+[tool.conjure.ssh]
+# username = "builder"
+# identity_file = "~/.ssh/conjure"
+host = "127.0.0.1"
+# port = 2222
+executable = "ssh"
+scp_executable = "scp"
+# known_hosts_file = "~/.ssh/known_hosts"
+connect_timeout_seconds = 5
+poll_interval_seconds = 0.5
+
+[tool.conjure.guest]
+# shutdown_command = ["sudo", "shutdown", "-h", "now"]
+ssh_port = 22

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0d0f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <title>District Console</title>
+    <link rel="stylesheet" href="/assets/css/console.css" />
+    <script type="module" src="/assets/js/console.js"></script>
+  </head>
+  <body>
+    <div class="console" id="console">
+      <header class="bar">
+        <a class="back" href="/" aria-label="Back to the dashboard">‹</a>
+        <div
+          class="tabs"
+          id="tabs"
+          role="tablist"
+          aria-label="Open shells"
+        ></div>
+        <button
+          class="add"
+          id="add"
+          type="button"
+          aria-label="Open another shell"
+        >
+          +
+        </button>
+        <button
+          class="zoom"
+          id="zoom"
+          type="button"
+          aria-pressed="true"
+          aria-label="Fit the whole line to the screen"
+        >
+          Fit
+        </button>
+        <span class="link" id="link" role="status">
+          <span class="link-dot" aria-hidden="true"></span>
+          <span id="link-label">Connecting</span>
+        </span>
+      </header>
+      <main class="stage">
+        <div
+          class="screen"
+          id="screen"
+          role="log"
+          aria-label="Shell output"
+          tabindex="0"
+        ></div>
+        <button class="latest" id="latest" type="button" hidden>Latest</button>
+        <p class="empty" id="empty" hidden>
+          No shell open. Tap + to choose one.
+        </p>
+      </main>
+      <footer class="dock">
+        <div class="keys" id="keys" role="group" aria-label="Special keys">
+          <button type="button" data-key="Escape">Esc</button>
+          <button type="button" data-key="Tab">Tab</button>
+          <button type="button" data-key="C-c">^C</button>
+          <button type="button" data-key="C-d">^D</button>
+          <button type="button" data-key="Enter" aria-label="Enter">⏎</button>
+          <button type="button" data-key="Left" data-repeat aria-label="Left">
+            ←
+          </button>
+          <button type="button" data-key="Down" data-repeat aria-label="Down">
+            ↓
+          </button>
+          <button type="button" data-key="Up" data-repeat aria-label="Up">
+            ↑
+          </button>
+          <button type="button" data-key="Right" data-repeat aria-label="Right">
+            →
+          </button>
+          <button
+            type="button"
+            data-key="BSpace"
+            data-repeat
+            aria-label="Backspace"
+          >
+            ⌫
+          </button>
+        </div>
+        <form class="line" id="line">
+          <input
+            id="text"
+            type="text"
+            autocapitalize="off"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+            enterkeyhint="send"
+            placeholder="Type, then Send"
+            aria-label="Text to send to the shell"
+          />
+          <button type="submit" class="send">Send</button>
+        </form>
+        <p class="notice" id="notice" role="status" aria-live="polite"></p>
+      </footer>
+      <dialog class="picker" id="picker" aria-labelledby="picker-title">
+        <h2 id="picker-title">Open a shell</h2>
+        <ul class="picker-list" id="picker-list"></ul>
+        <button type="button" class="picker-close" id="picker-close">
+          Close
+        </button>
+      </dialog>
+    </div>
+  </body>
+</html>

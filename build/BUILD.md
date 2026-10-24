@@ -4,11 +4,70 @@
 
 | | |
 | --- | --- |
-| Project | lake 1.0.0 |
-| Commit | `8da6950` |
-| Generated | 2026-10-23T15:21:00Z |
+| Project | lake 1.0.1 |
+| Commit | `07ccaa2` |
+| Generated | 2026-10-24T03:56:12Z |
 | Generated on | macOS-26.3.2-arm64-arm-64bit-Mach-O · Python 3.13.9 |
 
 ## Executables and installers
 
-No builds yet.
+| Platform | Architecture | ABI | Executable | Installer | Built | Duration |
+| --- | --- | --- | --- | --- | --- | --- |
+| linux | amd64 | glibc | `linux/amd64/glibc/lake/pyinstaller/lake-1.0.1-linux-amd64` | `linux/amd64/glibc/lake/installer/lake_1.0.1_amd64.deb` | 2026-10-24T03:51:44Z | 65.6 s |
+| linux | amd64 | musl | `linux/amd64/musl/lake/pyinstaller/lake-1.0.1-linux-amd64-musl` | `linux/amd64/musl/lake/installer/lake-1.0.1-linux-amd64-musl.apk` | 2026-10-24T03:51:44Z | 47.8 s |
+| linux | arm64 | glibc | `linux/arm64/glibc/lake/pyinstaller/lake-1.0.1-linux-arm64` | `linux/arm64/glibc/lake/installer/lake_1.0.1_arm64.deb` | 2026-10-24T03:51:44Z | 41.6 s |
+| linux | arm64 | musl | `linux/arm64/musl/lake/pyinstaller/lake-1.0.1-linux-arm64-musl` | `linux/arm64/musl/lake/installer/lake-1.0.1-linux-arm64-musl.apk` | 2026-10-24T03:51:44Z | 38.3 s |
+| macos | arm64 | native | `macos/arm64/native/lake/pyinstaller/lake-1.0.1-macos-arm64` | `macos/arm64/native/lake/installer/lake-1.0.1-macos-arm64.pkg` | 2026-10-24T03:51:44Z | 17.9 s |
+| windows | amd64 | native | `windows/amd64/native/lake/pyinstaller/lake-1.0.1-windows-amd64.exe` | `windows/amd64/native/lake/installer/lake-1.0.1-windows-amd64-setup.exe` | 2026-10-24T03:56:12Z | 109.1 s |
+| windows | arm64 | native | `windows/arm64/native/lake/pyinstaller/lake-1.0.1-windows-arm64.exe` | `windows/arm64/native/lake/installer/lake-1.0.1-windows-arm64-setup.exe` | 2026-10-24T03:54:23Z | 112.1 s |
+
+## Archives (`.pyz`)
+
+| File | Size | Built |
+| --- | ---: | --- |
+| `linux/amd64/glibc/lake/pyz/lake-terminal-1.0.1-linux-amd64-glibc.pyz` | 3812707 bytes | 2026-10-24T03:52:09Z |
+| `linux/amd64/musl/lake/pyz/lake-terminal-1.0.1-linux-amd64-musl.pyz` | 4113951 bytes | 2026-10-24T03:52:14Z |
+| `linux/arm64/glibc/lake/pyz/lake-terminal-1.0.1-linux-arm64-glibc.pyz` | 3677445 bytes | 2026-10-24T03:51:59Z |
+| `linux/arm64/musl/lake/pyz/lake-terminal-1.0.1-linux-arm64-musl.pyz` | 3898637 bytes | 2026-10-24T03:52:04Z |
+| `macos/amd64/native/lake/pyz/lake-terminal-1.0.1-macos-amd64.pyz` | 3855445 bytes | 2026-10-24T03:51:54Z |
+| `macos/arm64/native/lake/pyz/lake-terminal-1.0.1-macos-arm64.pyz` | 3629732 bytes | 2026-10-24T03:51:49Z |
+| `windows/amd64/native/lake/pyz/lake-terminal-1.0.1-windows-amd64.pyz` | 3781762 bytes | 2026-10-24T03:56:12Z |
+| `windows/arm64/native/lake/pyz/lake-terminal-1.0.1-windows-arm64.pyz` | 3759403 bytes | 2026-10-24T03:54:23Z |
+
+## SHA-256
+
+Run from this directory: `shasum -a 256 -c SHA256SUMS`.
+
+```text
+2d115ea4fbc1c0f77dc1d40b919e529ddb49787a6d71da5e6510a6c37ee180a1  linux/amd64/glibc/lake/pyinstaller/lake-1.0.1-linux-amd64
+eddd8909ed91ba923c9715c5e85ce15a9027c18941aa4637f374f479d6e92336  linux/amd64/glibc/lake/installer/lake_1.0.1_amd64.deb
+aaf182c9fa1b577b430bf2896ec488580de585504d9a2edeac4b1fa56bd8b9ca  linux/amd64/musl/lake/pyinstaller/lake-1.0.1-linux-amd64-musl
+8019ba70b1d91fe0490d5fe391c488ee1758ac5e374ee5dd17c019396a089e46  linux/amd64/musl/lake/installer/lake-1.0.1-linux-amd64-musl.apk
+679a21c09763464a78bfc2468729bfaad1c19879308c01a29447cb1e343e2753  linux/arm64/glibc/lake/pyinstaller/lake-1.0.1-linux-arm64
+132086ee64af0d066645e847711314456a97506d285f5dbebfc557bd72345682  linux/arm64/glibc/lake/installer/lake_1.0.1_arm64.deb
+75712b833556afd4f11c0aacae8ce57451617e9c5fb43dcfbd5d80741371f826  linux/arm64/musl/lake/pyinstaller/lake-1.0.1-linux-arm64-musl
+5c47fd05881de4fe8f22b415d0ba877c6bad5c2683c3fbb5352d39e794a1dcaf  linux/arm64/musl/lake/installer/lake-1.0.1-linux-arm64-musl.apk
+312d987bd8a9a1a91ccc62be3a81c7d1bb7182ff0c0e29e6bc92bf2c5347de55  macos/arm64/native/lake/pyinstaller/lake-1.0.1-macos-arm64
+30144b773ed26f11ee73e4c1d3e8580e21643d6986a4af48efa7874f52a937e2  macos/arm64/native/lake/installer/lake-1.0.1-macos-arm64.pkg
+b511c7a4d11c399d6a0e031f3f194c3d4273c48fab779b23c418bc08cb26da1e  windows/amd64/native/lake/pyinstaller/lake-1.0.1-windows-amd64.exe
+6cafefc7249a0614440844319dbc31d45c12ca272c68c58b485b00296009189f  windows/amd64/native/lake/installer/lake-1.0.1-windows-amd64-setup.exe
+090d63961b0412f7e564af7b2d7c0373d40b95cdd06ac91375888e5bcccaf05e  windows/arm64/native/lake/pyinstaller/lake-1.0.1-windows-arm64.exe
+d8b6deb74f7989f126d763aa1b0ce5397a0a7453ca9f9914dafb74edc55c5970  windows/arm64/native/lake/installer/lake-1.0.1-windows-arm64-setup.exe
+3302f32525e1bc07f3a22f3287a8e4179ecb9bfdf2daa3e02e572d98f5980e9f  linux/amd64/glibc/lake/pyz/lake-terminal-1.0.1-linux-amd64-glibc.pyz
+62a79206e6122798db26c2669bef46a889382ad4d60473e4a7db7ed7227cff04  linux/amd64/musl/lake/pyz/lake-terminal-1.0.1-linux-amd64-musl.pyz
+e23276da8cc3557c922aad07b057c6856cf272893f7fb160dd3b4cda5134004d  linux/arm64/glibc/lake/pyz/lake-terminal-1.0.1-linux-arm64-glibc.pyz
+658b206180909d34723fd9a7af7cd4e7685a7d3b1f49e200093cf1080e9121d2  linux/arm64/musl/lake/pyz/lake-terminal-1.0.1-linux-arm64-musl.pyz
+b51c2ee415fd5387403b7c73f571f8dfb3f74a3ffda26e78543226b246987e5c  macos/amd64/native/lake/pyz/lake-terminal-1.0.1-macos-amd64.pyz
+8777f0edb6af2c6d45850558888c7fe98b7e2694903641c9ca7924c6e459353b  macos/arm64/native/lake/pyz/lake-terminal-1.0.1-macos-arm64.pyz
+764c8cae16c1f4182ff2ef8858447a45d936e518aa70ec81edb9535896e8feab  windows/amd64/native/lake/pyz/lake-terminal-1.0.1-windows-amd64.pyz
+6d8dafd084e127fc18cb852419857d45134296781db37808c81d6b33a0841439  windows/arm64/native/lake/pyz/lake-terminal-1.0.1-windows-arm64.pyz
+```
+
+## Rebuild
+
+```bash
+python -m tools.release_builder --project tools/lake --manifest tools/lake/templates/release-builder.toml --output build --platform linux
+python -m tools.release_builder --project tools/lake --manifest tools/lake/templates/release-builder.toml --output build --platform macos
+python -m tools.release_builder --project tools/lake --manifest tools/lake/templates/release-builder.toml --remote windows --vm utm:Windows 2 --arch amd64 --output build
+python -m tools.release_builder --project tools/lake --manifest tools/lake/templates/release-builder.toml --remote windows --vm utm:Windows 2 --arch arm64 --output build
+```

@@ -1,0 +1,1138 @@
+/* Full-screen console: one tab bar, one screen, one dock.
+   Surfaces are separated by tone, not borders; type size carries hierarchy. */
+:root {
+  --primary-console-bg: #0b0d0fff;
+  --base-console-bg: var(--primary-console-bg);
+  --catalog-layout-measure-console-bg: var(--base-console-bg);
+  --semantic-console-bg: var(--catalog-layout-measure-console-bg);
+  --primary-console-bar: #101214ff;
+  --base-console-bar: var(--primary-console-bar);
+  --catalog-layout-measure-console-bar: var(--base-console-bar);
+  --semantic-console-bar: var(--catalog-layout-measure-console-bar);
+  --primary-console-key: #1b1f24ff;
+  --base-console-key: var(--primary-console-key);
+  --catalog-layout-measure-console-key: var(--base-console-key);
+  --semantic-console-key: var(--catalog-layout-measure-console-key);
+  --primary-console-key-hover: #252a31ff;
+  --base-console-key-hover: var(--primary-console-key-hover);
+  --catalog-layout-measure-console-key-hover: var(--base-console-key-hover);
+  --semantic-console-key-hover: var(--catalog-layout-measure-console-key-hover);
+  --primary-console-text: #eef1f5ff;
+  --base-console-text: var(--primary-console-text);
+  --catalog-layout-measure-console-text: var(--base-console-text);
+  --semantic-console-text: var(--catalog-layout-measure-console-text);
+  --primary-console-muted: #9ca6b4ff;
+  --base-console-muted: var(--primary-console-muted);
+  --catalog-layout-measure-console-muted: var(--base-console-muted);
+  --semantic-console-muted: var(--catalog-layout-measure-console-muted);
+  --primary-console-accent: #69a8ffff;
+  --base-console-accent: var(--primary-console-accent);
+  --catalog-layout-measure-console-accent: var(--base-console-accent);
+  --semantic-console-accent: var(--catalog-layout-measure-console-accent);
+  --primary-console-on-accent: #0b0d0fff;
+  --base-console-on-accent: var(--primary-console-on-accent);
+  --catalog-layout-measure-console-on-accent: var(--base-console-on-accent);
+  --semantic-console-on-accent: var(--catalog-layout-measure-console-on-accent);
+  --primary-console-good: #65d58aff;
+  --base-console-good: var(--primary-console-good);
+  --catalog-layout-measure-console-good: var(--base-console-good);
+  --semantic-console-good: var(--catalog-layout-measure-console-good);
+  --primary-console-warn: #f0b35aff;
+  --base-console-warn: var(--primary-console-warn);
+  --catalog-layout-measure-console-warn: var(--base-console-warn);
+  --semantic-console-warn: var(--catalog-layout-measure-console-warn);
+  --primary-console-bad: #f46f72ff;
+  --base-console-bad: var(--primary-console-bad);
+  --catalog-layout-measure-console-bad: var(--base-console-bad);
+  --semantic-console-bad: var(--catalog-layout-measure-console-bad);
+  --primary-console-ui: Inter, ui-sans-serif, system-ui, sans-serif;
+  --base-console-ui: var(--primary-console-ui);
+  --catalog-layout-measure-console-ui: var(--base-console-ui);
+  --semantic-console-ui: var(--catalog-layout-measure-console-ui);
+  --primary-console-mono:
+    "SF Mono", SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+  --base-console-mono: var(--primary-console-mono);
+  --catalog-layout-measure-console-mono: var(--base-console-mono);
+  --semantic-console-mono: var(--catalog-layout-measure-console-mono);
+  --primary-console-radius: 4px;
+  --base-console-radius: var(--primary-console-radius);
+  --catalog-layout-measure-console-radius: var(--base-console-radius);
+  --semantic-console-radius: var(--catalog-layout-measure-console-radius);
+  --primary-console-gap: 8px;
+  --base-console-gap: var(--primary-console-gap);
+  --catalog-layout-measure-console-gap: var(--base-console-gap);
+  --semantic-console-gap: var(--catalog-layout-measure-console-gap);
+  --primary-console-target: 44px;
+  --base-console-target: var(--primary-console-target);
+  --catalog-layout-measure-console-target: var(--base-console-target);
+  --semantic-console-target: var(--catalog-layout-measure-console-target);
+  --primary-console-type-title: 1.125rem;
+  --base-console-type-title: var(--primary-console-type-title);
+  --catalog-layout-measure-console-type-title: var(--base-console-type-title);
+  --semantic-console-type-title: var(
+    --catalog-layout-measure-console-type-title
+  );
+  --primary-console-type-body: 0.9375rem;
+  --base-console-type-body: var(--primary-console-type-body);
+  --catalog-layout-measure-console-type-body: var(--base-console-type-body);
+  --semantic-console-type-body: var(--catalog-layout-measure-console-type-body);
+  --primary-console-type-code: 0.875rem;
+  --base-console-type-code: var(--primary-console-type-code);
+  --catalog-layout-measure-console-type-code: var(--base-console-type-code);
+  --semantic-console-type-code: var(--catalog-layout-measure-console-type-code);
+  --primary-console-type-meta: 0.75rem;
+  --base-console-type-meta: var(--primary-console-type-meta);
+  --catalog-layout-measure-console-type-meta: var(--base-console-type-meta);
+  --semantic-console-type-meta: var(--catalog-layout-measure-console-type-meta);
+  --primary-console-type-micro: 0.6875rem;
+  --base-console-type-micro: var(--primary-console-type-micro);
+  --catalog-layout-measure-console-type-micro: var(--base-console-type-micro);
+  --semantic-console-type-micro: var(
+    --catalog-layout-measure-console-type-micro
+  );
+  --primary-console-screen-min: 9px;
+  --base-console-screen-min: var(--primary-console-screen-min);
+  --catalog-layout-measure-console-screen-min: var(--base-console-screen-min);
+  --semantic-console-screen-min: var(
+    --catalog-layout-measure-console-screen-min
+  );
+  --primary-console-screen-max: 18px;
+  --base-console-screen-max: var(--primary-console-screen-max);
+  --catalog-layout-measure-console-screen-max: var(--base-console-screen-max);
+  --semantic-console-screen-max: var(
+    --catalog-layout-measure-console-screen-max
+  );
+  --primary-app-height: 100dvh;
+  --base-app-height: var(--primary-app-height);
+  --catalog-layout-measure-app-height: var(--base-app-height);
+  --semantic-app-height: var(--catalog-layout-measure-app-height);
+  --primary-console-375-transition:
+    box-shadow 120ms ease-out, color 120ms ease-out;
+  --base-console-375-transition: var(--primary-console-375-transition);
+  --catalog-layout-measure-console-375-transition: var(
+    --base-console-375-transition
+  );
+  --semantic-console-375-transition: var(
+    --catalog-layout-measure-console-375-transition
+  );
+  --primary-console-370-grid-column: 1 / -1;
+  --base-console-370-grid-column: var(--primary-console-370-grid-column);
+  --catalog-layout-measure-console-370-grid-column: var(
+    --base-console-370-grid-column
+  );
+  --semantic-console-370-grid-column: var(
+    --catalog-layout-measure-console-370-grid-column
+  );
+  --base-console-366-grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  --catalog-layout-measure-console-366-grid-template-columns: var(
+    --base-console-366-grid-template-columns
+  );
+  --semantic-console-366-grid-template-columns: var(
+    --catalog-layout-measure-console-366-grid-template-columns
+  );
+  --base-console-363-grid-template-columns: repeat(10, minmax(0, 1fr));
+  --catalog-layout-measure-console-363-grid-template-columns: var(
+    --base-console-363-grid-template-columns
+  );
+  --semantic-console-363-grid-template-columns: var(
+    --catalog-layout-measure-console-363-grid-template-columns
+  );
+  --primary-console-356-padding: 12px;
+  --base-console-356-padding: var(--primary-console-356-padding);
+  --catalog-layout-measure-console-356-padding: var(--base-console-356-padding);
+  --semantic-console-356-padding: var(
+    --catalog-layout-measure-console-356-padding
+  );
+  --primary-console-353-width: 100%;
+  --base-console-353-width: var(--primary-console-353-width);
+  --catalog-layout-measure-console-353-width: var(--base-console-353-width);
+  --semantic-console-353-width: var(--catalog-layout-measure-console-353-width);
+  --primary-console-350-white-space: nowrap;
+  --base-console-350-white-space: var(--primary-console-350-white-space);
+  --catalog-layout-measure-console-350-white-space: var(
+    --base-console-350-white-space
+  );
+  --semantic-console-350-white-space: var(
+    --catalog-layout-measure-console-350-white-space
+  );
+  --primary-console-349-text-overflow: ellipsis;
+  --base-console-349-text-overflow: var(--primary-console-349-text-overflow);
+  --catalog-layout-measure-console-349-text-overflow: var(
+    --base-console-349-text-overflow
+  );
+  --semantic-console-349-text-overflow: var(
+    --catalog-layout-measure-console-349-text-overflow
+  );
+  --primary-console-342-font-weight: 600;
+  --base-console-342-font-weight: var(--primary-console-342-font-weight);
+  --catalog-layout-measure-console-342-font-weight: var(
+    --base-console-342-font-weight
+  );
+  --semantic-console-342-font-weight: var(
+    --catalog-layout-measure-console-342-font-weight
+  );
+  --primary-console-338-text-align: left;
+  --base-console-338-text-align: var(--primary-console-338-text-align);
+  --catalog-layout-measure-console-338-text-align: var(
+    --base-console-338-text-align
+  );
+  --semantic-console-338-text-align: var(
+    --catalog-layout-measure-console-338-text-align
+  );
+  --primary-console-337-background: transparent;
+  --base-console-337-background: var(--primary-console-337-background);
+  --catalog-layout-measure-console-337-background: var(
+    --base-console-337-background
+  );
+  --semantic-console-337-background: var(
+    --catalog-layout-measure-console-337-background
+  );
+  --primary-console-336-padding: 10px 12px;
+  --base-console-336-padding: var(--primary-console-336-padding);
+  --catalog-layout-measure-console-336-padding: var(--base-console-336-padding);
+  --semantic-console-336-padding: var(
+    --catalog-layout-measure-console-336-padding
+  );
+  --primary-console-335-gap: 2px;
+  --base-console-335-gap: var(--primary-console-335-gap);
+  --catalog-layout-measure-console-335-gap: var(--base-console-335-gap);
+  --semantic-console-335-gap: var(--catalog-layout-measure-console-335-gap);
+  --primary-console-334-width: 100%;
+  --base-console-334-width: var(--primary-console-334-width);
+  --catalog-layout-measure-console-334-width: var(--base-console-334-width);
+  --semantic-console-334-width: var(--catalog-layout-measure-console-334-width);
+  --primary-console-330-list-style: none;
+  --base-console-330-list-style: var(--primary-console-330-list-style);
+  --catalog-layout-measure-console-330-list-style: var(
+    --base-console-330-list-style
+  );
+  --semantic-console-330-list-style: var(
+    --catalog-layout-measure-console-330-list-style
+  );
+  --primary-console-329-padding: 0;
+  --base-console-329-padding: var(--primary-console-329-padding);
+  --catalog-layout-measure-console-329-padding: var(--base-console-329-padding);
+  --semantic-console-329-padding: var(
+    --catalog-layout-measure-console-329-padding
+  );
+  --primary-console-328-margin: 0 0 12px;
+  --base-console-328-margin: var(--primary-console-328-margin);
+  --catalog-layout-measure-console-328-margin: var(--base-console-328-margin);
+  --semantic-console-328-margin: var(
+    --catalog-layout-measure-console-328-margin
+  );
+  --primary-console-324-margin: 0 0 8px;
+  --base-console-324-margin: var(--primary-console-324-margin);
+  --catalog-layout-measure-console-324-margin: var(--base-console-324-margin);
+  --semantic-console-324-margin: var(
+    --catalog-layout-measure-console-324-margin
+  );
+  --base-console-321-background: rgb(0 0 0 / 60%);
+  --catalog-layout-measure-console-321-background: var(
+    --base-console-321-background
+  );
+  --semantic-console-321-background: var(
+    --catalog-layout-measure-console-321-background
+  );
+  --primary-console-316-border-radius: 8px 8px 0 0;
+  --base-console-316-border-radius: var(--primary-console-316-border-radius);
+  --catalog-layout-measure-console-316-border-radius: var(
+    --base-console-316-border-radius
+  );
+  --semantic-console-316-border-radius: var(
+    --catalog-layout-measure-console-316-border-radius
+  );
+  --primary-console-315-border: 0;
+  --base-console-315-border: var(--primary-console-315-border);
+  --catalog-layout-measure-console-315-border: var(--base-console-315-border);
+  --semantic-console-315-border: var(
+    --catalog-layout-measure-console-315-border
+  );
+  --primary-console-314-padding: 16px;
+  --base-console-314-padding: var(--primary-console-314-padding);
+  --catalog-layout-measure-console-314-padding: var(--base-console-314-padding);
+  --semantic-console-314-padding: var(
+    --catalog-layout-measure-console-314-padding
+  );
+  --primary-console-313-margin: auto auto 0;
+  --base-console-313-margin: var(--primary-console-313-margin);
+  --catalog-layout-measure-console-313-margin: var(--base-console-313-margin);
+  --semantic-console-313-margin: var(
+    --catalog-layout-measure-console-313-margin
+  );
+  --primary-console-312-max-height: 80dvh;
+  --base-console-312-max-height: var(--primary-console-312-max-height);
+  --catalog-layout-measure-console-312-max-height: var(
+    --base-console-312-max-height
+  );
+  --semantic-console-312-max-height: var(
+    --catalog-layout-measure-console-312-max-height
+  );
+  --base-console-311-width: min(480px, 100%);
+  --catalog-layout-measure-console-311-width: var(--base-console-311-width);
+  --semantic-console-311-width: var(--catalog-layout-measure-console-311-width);
+  --primary-console-296-margin: 0;
+  --base-console-296-margin: var(--primary-console-296-margin);
+  --catalog-layout-measure-console-296-margin: var(--base-console-296-margin);
+  --semantic-console-296-margin: var(
+    --catalog-layout-measure-console-296-margin
+  );
+  --primary-console-295-min-height: 1em;
+  --base-console-295-min-height: var(--primary-console-295-min-height);
+  --catalog-layout-measure-console-295-min-height: var(
+    --base-console-295-min-height
+  );
+  --semantic-console-295-min-height: var(
+    --catalog-layout-measure-console-295-min-height
+  );
+  --primary-console-292-font-weight: 600;
+  --base-console-292-font-weight: var(--primary-console-292-font-weight);
+  --catalog-layout-measure-console-292-font-weight: var(
+    --base-console-292-font-weight
+  );
+  --semantic-console-292-font-weight: var(
+    --catalog-layout-measure-console-292-font-weight
+  );
+  --primary-console-282-font-size: 1rem;
+  --base-console-282-font-size: var(--primary-console-282-font-size);
+  --catalog-layout-measure-console-282-font-size: var(
+    --base-console-282-font-size
+  );
+  --semantic-console-282-font-size: var(
+    --catalog-layout-measure-console-282-font-size
+  );
+  --primary-console-278-border: 0;
+  --base-console-278-border: var(--primary-console-278-border);
+  --catalog-layout-measure-console-278-border: var(--base-console-278-border);
+  --semantic-console-278-border: var(
+    --catalog-layout-measure-console-278-border
+  );
+  --primary-console-277-padding: 0 12px;
+  --base-console-277-padding: var(--primary-console-277-padding);
+  --catalog-layout-measure-console-277-padding: var(--base-console-277-padding);
+  --semantic-console-277-padding: var(
+    --catalog-layout-measure-console-277-padding
+  );
+  --primary-console-275-min-width: 0;
+  --base-console-275-min-width: var(--primary-console-275-min-width);
+  --catalog-layout-measure-console-275-min-width: var(
+    --base-console-275-min-width
+  );
+  --semantic-console-275-min-width: var(
+    --catalog-layout-measure-console-275-min-width
+  );
+  --primary-console-274-flex: 1 1 auto;
+  --base-console-274-flex: var(--primary-console-274-flex);
+  --catalog-layout-measure-console-274-flex: var(--base-console-274-flex);
+  --semantic-console-274-flex: var(--catalog-layout-measure-console-274-flex);
+  --primary-console-265-padding: 0;
+  --base-console-265-padding: var(--primary-console-265-padding);
+  --catalog-layout-measure-console-265-padding: var(--base-console-265-padding);
+  --semantic-console-265-padding: var(
+    --catalog-layout-measure-console-265-padding
+  );
+  --primary-console-262-gap: 4px;
+  --base-console-262-gap: var(--primary-console-262-gap);
+  --catalog-layout-measure-console-262-gap: var(--base-console-262-gap);
+  --semantic-console-262-gap: var(--catalog-layout-measure-console-262-gap);
+  --base-console-261-grid-template-columns: repeat(5, minmax(0, 1fr));
+  --catalog-layout-measure-console-261-grid-template-columns: var(
+    --base-console-261-grid-template-columns
+  );
+  --semantic-console-261-grid-template-columns: var(
+    --catalog-layout-measure-console-261-grid-template-columns
+  );
+  --base-console-255-padding: var(--primary-console-gap)
+    var(--primary-console-gap)
+    calc(var(--primary-console-gap) + env(safe-area-inset-bottom));
+  --catalog-layout-measure-console-255-padding: var(--base-console-255-padding);
+  --semantic-console-255-padding: var(
+    --catalog-layout-measure-console-255-padding
+  );
+  --primary-console-248-text-align: center;
+  --base-console-248-text-align: var(--primary-console-248-text-align);
+  --catalog-layout-measure-console-248-text-align: var(
+    --base-console-248-text-align
+  );
+  --semantic-console-248-text-align: var(
+    --catalog-layout-measure-console-248-text-align
+  );
+  --primary-console-247-line-height: 1.5;
+  --base-console-247-line-height: var(--primary-console-247-line-height);
+  --catalog-layout-measure-console-247-line-height: var(
+    --base-console-247-line-height
+  );
+  --semantic-console-247-line-height: var(
+    --catalog-layout-measure-console-247-line-height
+  );
+  --primary-console-244-padding: 24px;
+  --base-console-244-padding: var(--primary-console-244-padding);
+  --catalog-layout-measure-console-244-padding: var(--base-console-244-padding);
+  --semantic-console-244-padding: var(
+    --catalog-layout-measure-console-244-padding
+  );
+  --primary-console-243-margin: 0;
+  --base-console-243-margin: var(--primary-console-243-margin);
+  --catalog-layout-measure-console-243-margin: var(--base-console-243-margin);
+  --semantic-console-243-margin: var(
+    --catalog-layout-measure-console-243-margin
+  );
+  --primary-console-240-inset: 0;
+  --base-console-240-inset: var(--primary-console-240-inset);
+  --catalog-layout-measure-console-240-inset: var(--base-console-240-inset);
+  --semantic-console-240-inset: var(--catalog-layout-measure-console-240-inset);
+  --primary-console-236-font-weight: 600;
+  --base-console-236-font-weight: var(--primary-console-236-font-weight);
+  --catalog-layout-measure-console-236-font-weight: var(
+    --base-console-236-font-weight
+  );
+  --semantic-console-236-font-weight: var(
+    --catalog-layout-measure-console-236-font-weight
+  );
+  --primary-console-232-bottom: 12px;
+  --base-console-232-bottom: var(--primary-console-232-bottom);
+  --catalog-layout-measure-console-232-bottom: var(--base-console-232-bottom);
+  --semantic-console-232-bottom: var(
+    --catalog-layout-measure-console-232-bottom
+  );
+  --primary-console-231-right: 12px;
+  --base-console-231-right: var(--primary-console-231-right);
+  --catalog-layout-measure-console-231-right: var(--base-console-231-right);
+  --semantic-console-231-right: var(--catalog-layout-measure-console-231-right);
+  --primary-console-224-overflow-wrap: anywhere;
+  --base-console-224-overflow-wrap: var(--primary-console-224-overflow-wrap);
+  --catalog-layout-measure-console-224-overflow-wrap: var(
+    --base-console-224-overflow-wrap
+  );
+  --semantic-console-224-overflow-wrap: var(
+    --catalog-layout-measure-console-224-overflow-wrap
+  );
+  --primary-console-223-white-space: pre-wrap;
+  --base-console-223-white-space: var(--primary-console-223-white-space);
+  --catalog-layout-measure-console-223-white-space: var(
+    --base-console-223-white-space
+  );
+  --semantic-console-223-white-space: var(
+    --catalog-layout-measure-console-223-white-space
+  );
+  --primary-console-216-tab-size: 8;
+  --base-console-216-tab-size: var(--primary-console-216-tab-size);
+  --catalog-layout-measure-console-216-tab-size: var(
+    --base-console-216-tab-size
+  );
+  --semantic-console-216-tab-size: var(
+    --catalog-layout-measure-console-216-tab-size
+  );
+  --primary-console-215-white-space: pre;
+  --base-console-215-white-space: var(--primary-console-215-white-space);
+  --catalog-layout-measure-console-215-white-space: var(
+    --base-console-215-white-space
+  );
+  --semantic-console-215-white-space: var(
+    --catalog-layout-measure-console-215-white-space
+  );
+  --primary-console-214-line-height: 1.3;
+  --base-console-214-line-height: var(--primary-console-214-line-height);
+  --catalog-layout-measure-console-214-line-height: var(
+    --base-console-214-line-height
+  );
+  --semantic-console-214-line-height: var(
+    --catalog-layout-measure-console-214-line-height
+  );
+  --primary-console-213-font-size: 13px;
+  --base-console-213-font-size: var(--primary-console-213-font-size);
+  --catalog-layout-measure-console-213-font-size: var(
+    --base-console-213-font-size
+  );
+  --semantic-console-213-font-size: var(
+    --catalog-layout-measure-console-213-font-size
+  );
+  --primary-console-206-padding: 8px 10px;
+  --base-console-206-padding: var(--primary-console-206-padding);
+  --catalog-layout-measure-console-206-padding: var(--base-console-206-padding);
+  --semantic-console-206-padding: var(
+    --catalog-layout-measure-console-206-padding
+  );
+  --primary-console-205-margin: 0;
+  --base-console-205-margin: var(--primary-console-205-margin);
+  --catalog-layout-measure-console-205-margin: var(--base-console-205-margin);
+  --semantic-console-205-margin: var(
+    --catalog-layout-measure-console-205-margin
+  );
+  --primary-console-204-height: 100%;
+  --base-console-204-height: var(--primary-console-204-height);
+  --catalog-layout-measure-console-204-height: var(--base-console-204-height);
+  --semantic-console-204-height: var(
+    --catalog-layout-measure-console-204-height
+  );
+  --primary-console-201-min-height: 0;
+  --base-console-201-min-height: var(--primary-console-201-min-height);
+  --catalog-layout-measure-console-201-min-height: var(
+    --base-console-201-min-height
+  );
+  --semantic-console-201-min-height: var(
+    --catalog-layout-measure-console-201-min-height
+  );
+  --primary-console-200-min-width: 0;
+  --base-console-200-min-width: var(--primary-console-200-min-width);
+  --catalog-layout-measure-console-200-min-width: var(
+    --base-console-200-min-width
+  );
+  --semantic-console-200-min-width: var(
+    --catalog-layout-measure-console-200-min-width
+  );
+  --primary-console-191-border-radius: 50%;
+  --base-console-191-border-radius: var(--primary-console-191-border-radius);
+  --catalog-layout-measure-console-191-border-radius: var(
+    --base-console-191-border-radius
+  );
+  --semantic-console-191-border-radius: var(
+    --catalog-layout-measure-console-191-border-radius
+  );
+  --primary-console-190-height: 8px;
+  --base-console-190-height: var(--primary-console-190-height);
+  --catalog-layout-measure-console-190-height: var(--base-console-190-height);
+  --semantic-console-190-height: var(
+    --catalog-layout-measure-console-190-height
+  );
+  --primary-console-189-width: 8px;
+  --base-console-189-width: var(--primary-console-189-width);
+  --catalog-layout-measure-console-189-width: var(--base-console-189-width);
+  --semantic-console-189-width: var(--catalog-layout-measure-console-189-width);
+  --primary-console-184-padding: 0 12px 0 4px;
+  --base-console-184-padding: var(--primary-console-184-padding);
+  --catalog-layout-measure-console-184-padding: var(--base-console-184-padding);
+  --semantic-console-184-padding: var(
+    --catalog-layout-measure-console-184-padding
+  );
+  --primary-console-183-gap: 6px;
+  --base-console-183-gap: var(--primary-console-183-gap);
+  --catalog-layout-measure-console-183-gap: var(--base-console-183-gap);
+  --semantic-console-183-gap: var(--catalog-layout-measure-console-183-gap);
+  --primary-console-172-background: transparent;
+  --base-console-172-background: var(--primary-console-172-background);
+  --catalog-layout-measure-console-172-background: var(
+    --base-console-172-background
+  );
+  --semantic-console-172-background: var(
+    --catalog-layout-measure-console-172-background
+  );
+  --primary-console-171-padding: 0 8px;
+  --base-console-171-padding: var(--primary-console-171-padding);
+  --catalog-layout-measure-console-171-padding: var(--base-console-171-padding);
+  --semantic-console-171-padding: var(
+    --catalog-layout-measure-console-171-padding
+  );
+  --primary-console-169-min-width: 48px;
+  --base-console-169-min-width: var(--primary-console-169-min-width);
+  --catalog-layout-measure-console-169-min-width: var(
+    --base-console-169-min-width
+  );
+  --semantic-console-169-min-width: var(
+    --catalog-layout-measure-console-169-min-width
+  );
+  --primary-console-164-background: transparent;
+  --base-console-164-background: var(--primary-console-164-background);
+  --catalog-layout-measure-console-164-background: var(
+    --base-console-164-background
+  );
+  --semantic-console-164-background: var(
+    --catalog-layout-measure-console-164-background
+  );
+  --primary-console-163-font-size: 1.375rem;
+  --base-console-163-font-size: var(--primary-console-163-font-size);
+  --catalog-layout-measure-console-163-font-size: var(
+    --base-console-163-font-size
+  );
+  --semantic-console-163-font-size: var(
+    --catalog-layout-measure-console-163-font-size
+  );
+  --primary-console-160-font-size: 1.125rem;
+  --base-console-160-font-size: var(--primary-console-160-font-size);
+  --catalog-layout-measure-console-160-font-size: var(
+    --base-console-160-font-size
+  );
+  --semantic-console-160-font-size: var(
+    --catalog-layout-measure-console-160-font-size
+  );
+  --primary-console-158-background: transparent;
+  --base-console-158-background: var(--primary-console-158-background);
+  --catalog-layout-measure-console-158-background: var(
+    --base-console-158-background
+  );
+  --semantic-console-158-background: var(
+    --catalog-layout-measure-console-158-background
+  );
+  --primary-console-157-padding: 0;
+  --base-console-157-padding: var(--primary-console-157-padding);
+  --catalog-layout-measure-console-157-padding: var(--base-console-157-padding);
+  --semantic-console-157-padding: var(
+    --catalog-layout-measure-console-157-padding
+  );
+  --primary-console-148-font-weight: 600;
+  --base-console-148-font-weight: var(--primary-console-148-font-weight);
+  --catalog-layout-measure-console-148-font-weight: var(
+    --base-console-148-font-weight
+  );
+  --semantic-console-148-font-weight: var(
+    --catalog-layout-measure-console-148-font-weight
+  );
+  --primary-console-135-border-radius: 50%;
+  --base-console-135-border-radius: var(--primary-console-135-border-radius);
+  --catalog-layout-measure-console-135-border-radius: var(
+    --base-console-135-border-radius
+  );
+  --semantic-console-135-border-radius: var(
+    --catalog-layout-measure-console-135-border-radius
+  );
+  --primary-console-134-height: 8px;
+  --base-console-134-height: var(--primary-console-134-height);
+  --catalog-layout-measure-console-134-height: var(--base-console-134-height);
+  --semantic-console-134-height: var(
+    --catalog-layout-measure-console-134-height
+  );
+  --primary-console-133-width: 8px;
+  --base-console-133-width: var(--primary-console-133-width);
+  --catalog-layout-measure-console-133-width: var(--base-console-133-width);
+  --semantic-console-133-width: var(--catalog-layout-measure-console-133-width);
+  --primary-console-130-border-radius: 0;
+  --base-console-130-border-radius: var(--primary-console-130-border-radius);
+  --catalog-layout-measure-console-130-border-radius: var(
+    --base-console-130-border-radius
+  );
+  --semantic-console-130-border-radius: var(
+    --catalog-layout-measure-console-130-border-radius
+  );
+  --primary-console-128-background: transparent;
+  --base-console-128-background: var(--primary-console-128-background);
+  --catalog-layout-measure-console-128-background: var(
+    --base-console-128-background
+  );
+  --semantic-console-128-background: var(
+    --catalog-layout-measure-console-128-background
+  );
+  --primary-console-127-padding: 0 4px 0 12px;
+  --base-console-127-padding: var(--primary-console-127-padding);
+  --catalog-layout-measure-console-127-padding: var(--base-console-127-padding);
+  --semantic-console-127-padding: var(
+    --catalog-layout-measure-console-127-padding
+  );
+  --primary-console-125-gap: 6px;
+  --base-console-125-gap: var(--primary-console-125-gap);
+  --catalog-layout-measure-console-125-gap: var(--base-console-125-gap);
+  --semantic-console-125-gap: var(--catalog-layout-measure-console-125-gap);
+  --base-console-120-box-shadow: inset 0 -2px var(--primary-console-accent);
+  --catalog-layout-measure-console-120-box-shadow: var(
+    --base-console-120-box-shadow
+  );
+  --semantic-console-120-box-shadow: var(
+    --catalog-layout-measure-console-120-box-shadow
+  );
+  --primary-console-115-box-shadow: inset 0 -2px transparent;
+  --base-console-115-box-shadow: var(--primary-console-115-box-shadow);
+  --catalog-layout-measure-console-115-box-shadow: var(
+    --base-console-115-box-shadow
+  );
+  --semantic-console-115-box-shadow: var(
+    --catalog-layout-measure-console-115-box-shadow
+  );
+  --primary-console-113-flex: 0 0 auto;
+  --base-console-113-flex: var(--primary-console-113-flex);
+  --catalog-layout-measure-console-113-flex: var(--base-console-113-flex);
+  --semantic-console-113-flex: var(--catalog-layout-measure-console-113-flex);
+  --primary-console-106-scrollbar-width: none;
+  --base-console-106-scrollbar-width: var(
+    --primary-console-106-scrollbar-width
+  );
+  --catalog-layout-measure-console-106-scrollbar-width: var(
+    --base-console-106-scrollbar-width
+  );
+  --semantic-console-106-scrollbar-width: var(
+    --catalog-layout-measure-console-106-scrollbar-width
+  );
+  --primary-console-104-min-width: 0;
+  --base-console-104-min-width: var(--primary-console-104-min-width);
+  --catalog-layout-measure-console-104-min-width: var(
+    --base-console-104-min-width
+  );
+  --semantic-console-104-min-width: var(
+    --catalog-layout-measure-console-104-min-width
+  );
+  --primary-console-103-flex: 1 1 auto;
+  --base-console-103-flex: var(--primary-console-103-flex);
+  --catalog-layout-measure-console-103-flex: var(--base-console-103-flex);
+  --semantic-console-103-flex: var(--catalog-layout-measure-console-103-flex);
+  --primary-console-99-text-decoration: none;
+  --base-console-99-text-decoration: var(--primary-console-99-text-decoration);
+  --catalog-layout-measure-console-99-text-decoration: var(
+    --base-console-99-text-decoration
+  );
+  --semantic-console-99-text-decoration: var(
+    --catalog-layout-measure-console-99-text-decoration
+  );
+  --primary-console-98-font-size: 1.5rem;
+  --base-console-98-font-size: var(--primary-console-98-font-size);
+  --catalog-layout-measure-console-98-font-size: var(
+    --base-console-98-font-size
+  );
+  --semantic-console-98-font-size: var(
+    --catalog-layout-measure-console-98-font-size
+  );
+  --base-console-90-padding-top: env(safe-area-inset-top);
+  --catalog-layout-measure-console-90-padding-top: var(
+    --base-console-90-padding-top
+  );
+  --semantic-console-90-padding-top: var(
+    --catalog-layout-measure-console-90-padding-top
+  );
+  --primary-console-89-gap: 2px;
+  --base-console-89-gap: var(--primary-console-89-gap);
+  --catalog-layout-measure-console-89-gap: var(--base-console-89-gap);
+  --semantic-console-89-gap: var(--catalog-layout-measure-console-89-gap);
+  --base-console-83-padding-right: env(safe-area-inset-right);
+  --catalog-layout-measure-console-83-padding-right: var(
+    --base-console-83-padding-right
+  );
+  --semantic-console-83-padding-right: var(
+    --catalog-layout-measure-console-83-padding-right
+  );
+  --base-console-82-padding-left: env(safe-area-inset-left);
+  --catalog-layout-measure-console-82-padding-left: var(
+    --base-console-82-padding-left
+  );
+  --semantic-console-82-padding-left: var(
+    --catalog-layout-measure-console-82-padding-left
+  );
+  --base-console-81-height: var(--primary-app-height);
+  --catalog-layout-measure-console-81-height: var(--base-console-81-height);
+  --semantic-console-81-height: var(--catalog-layout-measure-console-81-height);
+  --base-console-80-grid-template-rows: auto minmax(0, 1fr) auto;
+  --catalog-layout-measure-console-80-grid-template-rows: var(
+    --base-console-80-grid-template-rows
+  );
+  --semantic-console-80-grid-template-rows: var(
+    --catalog-layout-measure-console-80-grid-template-rows
+  );
+  --base-console-79-grid-template-columns: minmax(0, 1fr);
+  --catalog-layout-measure-console-79-grid-template-columns: var(
+    --base-console-79-grid-template-columns
+  );
+  --semantic-console-79-grid-template-columns: var(
+    --catalog-layout-measure-console-79-grid-template-columns
+  );
+  --primary-console-68-outline-offset: -2px;
+  --base-console-68-outline-offset: var(--primary-console-68-outline-offset);
+  --catalog-layout-measure-console-68-outline-offset: var(
+    --base-console-68-outline-offset
+  );
+  --semantic-console-68-outline-offset: var(
+    --catalog-layout-measure-console-68-outline-offset
+  );
+  --base-console-67-outline: 2px solid var(--primary-console-accent);
+  --catalog-layout-measure-console-67-outline: var(--base-console-67-outline);
+  --semantic-console-67-outline: var(
+    --catalog-layout-measure-console-67-outline
+  );
+  --primary-console-61-opacity: 40%;
+  --base-console-61-opacity: var(--primary-console-61-opacity);
+  --catalog-layout-measure-console-61-opacity: var(--base-console-61-opacity);
+  --semantic-console-61-opacity: var(
+    --catalog-layout-measure-console-61-opacity
+  );
+  --primary-console-58--webkit-tap-highlight-color: transparent;
+  --base-console-58--webkit-tap-highlight-color: var(
+    --primary-console-58--webkit-tap-highlight-color
+  );
+  --catalog-layout-measure-console-58--webkit-tap-highlight-color: var(
+    --base-console-58--webkit-tap-highlight-color
+  );
+  --semantic-console-58--webkit-tap-highlight-color: var(
+    --catalog-layout-measure-console-58--webkit-tap-highlight-color
+  );
+  --primary-console-54-border: 0;
+  --base-console-54-border: var(--primary-console-54-border);
+  --catalog-layout-measure-console-54-border: var(--base-console-54-border);
+  --semantic-console-54-border: var(--catalog-layout-measure-console-54-border);
+  --primary-console-53-padding: 0 12px;
+  --base-console-53-padding: var(--primary-console-53-padding);
+  --catalog-layout-measure-console-53-padding: var(--base-console-53-padding);
+  --semantic-console-53-padding: var(
+    --catalog-layout-measure-console-53-padding
+  );
+  --primary-console-41-font-size: 16px;
+  --base-console-41-font-size: var(--primary-console-41-font-size);
+  --catalog-layout-measure-console-41-font-size: var(
+    --base-console-41-font-size
+  );
+  --semantic-console-41-font-size: var(
+    --catalog-layout-measure-console-41-font-size
+  );
+  --primary-console-37-margin: 0;
+  --base-console-37-margin: var(--primary-console-37-margin);
+  --catalog-layout-measure-console-37-margin: var(--base-console-37-margin);
+  --semantic-console-37-margin: var(--catalog-layout-measure-console-37-margin);
+  --primary-console-36-height: 100%;
+  --base-console-36-height: var(--primary-console-36-height);
+  --catalog-layout-measure-console-36-height: var(--base-console-36-height);
+  --semantic-console-36-height: var(--catalog-layout-measure-console-36-height);
+}
+html,
+body,
+a,
+button,
+input,
+div,
+main,
+section,
+nav,
+ol,
+li,
+pre,
+span {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: var(--semantic-console-36-height);
+  margin: var(--semantic-console-37-margin);
+  background: var(--semantic-console-bg);
+  color: var(--semantic-console-text);
+  font-family: var(--semantic-console-ui);
+  font-size: var(--semantic-console-41-font-size);
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+button {
+  min-height: var(--semantic-console-target);
+  min-width: var(--semantic-console-target);
+  padding: var(--semantic-console-53-padding);
+  border: var(--semantic-console-54-border);
+  border-radius: var(--semantic-console-radius);
+  background: var(--semantic-console-key);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: var(
+    --semantic-console-58--webkit-tap-highlight-color
+  );
+}
+button:disabled {
+  opacity: var(--semantic-console-61-opacity);
+}
+@media (hover: hover) and (pointer: fine) {
+  button:not(:disabled):hover {
+    background: var(--semantic-console-key-hover);
+  }
+}
+/* The whole console is exactly one viewport tall; --app-height follows the
+   on-screen keyboard and rotation (set from visualViewport in console.js). */
+.console {
+  display: grid;
+  grid-template-columns: var(--semantic-console-79-grid-template-columns);
+  grid-template-rows: var(--semantic-console-80-grid-template-rows);
+  height: var(--semantic-console-81-height);
+  padding-left: var(--semantic-console-82-padding-left);
+  padding-right: var(--semantic-console-83-padding-right);
+}
+/* Tab bar */
+.bar {
+  display: flex;
+  align-items: stretch;
+  gap: var(--semantic-console-89-gap);
+  padding-top: var(--semantic-console-90-padding-top);
+  background: var(--semantic-console-bar);
+}
+.back {
+  display: grid;
+  place-items: center;
+  min-width: var(--semantic-console-target);
+  color: var(--semantic-console-muted);
+  font-size: var(--semantic-console-98-font-size);
+  text-decoration: var(--semantic-console-99-text-decoration);
+}
+.tabs {
+  display: flex;
+  flex: var(--semantic-console-103-flex);
+  min-width: var(--semantic-console-104-min-width);
+  overflow-x: auto;
+  scrollbar-width: var(--semantic-console-106-scrollbar-width);
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+.tab-group {
+  display: flex;
+  flex: var(--semantic-console-113-flex);
+  align-items: center;
+  box-shadow: var(--semantic-console-115-box-shadow);
+  color: var(--semantic-console-muted);
+}
+.tab-group[data-active="true"] {
+  color: var(--semantic-console-text);
+  box-shadow: var(--semantic-console-120-box-shadow);
+}
+.tab {
+  display: flex;
+  align-items: center;
+  gap: var(--semantic-console-125-gap);
+  min-height: var(--semantic-console-target);
+  padding: var(--semantic-console-127-padding);
+  background: var(--semantic-console-128-background);
+  color: inherit;
+  border-radius: var(--semantic-console-130-border-radius);
+}
+.tab-dot {
+  width: var(--semantic-console-133-width);
+  height: var(--semantic-console-134-height);
+  border-radius: var(--semantic-console-135-border-radius);
+  background: var(--semantic-console-warn);
+}
+.tab-group[data-state="ACTIVE"] .tab-dot,
+.tab-group[data-state="EXECUTING"] .tab-dot {
+  background: var(--semantic-console-good);
+}
+.tab-group[data-state="DEAD"] .tab-dot,
+.tab-group[data-state="MISSING"] .tab-dot {
+  background: var(--semantic-console-bad);
+}
+.tab-name {
+  font-size: var(--semantic-console-type-body);
+  font-weight: var(--semantic-console-148-font-weight);
+}
+.tab-id {
+  font-family: var(--semantic-console-mono);
+  font-size: var(--semantic-console-type-micro);
+}
+.tab-close {
+  min-width: var(--semantic-console-target);
+  min-height: var(--semantic-console-target);
+  padding: var(--semantic-console-157-padding);
+  background: var(--semantic-console-158-background);
+  color: var(--semantic-console-muted);
+  font-size: var(--semantic-console-160-font-size);
+}
+.add {
+  font-size: var(--semantic-console-163-font-size);
+  background: var(--semantic-console-164-background);
+  color: var(--semantic-console-muted);
+}
+.zoom {
+  align-self: center;
+  min-width: var(--semantic-console-169-min-width);
+  min-height: var(--semantic-console-target);
+  padding: var(--semantic-console-171-padding);
+  background: var(--semantic-console-172-background);
+  color: var(--semantic-console-muted);
+  font-family: var(--semantic-console-mono);
+  font-size: var(--semantic-console-type-meta);
+}
+.zoom[aria-pressed="true"] {
+  color: var(--semantic-console-text);
+}
+.link {
+  display: flex;
+  align-items: center;
+  gap: var(--semantic-console-183-gap);
+  padding: var(--semantic-console-184-padding);
+  color: var(--semantic-console-muted);
+  font-size: var(--semantic-console-type-meta);
+}
+.link-dot {
+  width: var(--semantic-console-189-width);
+  height: var(--semantic-console-190-height);
+  border-radius: var(--semantic-console-191-border-radius);
+  background: var(--semantic-console-warn);
+}
+.link[data-live="true"] .link-dot {
+  background: var(--semantic-console-good);
+}
+/* Screen: the only region that scrolls, and only vertically. */
+.stage {
+  position: relative;
+  min-width: var(--semantic-console-200-min-width);
+  min-height: var(--semantic-console-201-min-height);
+}
+.screen {
+  height: var(--semantic-console-204-height);
+  margin: var(--semantic-console-205-margin);
+  padding: var(--semantic-console-206-padding);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: var(--semantic-console-bg);
+  font-family: var(--semantic-console-mono);
+  font-size: var(--semantic-console-213-font-size);
+  line-height: var(--semantic-console-214-line-height);
+  white-space: var(--semantic-console-215-white-space);
+  tab-size: var(--semantic-console-216-tab-size);
+}
+.screen[data-wide="true"] {
+  overflow-x: auto;
+}
+/* A stream of commands is prose-like, not a grid: it wraps at a readable size. */
+.screen[data-flow="wrap"] {
+  white-space: var(--semantic-console-223-white-space);
+  overflow-wrap: var(--semantic-console-224-overflow-wrap);
+}
+.screen a {
+  color: var(--semantic-console-accent);
+}
+.latest {
+  position: absolute;
+  right: var(--semantic-console-231-right);
+  bottom: var(--semantic-console-232-bottom);
+  background: var(--semantic-console-accent);
+  color: var(--semantic-console-on-accent);
+  font-size: var(--semantic-console-type-meta);
+  font-weight: var(--semantic-console-236-font-weight);
+}
+.empty {
+  position: absolute;
+  inset: var(--semantic-console-240-inset);
+  display: grid;
+  place-items: center;
+  margin: var(--semantic-console-243-margin);
+  padding: var(--semantic-console-244-padding);
+  color: var(--semantic-console-muted);
+  font-size: var(--semantic-console-type-body);
+  line-height: var(--semantic-console-247-line-height);
+  text-align: var(--semantic-console-248-text-align);
+  pointer-events: none;
+}
+/* Dock: keys above one text line. */
+.dock {
+  display: grid;
+  gap: var(--semantic-console-gap);
+  padding: var(--semantic-console-255-padding);
+  background: var(--semantic-console-bar);
+}
+.keys {
+  display: grid;
+  grid-template-columns: var(--semantic-console-261-grid-template-columns);
+  gap: var(--semantic-console-262-gap);
+}
+.keys button {
+  padding: var(--semantic-console-265-padding);
+  font-family: var(--semantic-console-mono);
+  font-size: var(--semantic-console-type-code);
+}
+.line {
+  display: flex;
+  gap: var(--semantic-console-gap);
+}
+.line input {
+  flex: var(--semantic-console-274-flex);
+  min-width: var(--semantic-console-275-min-width);
+  height: var(--semantic-console-target);
+  padding: var(--semantic-console-277-padding);
+  border: var(--semantic-console-278-border);
+  border-radius: var(--semantic-console-radius);
+  background: var(--semantic-console-key);
+  font-family: var(--semantic-console-mono);
+  font-size: var(--semantic-console-282-font-size);
+}
+.line input::placeholder {
+  color: var(--semantic-console-muted);
+  font-family: var(--semantic-console-ui);
+}
+.send {
+  background: var(--semantic-console-accent);
+  color: var(--semantic-console-on-accent);
+  font-size: var(--semantic-console-type-body);
+  font-weight: var(--semantic-console-292-font-weight);
+}
+.notice {
+  min-height: var(--semantic-console-295-min-height);
+  margin: var(--semantic-console-296-margin);
+  color: var(--semantic-console-muted);
+  font-size: var(--semantic-console-type-meta);
+}
+.notice[data-kind="bad"] {
+  color: var(--semantic-console-bad);
+}
+.notice[data-kind="info"] {
+  color: var(--semantic-console-muted);
+}
+.notice:empty {
+  display: none;
+}
+/* Shell picker, a native modal sheet. */
+.picker {
+  width: var(--semantic-console-311-width);
+  max-height: var(--semantic-console-312-max-height);
+  margin: var(--semantic-console-313-margin);
+  padding: var(--semantic-console-314-padding);
+  border: var(--semantic-console-315-border);
+  border-radius: var(--semantic-console-316-border-radius);
+  background: var(--semantic-console-bar);
+  color: var(--semantic-console-text);
+}
+.picker::backdrop {
+  background: var(--semantic-console-321-background);
+}
+.picker h2 {
+  margin: var(--semantic-console-324-margin);
+  font-size: var(--semantic-console-type-title);
+}
+.picker-list {
+  margin: var(--semantic-console-328-margin);
+  padding: var(--semantic-console-329-padding);
+  list-style: var(--semantic-console-330-list-style);
+}
+.picker-item {
+  display: grid;
+  width: var(--semantic-console-334-width);
+  gap: var(--semantic-console-335-gap);
+  padding: var(--semantic-console-336-padding);
+  background: var(--semantic-console-337-background);
+  text-align: var(--semantic-console-338-text-align);
+}
+.picker-name {
+  font-size: var(--semantic-console-type-body);
+  font-weight: var(--semantic-console-342-font-weight);
+}
+.picker-meta {
+  overflow: hidden;
+  color: var(--semantic-console-muted);
+  font-family: var(--semantic-console-mono);
+  font-size: var(--semantic-console-type-meta);
+  text-overflow: var(--semantic-console-349-text-overflow);
+  white-space: var(--semantic-console-350-white-space);
+}
+.picker-close {
+  width: var(--semantic-console-353-width);
+}
+.picker-none {
+  padding: var(--semantic-console-356-padding);
+  color: var(--semantic-console-muted);
+  font-size: var(--semantic-console-type-body);
+}
+/* Landscape phones are short: tighten the chrome so the screen keeps room. */
+@media (orientation: landscape) and (height <=520px) {
+  .keys {
+    grid-template-columns: var(--semantic-console-363-grid-template-columns);
+  }
+  .dock {
+    grid-template-columns: var(--semantic-console-366-grid-template-columns);
+    align-items: center;
+  }
+  .notice {
+    grid-column: var(--semantic-console-370-grid-column);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tab-group {
+    transition: var(--semantic-console-375-transition);
+  }
+}
+/* Focus styles follow all base selectors to preserve specificity order. */
+button:focus-visible,
+input:focus-visible,
+.screen:focus-visible,
+.back:focus-visible {
+  outline: var(--semantic-console-67-outline);
+  outline-offset: var(--semantic-console-68-outline-offset);
+}

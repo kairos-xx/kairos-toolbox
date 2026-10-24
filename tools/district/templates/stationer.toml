@@ -1,0 +1,73 @@
+# Manifest for tools.stationer. It describes both output formats:
+#
+#   # self-contained .pyz for this platform (needs Python on the target;
+#   # built per platform by .github/workflows/district-release.yml)
+#   python -m tools.stationer --project tools/district \
+#       --manifest tools/district/templates/stationer.toml \
+#       --output dist --format pyz
+#
+#   # frozen native installers (need no Python on the target)
+#   python -m tools.stationer --project tools/district \
+#       --manifest tools/district/templates/stationer.toml \
+#       --output dist/native --platform macos
+#
+# Windows ARM64 additionally needs the [windows] worker below.
+
+[project]
+name = "district"
+# Read from product.py so the version has a single source.
+version_file = "product.py"
+entrypoint = "district_entry.py"
+identifier = "dev.kairos-xx.district"
+console = true
+# cli.py imports update/settings/release with importlib, which PyInstaller's
+# static analysis cannot follow, and the dashboard ships data files.
+pyinstaller_args = [
+    "--collect-submodules", "district",
+    "--collect-data", "district",
+]
+pip_args = []
+# District imports bowman; install the sibling project before District itself.
+local_dependencies = ["../bowman"]
+
+[pyz]
+# Asset prefix the updater looks for: <name>-<version>-<platform>.pyz
+name = "district"
+# Becomes the archive's __main__.py: unpacks the archive once (compiled
+# dependencies cannot be imported from a zip) and runs the CLI.
+bootstrap = "pyz_main.py"
+
+# Pull-worker builds: `--remote windows|linux|macos` prints one command to
+# run on a machine of that OS (see docs/tools/stationer/BUILDER.md).
+[remote]
+# Address the Windows worker uses to reach this host: 192.168.64.1 is the
+# host on UTM's shared network; QEMU user-mode guests use 10.0.2.2 instead.
+worker_host = "192.168.64.1"
+bind = "0.0.0.0"   # listen on the VM network interface, not just loopback
+python_version = "3.13.9"
+# Run the worker in an existing QEMU VM instead of pasting the command; the
+# disk is booted read-only (-snapshot). Also --vm on the command line.
+# vm = "~/.windows-vm-studio/vms/default/windows.qcow2"
+
+[macos]
+# x86_64 interpreter (runs under Rosetta) for the amd64 build.
+python_amd64 = "/tmp/py-amd64/python/bin/python3.13"
+# signing_identity = "Developer ID Installer: Example (TEAMID)"
+
+[linux]
+docker_platforms = ["linux/arm64", "linux/amd64"]
+docker_platform = "linux/arm64"
+image = "python:3.13-slim-bookworm"
+musl_image = "python:3.13-alpine"
+maintainer = "District Terminal maintainers"
+description = "Cross-platform local execution control plane for agents"
+
+# Only needed when building --platform windows.
+# [windows]
+# host = "127.0.0.1"
+# port = 2222
+# user = "builder"
+# identity_file = "~/.ssh/windows_builder_ed25519"
+# python = ["py", "-3.13"]
+# remote_root = "C:/stationer"
+# publisher = "District Terminal maintainers"

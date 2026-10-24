@@ -1,0 +1,210 @@
+# Release pipeline for District Terminal.
+#
+# Releases are cut with `district --make-release`, which bumps Product.version,
+# tags `district/v<X.Y.Z>` and pushes. The tag prefix selects the
+# project: `<project>/v<semver>` -> tools/<project with - as _>.
+#
+# The pushed tag drives every publish step, so the GitHub release and PyPI
+# always ship the same commit's version:
+#
+#   verify -> build (native exe + installer + pyz per OS runner)
+#         -> pyz   (the updater's cross-platform archives, all cells)
+#         -> pypi  (sdist/wheel for bowman + district)
+#         -> release (GitHub release carrying every artifact + SHA256SUMS)
+#
+# Each matrix job fills the build/<os>/<arch>/<abi>/district/{pyinstaller,
+# installer,pyz} cell for its runner. Windows uses the remote-worker
+# protocol locally (--remote windows --local): the same authenticated job
+# pipeline, Inno download and checksum verification run on the GitHub
+# runner that a QEMU VM would execute, so nothing has to be preinstalled.
+#
+# PyPI publishing needs a *trusted publisher* configured on PyPI for both
+# distributions (repository kairos-xx/kairos-toolbox,
+# workflow district-release.yml). Until then the pypi job fails without
+# blocking the GitHub release.
+
+name: Release District Terminal
+
+on:
+  push:
+    tags: ["district/v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      project: ${{ steps.meta.outputs.project }}
+      directory: ${{ steps.meta.outputs.directory }}
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Resolve project and version
+        id: meta
+        run: |
+          ref="$GITHUB_REF_NAME"
+          if [[ "$ref" == */v* ]]; then
+            project="${ref%%/v*}"; tag="$ref"
+          else
+            project="district"; tag=""
+          fi
+          info=$(python -m tools.stationer --config release.toml show --project "$project")
+          version=$(jq -r .version <<<"$info")
+          if [ -n "$tag" ] && [ "$tag" != "$(jq -r .tag <<<"$info")" ]; then
+            echo "tag $tag does not match the project version $version" >&2
+            exit 1
+          fi
+          {
+            echo "project=$project"
+            echo "directory=$(jq -r .path <<<"$info")"
+            echo "version=$version"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+      - name: Install
+        run: python -m pip install -e tools/bowman -e tools/district pytest pytest-cov httpx ruff==0.15.22
+      - name: Lint
+        run: ruff check tools/district tests/tools/district tests/conftest.py
+      - name: Test
+        run: python -m pytest tests/tools/district -q
+
+  build:
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macos-arm64
+            os: macos-14
+            args: --platform macos --arch arm64
+          - name: macos-amd64
+            os: macos-15-intel
+            args: --platform macos --arch amd64
+          - name: linux-amd64
+            os: ubuntu-latest
+            args: --platform linux --arch amd64
+          - name: linux-arm64
+            os: ubuntu-24.04-arm
+            args: --platform linux --arch arm64
+          - name: windows-amd64
+            os: windows-latest
+            args: --remote windows --local --arch amd64
+          - name: windows-arm64
+            os: windows-11-arm
+            args: --remote windows --local --arch arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install
+        run: python -m pip install -e tools/bowman -e tools/district
+      - name: Build native artifacts
+        run: >
+          python -m tools.stationer
+          --project ${{ needs.verify.outputs.directory }}
+          --manifest ${{ needs.verify.outputs.directory }}/templates/stationer.toml
+          --output dist ${{ matrix.args }}
+      - name: Keep one writer per file
+        # The pyz job produces every cell's pyz; drop the copies this job
+        # staged so merged downloads never see two writers for one path.
+        # Root report files are also per-job; the release job regenerates
+        # one SHA256SUMS.txt over the whole tree.
+        shell: bash
+        run: |
+          find dist -type d -name pyz -prune -exec rm -rf {} +
+          rm -f dist/BUILD.md dist/SHA256SUMS dist/artifacts.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.name }}
+          path: dist/
+          if-no-files-found: error
+
+  pyz:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install
+        run: python -m pip install -e tools/bowman -e tools/district
+      - name: Build the pyz matrix
+        run: >
+          python -m tools.stationer
+          --project ${{ needs.verify.outputs.directory }}
+          --manifest ${{ needs.verify.outputs.directory }}/templates/stationer.toml
+          --output dist --format pyz
+      - name: Keep only the archives
+        shell: bash
+        run: rm -f dist/BUILD.md dist/SHA256SUMS dist/artifacts.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pyz
+          path: dist/
+          if-no-files-found: error
+
+  pypi:
+    needs: verify
+    if: needs.verify.outputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Build distributions
+        # bowman is District Terminal's repository-local runtime
+        # dependency; it must reach PyPI in the same release or the wheel
+        # cannot resolve its requirements.
+        run: |
+          python -m pip install --upgrade build
+          python -m build --wheel --outdir dist-pypi tools/bowman
+          python -m build --outdir dist-pypi tools/district
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist-pypi
+
+  release:
+    needs: [verify, build, pyz]
+    if: needs.verify.outputs.tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ needs.verify.outputs.tag }}
+      VERSION: ${{ needs.verify.outputs.version }}
+      PROJECT: ${{ needs.verify.outputs.project }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: native-*
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: pyz
+          merge-multiple: true
+      - name: Checksums
+        run: python -m tools.stationer.artifacts dist --name SHA256SUMS.txt
+      - name: Publish release
+        run: python -m tools.stationer --config release.toml publish --project "$PROJECT" --artifacts dist
