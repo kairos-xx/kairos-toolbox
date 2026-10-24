@@ -11,25 +11,25 @@ class ValidityCode(StrEnum):
     """Machine-readable validity outcome.
 
     Attributes:
-        VALID: Token is valid for immediate use.
-        NOT_YET_VALID: Token is not yet active.
-        EXPIRED: Token validity elapsed.
-        WRONG_AUDIENCE: Token targets a different audience.
-        WRONG_MACHINE: Token targets a different machine.
-        WRONG_SESSION: Token targets a different session.
-        WRONG_ISSUER: Token comes from an unexpected issuer.
-        CLOCK_SKEW: Issue timestamp is implausible.
+        valid: Token is valid for immediate use.
+        not_yet_valid: Token is not yet active.
+        expired: Token validity elapsed.
+        wrong_audience: Token targets a different audience.
+        wrong_machine: Token targets a different machine.
+        wrong_session: Token targets a different session.
+        wrong_issuer: Token comes from an unexpected issuer.
+        clock_skew: Issue timestamp is implausible.
 
     """
 
-    VALID = "valid"
-    NOT_YET_VALID = "not_yet_valid"
-    EXPIRED = "expired"
-    WRONG_AUDIENCE = "wrong_audience"
-    WRONG_MACHINE = "wrong_machine"
-    WRONG_SESSION = "wrong_session"
-    WRONG_ISSUER = "wrong_issuer"
-    CLOCK_SKEW = "clock_skew"
+    valid = "valid"
+    not_yet_valid = "not_yet_valid"
+    expired = "expired"
+    wrong_audience = "wrong_audience"
+    wrong_machine = "wrong_machine"
+    wrong_session = "wrong_session"
+    wrong_issuer = "wrong_issuer"
+    clock_skew = "clock_skew"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -110,7 +110,7 @@ class ValidityPolicy:
         checked: datetime = now or datetime.now(tz=UTC)
         if window.issuer is not None and window.issuer != self.issuer:
             return self._result(
-                code=ValidityCode.WRONG_ISSUER,
+                code=ValidityCode.wrong_issuer,
                 reason="Token issuer is not the expected issuer.",
             )
         temporal: ValidityResult | None = self._temporal(
@@ -126,7 +126,7 @@ class ValidityPolicy:
         )
         if binding is not None:
             return binding
-        return self._result(code=ValidityCode.VALID, reason="Token is valid.")
+        return self._result(code=ValidityCode.valid, reason="Token is valid.")
 
     @staticmethod
     def _result(*, code: ValidityCode, reason: str) -> ValidityResult:
@@ -141,7 +141,7 @@ class ValidityPolicy:
 
         """
         return ValidityResult(
-            valid=code is ValidityCode.VALID,
+            valid=code is ValidityCode.valid,
             code=code,
             reason=reason,
         )
@@ -164,17 +164,17 @@ class ValidityPolicy:
         """
         if window.issued_at > now + self.clock_skew:
             return self._result(
-                code=ValidityCode.CLOCK_SKEW,
+                code=ValidityCode.clock_skew,
                 reason="Token issue timestamp is in the future.",
             )
         if window.not_before is not None and now < window.not_before:
             return self._result(
-                code=ValidityCode.NOT_YET_VALID,
+                code=ValidityCode.not_yet_valid,
                 reason="Token is not yet valid.",
             )
         if window.expires_at is not None and now >= window.expires_at:
             return self._result(
-                code=ValidityCode.EXPIRED,
+                code=ValidityCode.expired,
                 reason="Token has expired.",
             )
         return None
@@ -199,17 +199,17 @@ class ValidityPolicy:
         """
         if window.audience is not None and window.audience != self.audience:
             return self._result(
-                code=ValidityCode.WRONG_AUDIENCE,
+                code=ValidityCode.wrong_audience,
                 reason="Token audience does not match this context.",
             )
         if window.machine_id is not None and window.machine_id != machine_id:
             return self._result(
-                code=ValidityCode.WRONG_MACHINE,
+                code=ValidityCode.wrong_machine,
                 reason="Token is bound to a different machine.",
             )
         if window.session_id is not None and window.session_id != session_id:
             return self._result(
-                code=ValidityCode.WRONG_SESSION,
+                code=ValidityCode.wrong_session,
                 reason="Token is bound to a different session.",
             )
         return None

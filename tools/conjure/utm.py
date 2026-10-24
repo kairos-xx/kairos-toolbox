@@ -14,7 +14,7 @@ from shlex import join as shell_join
 from shlex import split as shell_split
 from shutil import which
 from subprocess import CompletedProcess, run
-from typing import Final
+from typing import Final, final
 
 type PlistValue = (
     str
@@ -32,17 +32,17 @@ class DependencyKind(StrEnum):
     """Classify a dependency found in a UTM-generated QEMU command.
 
     Attributes:
-        FILE: A file such as a disk image.
-        DIRECTORY: A directory such as the firmware data directory.
-        SOCKET: A Unix socket path.
-        UTM_RUNTIME: A UTM-owned channel that has no standalone equivalent.
+        file: A file such as a disk image.
+        directory: A directory such as the firmware data directory.
+        socket: A Unix socket path.
+        utm_runtime: A UTM-owned channel that has no standalone equivalent.
 
     """
 
-    FILE = "file"
-    DIRECTORY = "directory"
-    SOCKET = "socket"
-    UTM_RUNTIME = "utm_runtime"
+    file = "file"
+    directory = "directory"
+    socket = "socket"
+    utm_runtime = "utm_runtime"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -183,6 +183,7 @@ class _Process:
     argv: tuple[str, ...]
 
 
+@final
 class UtmQemuExtractor:
     """Discover UTM QEMU VMs and derive launchable standalone commands.
 
@@ -191,33 +192,33 @@ class UtmQemuExtractor:
     and their plist metadata is inspected.
 
     Attributes:
-        UTM_DOCUMENTS: Home-relative folders that hold ``.utm`` bundles.
-        UTM_APPS: Locations of the UTM application.
-        QEMU_PREFIX: Executable-name prefix of QEMU system emulators.
-        LAUNCHER: Name of UTM's helper that hosts the emulator framework.
-        FRAMEWORK_PREFIX: Prefix of UTM's bundled emulator binaries.
-        FRAMEWORK_SUFFIX: Suffix of UTM's bundled emulator binaries.
-        UTM_MARKERS: Argument fragments that identify UTM-owned channels.
-        UTM_SPICE_CHARS: Chardev prefixes of UTM's SPICE channels.
-        PATH_PATTERN: Pattern extracting the file path of a ``-drive``.
+        utm_documents: Home-relative folders that hold ``.utm`` bundles.
+        utm_apps: Locations of the UTM application.
+        qemu_prefix: Executable-name prefix of QEMU system emulators.
+        launcher: Name of UTM's helper that hosts the emulator framework.
+        framework_prefix: Prefix of UTM's bundled emulator binaries.
+        framework_suffix: Suffix of UTM's bundled emulator binaries.
+        utm_markers: Argument fragments that identify UTM-owned channels.
+        utm_spice_chars: Chardev prefixes of UTM's SPICE channels.
+        path_pattern: Pattern extracting the file path of a ``-drive``.
 
     """
 
-    UTM_DOCUMENTS: Final[tuple[str, ...]] = (
+    utm_documents: Final[tuple[str, ...]] = (
         "Library/Containers/com.utmapp.UTM/Data/Documents",
         "Library/Containers/com.utmapp.UTM-Setapp/Data/Documents",
         "Documents",
     )
-    UTM_APPS: Final[tuple[str, ...]] = (
+    utm_apps: Final[tuple[str, ...]] = (
         "/Applications/UTM.app",
         "Applications/UTM.app",
         "/Applications/Setapp/UTM.app",
     )
-    QEMU_PREFIX: Final[str] = "qemu-system-"
-    LAUNCHER: Final[str] = "QEMULauncher"
-    FRAMEWORK_PREFIX: Final[str] = "qemu-"
-    FRAMEWORK_SUFFIX: Final[str] = "-softmmu"
-    UTM_MARKERS: Final[tuple[str, ...]] = (
+    qemu_prefix: Final[str] = "qemu-system-"
+    launcher: Final[str] = "QEMULauncher"
+    framework_prefix: Final[str] = "qemu-"
+    framework_suffix: Final[str] = "-softmmu"
+    utm_markers: Final[tuple[str, ...]] = (
         "com.utmapp.",
         "org.qemu.monitor.qmp",
         "com.utmapp.terminal.",
@@ -225,8 +226,8 @@ class UtmQemuExtractor:
         "com.redhat.spice.",
         "org.spice-space.webdav.",
     )
-    UTM_SPICE_CHARS: Final[tuple[str, ...]] = ("spiceport", "spicevmc")
-    PATH_PATTERN: Final[Pattern[str]] = compile_pattern(
+    utm_spice_chars: Final[tuple[str, ...]] = ("spiceport", "spicevmc")
+    path_pattern: Final[Pattern[str]] = compile_pattern(
         pattern=r"(?:file\.filename|file|path)=([^,]+)",
     )
 
@@ -309,10 +310,10 @@ class UtmQemuExtractor:
             return False
         apps: tuple[Path, ...] = tuple(
             Path(app) if app.startswith("/") else self._home / app
-            for app in self.UTM_APPS
+            for app in self.utm_apps
         )
         containers: tuple[Path, ...] = tuple(
-            self._home / relative for relative in self.UTM_DOCUMENTS[:2]
+            self._home / relative for relative in self.utm_documents[:2]
         )
         return any(path.is_dir() for path in (*apps, *containers))
 
@@ -343,7 +344,7 @@ class UtmQemuExtractor:
 
         """
         paths: set[Path] = set()
-        for relative_root in self.UTM_DOCUMENTS:
+        for relative_root in self.utm_documents:
             root: Path = self._home / relative_root
             if root.is_dir():
                 paths.update(
@@ -461,9 +462,9 @@ class UtmQemuExtractor:
 
         """
         return (
-            value.startswith(cls.UTM_SPICE_CHARS)
+            value.startswith(cls.utm_spice_chars)
             or "name=usbredir" in value
-            or any(marker in value for marker in cls.UTM_MARKERS)
+            or any(marker in value for marker in cls.utm_markers)
             or (value.startswith("socket,") and ".swtpm" in value)
         )
 
@@ -487,7 +488,7 @@ class UtmQemuExtractor:
         chardev: str | None = cls._field(value=value, name="chardev")
         serial_port: bool = value.startswith("virtserialport,") and (
             chardev in removed_chardevs
-            or any(marker in value for marker in cls.UTM_MARKERS)
+            or any(marker in value for marker in cls.utm_markers)
         )
         return (
             value.startswith("usb-redir,")
@@ -576,7 +577,7 @@ class UtmQemuExtractor:
         """
         drives: list[UtmDrive] = []
         for value in cls._option_values(argv=argv, option="-drive"):
-            found: Match[str] | None = cls.PATH_PATTERN.search(string=value)
+            found: Match[str] | None = cls.path_pattern.search(string=value)
             drives.append(
                 UtmDrive(
                     identifier=cls._field(value=value, name="id"),
@@ -612,7 +613,7 @@ class UtmQemuExtractor:
         if data_dir is not None:
             found.append(
                 UtmDependency(
-                    kind=DependencyKind.DIRECTORY,
+                    kind=DependencyKind.directory,
                     value=str(object=data_dir),
                     option="-L",
                     exists=data_dir.is_dir(),
@@ -620,7 +621,7 @@ class UtmQemuExtractor:
             )
         found.extend(
             UtmDependency(
-                kind=DependencyKind.FILE,
+                kind=DependencyKind.file,
                 value=str(object=drive.path),
                 option="-drive",
                 exists=drive.path.is_file(),
@@ -633,7 +634,7 @@ class UtmQemuExtractor:
             if path_value is not None:
                 found.append(
                     UtmDependency(
-                        kind=DependencyKind.SOCKET,
+                        kind=DependencyKind.socket,
                         value=path_value,
                         option="-chardev",
                         exists=Path(path_value).expanduser().exists(),
@@ -642,7 +643,7 @@ class UtmQemuExtractor:
             if cls._utm_chardev(value=value):
                 found.append(
                     UtmDependency(
-                        kind=DependencyKind.UTM_RUNTIME,
+                        kind=DependencyKind.utm_runtime,
                         value=value,
                         option="-chardev",
                         exists=None,
@@ -652,7 +653,7 @@ class UtmQemuExtractor:
         if spice is not None:
             found.append(
                 UtmDependency(
-                    kind=DependencyKind.UTM_RUNTIME,
+                    kind=DependencyKind.utm_runtime,
                     value=spice,
                     option="-spice",
                     exists=None,
@@ -737,7 +738,7 @@ class UtmQemuExtractor:
             The argv starting at the emulator.
 
         """
-        if len(argv) > 1 and Path(argv[0]).name == cls.LAUNCHER:
+        if len(argv) > 1 and Path(argv[0]).name == cls.launcher:
             return argv[1:]
         return argv
 
@@ -752,9 +753,9 @@ class UtmQemuExtractor:
             ``True`` for ``qemu-system-*`` and UTM's ``qemu-*-softmmu``.
 
         """
-        return name.startswith(cls.QEMU_PREFIX) or (
-            name.startswith(cls.FRAMEWORK_PREFIX)
-            and name.endswith(cls.FRAMEWORK_SUFFIX)
+        return name.startswith(cls.qemu_prefix) or (
+            name.startswith(cls.framework_prefix)
+            and name.endswith(cls.framework_suffix)
         )
 
     @classmethod
@@ -769,9 +770,9 @@ class UtmQemuExtractor:
 
         """
         return (
-            name.removeprefix(cls.QEMU_PREFIX)
-            .removeprefix(cls.FRAMEWORK_PREFIX)
-            .removesuffix(cls.FRAMEWORK_SUFFIX)
+            name.removeprefix(cls.qemu_prefix)
+            .removeprefix(cls.framework_prefix)
+            .removesuffix(cls.framework_suffix)
         )
 
     @staticmethod
@@ -970,13 +971,13 @@ class UtmQemuExtractor:
         """
         if executable.is_absolute() and executable.is_file():
             return executable
-        name: str = f"{self.QEMU_PREFIX}{architecture}"
+        name: str = f"{self.qemu_prefix}{architecture}"
         on_path: str | None = which(cmd=name)
         if on_path is not None:
             return Path(on_path)
         roots: tuple[Path, ...] = tuple(
             Path(app) if app.startswith("/") else self._home / app
-            for app in self.UTM_APPS
+            for app in self.utm_apps
         )
         return next(
             (
@@ -1020,7 +1021,7 @@ class UtmQemuExtractor:
         return self._is_qemu(process=process) and any(
             marker in argument
             for argument in process.argv
-            for marker in self.UTM_MARKERS
+            for marker in self.utm_markers
         )
 
     def _is_qemu(self, *, process: _Process) -> bool:

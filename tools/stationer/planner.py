@@ -72,7 +72,7 @@ class Planner:
             new: Version = (
                 Version.parse(value=explicit_version)
                 if explicit_version is not None
-                else old.bump(kind=bump or Bump.PATCH)
+                else old.bump(kind=bump or Bump.patch)
             )
             tag: str = self.config.release.tag_template.format(
                 project=project.name,
@@ -173,7 +173,7 @@ class Planner:
         root: Path = self.config.root
         actions: list[Action] = [
             Action(
-                kind=ActionKind.COMMAND,
+                kind=ActionKind.command,
                 description=f"Preflight clean tree for {project.name}",
                 command=("git", "diff", "--quiet", "--exit-code", "HEAD"),
                 cwd=root,
@@ -182,7 +182,7 @@ class Planner:
         if not skip_hooks:
             actions.extend(
                 Action(
-                    kind=ActionKind.COMMAND,
+                    kind=ActionKind.command,
                     description=f"Pre-release hook for {project.name}",
                     command=self._hook(command=hook),
                     cwd=root / project.path,
@@ -202,7 +202,7 @@ class Planner:
                 raise ValueError(msg)
             actions.append(
                 Action(
-                    kind=ActionKind.WRITE,
+                    kind=ActionKind.write,
                     description=f"Update {path} to {release.new_version}",
                     path=absolute,
                     content=substituted[0],
@@ -212,7 +212,7 @@ class Planner:
             actions.extend(self.pypi.build(project_root=root / project.path))
             actions.append(
                 Action(
-                    kind=ActionKind.COMMAND,
+                    kind=ActionKind.command,
                     description=f"Checksum {project.name} artifacts",
                     command=(
                         "python",
@@ -226,7 +226,7 @@ class Planner:
         actions.extend(
             (
                 Action(
-                    kind=ActionKind.COMMAND,
+                    kind=ActionKind.command,
                     description=f"Stage {project.name} release",
                     command=(
                         "git",
@@ -237,7 +237,7 @@ class Planner:
                     cwd=root,
                 ),
                 Action(
-                    kind=ActionKind.COMMAND,
+                    kind=ActionKind.command,
                     description=(
                         f"Commit {project.name} {release.new_version}"
                     ),
@@ -252,7 +252,7 @@ class Planner:
                     cwd=root,
                 ),
                 Action(
-                    kind=ActionKind.COMMAND,
+                    kind=ActionKind.command,
                     description=f"Tag {release.tag}",
                     command=(
                         "git",
@@ -265,7 +265,7 @@ class Planner:
                     cwd=root,
                 ),
                 Action(
-                    kind=ActionKind.COMMAND,
+                    kind=ActionKind.command,
                     description=f"Push {release.tag}",
                     command=("git", "push", "origin", "HEAD", release.tag),
                     cwd=root,
@@ -297,7 +297,7 @@ class Planner:
         if not skip_hooks:
             actions.extend(
                 Action(
-                    kind=ActionKind.COMMAND,
+                    kind=ActionKind.command,
                     description=f"Post-release hook for {project.name}",
                     command=self._hook(command=hook),
                     cwd=root / project.path,

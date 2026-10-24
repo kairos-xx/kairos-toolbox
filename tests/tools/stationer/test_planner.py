@@ -28,7 +28,7 @@ def test_dependency_order_and_version_update() -> None:
         config: Config = load_config(path=root / "release.toml")
         plan: ReleasePlan = Planner(config=config).plan(
             names=("b", "a"),
-            bump=Bump.MINOR,
+            bump=Bump.minor,
             explicit_version=None,
             publish=False,
         )
@@ -87,7 +87,7 @@ def test_python_version_line_is_rewritten() -> None:
         config: Config = load_config(path=_repo(root=root))
         plan: ReleasePlan = Planner(config=config).plan(
             names=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
             explicit_version=None,
             publish=False,
         )
@@ -107,7 +107,7 @@ def test_only_version_files_are_staged_and_committed() -> None:
             config=load_config(path=_repo(root=root)),
         ).plan(
             names=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
             explicit_version=None,
             publish=False,
         )
@@ -134,7 +134,7 @@ def test_preflight_covers_staged_and_unstaged_changes() -> None:
             config=load_config(path=_repo(root=root)),
         ).plan(
             names=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
             explicit_version=None,
             publish=False,
         )
@@ -163,7 +163,7 @@ def test_hooks_expand_python_and_can_be_skipped() -> None:
         planner: Planner = Planner(config=config)
         plan: ReleasePlan = planner.plan(
             names=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
             explicit_version=None,
             publish=False,
         )
@@ -173,7 +173,7 @@ def test_hooks_expand_python_and_can_be_skipped() -> None:
         )
         skipped: ReleasePlan = planner.plan(
             names=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
             explicit_version=None,
             publish=False,
             skip_hooks=True,

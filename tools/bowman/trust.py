@@ -17,67 +17,67 @@ class TrustLevel(IntEnum):
     """Strength of provenance for an asserted value.
 
     Attributes:
-        UNTRUSTED: No provenance established.
-        ASSERTED: Caller-asserted value.
-        VERIFIED_BY_PROCESS: Verified by the local process.
-        VERIFIED_BY_OS: Verified by the operating system.
-        VERIFIED_BY_KERNEL: Verified by the kernel.
-        CRYPTOGRAPHICALLY_VERIFIED: Verified by a signature.
+        untrusted: No provenance established.
+        asserted: Caller-asserted value.
+        verified_by_process: Verified by the local process.
+        verified_by_os: Verified by the operating system.
+        verified_by_kernel: Verified by the kernel.
+        cryptographically_verified: Verified by a signature.
 
     """
 
-    UNTRUSTED = 0
-    ASSERTED = 10
-    VERIFIED_BY_PROCESS = 20
-    VERIFIED_BY_OS = 30
-    VERIFIED_BY_KERNEL = 40
-    CRYPTOGRAPHICALLY_VERIFIED = 50
+    untrusted = 0
+    asserted = 10
+    verified_by_process = 20
+    verified_by_os = 30
+    verified_by_kernel = 40
+    cryptographically_verified = 50
 
 
 class AuthenticationStrength(IntEnum):
     """Strength of the established principal.
 
     Attributes:
-        ANONYMOUS: No authenticated identity.
-        PROCESS: Process-level identity.
-        LOCAL_SESSION: Signed local session identity.
-        OAUTH: OAuth-authenticated identity.
-        OAUTH_MFA: OAuth identity with a second factor.
-        OS_USER: Operating-system user identity.
-        OS_ADMIN: Operating-system administrator identity.
+        anonymous: No authenticated identity.
+        process: Process-level identity.
+        local_session: Signed local session identity.
+        oauth: OAuth-authenticated identity.
+        oauth_mfa: OAuth identity with a second factor.
+        os_user: Operating-system user identity.
+        os_admin: Operating-system administrator identity.
 
     """
 
-    ANONYMOUS = 0
-    PROCESS = 10
-    LOCAL_SESSION = 20
-    OAUTH = 30
-    OAUTH_MFA = 40
-    OS_USER = 50
-    OS_ADMIN = 60
+    anonymous = 0
+    process = 10
+    local_session = 20
+    oauth = 30
+    oauth_mfa = 40
+    os_user = 50
+    os_admin = 60
 
 
 class EvidenceKind(StrEnum):
     """Origin of authentication/provenance evidence.
 
     Attributes:
-        ASSERTION: Caller-asserted evidence.
-        PROCESS: Process-derived evidence.
-        KERNEL: Kernel-derived evidence.
-        OAUTH: OAuth-derived evidence.
-        SESSION: Session-derived evidence.
-        NATIVE_OS: Native OS consent evidence.
-        SIGNATURE: Cryptographic signature evidence.
+        assertion: Caller-asserted evidence.
+        process: Process-derived evidence.
+        kernel: Kernel-derived evidence.
+        oauth: OAuth-derived evidence.
+        session: Session-derived evidence.
+        native_os: Native OS consent evidence.
+        signature: Cryptographic signature evidence.
 
     """
 
-    ASSERTION = "assertion"
-    PROCESS = "process"
-    KERNEL = "kernel"
-    OAUTH = "oauth"
-    SESSION = "session"
-    NATIVE_OS = "native_os"
-    SIGNATURE = "signature"
+    assertion = "assertion"
+    process = "process"
+    kernel = "kernel"
+    oauth = "oauth"
+    session = "session"
+    native_os = "native_os"
+    signature = "signature"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -115,7 +115,7 @@ class Principal:
     """
 
     subject: str | None = None
-    strength: AuthenticationStrength = AuthenticationStrength.ANONYMOUS
+    strength: AuthenticationStrength = AuthenticationStrength.anonymous
     scopes: frozenset[str] = frozenset()
     capabilities: frozenset[str] = frozenset()
     evidence: tuple[Evidence, ...] = ()

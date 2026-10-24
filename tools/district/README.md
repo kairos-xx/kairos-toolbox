@@ -430,7 +430,6 @@ result when run from inside Claude Code, Devin or Cursor.
 - [`monitoring.py`](monitoring.py) — Non-invasive session monitoring and process inspection.
 - [`notifications.py`](notifications.py) — Rule-driven native notifications for significant agent events.
 - [`pairing.py`](pairing.py) — Device pairing for the remote web console.
-- [`platform.py`](platform.py) — Cross-platform runtime and capability detection.
 - [`privacy.py`](privacy.py) — Redact sensitive values and load retention/privacy policy.
 - [`process.py`](process.py) — Run child processes without shell interpretation.
 - [`process_tree.py`](process_tree.py) — Process-tree inspection and command correlation.
@@ -443,6 +442,7 @@ result when run from inside Claude Code, Devin or Cursor.
 - [`recorder.py`](recorder.py) — Persist and publish normalized observability events.
 - [`release.py`](release.py) — Front end for ``district --make-release`` (source checkouts).
 - [`resources.py`](resources.py) — Portable per-session process and resource telemetry.
+- [`runtime.py`](runtime.py) — Cross-platform runtime and capability detection.
 - [`selftest.py`](selftest.py) — Structured ``district --test`` self-check emitting a JSON report.
 - [`settings.py`](settings.py) — Report every effective District Terminal setting as one JSON document.
 - [`startup.py`](startup.py) — Cross-platform per-user web-dashboard startup management.

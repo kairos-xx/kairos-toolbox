@@ -19,25 +19,25 @@ class URIStatus(StrEnum):
     """Framework result status.
 
     Attributes:
-        OK: Request succeeded.
-        ACCEPTED: Request was accepted for processing.
-        BAD_REQUEST: Request data was invalid.
-        UNAUTHORIZED: Authentication failed or was missing.
-        FORBIDDEN: Caller was not authorized.
-        NOT_FOUND: No route or resource matched.
-        CONFLICT: Request conflicted with current state.
-        ERROR: Request failed with an internal error.
+        ok: Request succeeded.
+        accepted: Request was accepted for processing.
+        bad_request: Request data was invalid.
+        unauthorized: Authentication failed or was missing.
+        forbidden: Caller was not authorized.
+        not_found: No route or resource matched.
+        conflict: Request conflicted with current state.
+        error: Request failed with an internal error.
 
     """
 
-    OK = "ok"
-    ACCEPTED = "accepted"
-    BAD_REQUEST = "bad_request"
-    UNAUTHORIZED = "unauthorized"
-    FORBIDDEN = "forbidden"
-    NOT_FOUND = "not_found"
-    CONFLICT = "conflict"
-    ERROR = "error"
+    ok = "ok"
+    accepted = "accepted"
+    bad_request = "bad_request"
+    unauthorized = "unauthorized"
+    forbidden = "forbidden"
+    not_found = "not_found"
+    conflict = "conflict"
+    error = "error"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

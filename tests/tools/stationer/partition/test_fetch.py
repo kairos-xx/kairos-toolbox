@@ -26,6 +26,7 @@ class _Handler(BaseHTTPRequestHandler):
         payload: Response body sent on success.
         drop_after: Bytes sent before aborting mid-body; ``None``
             sends the complete payload.
+        calls: Number of scripted requests served by the handler.
 
     """
 
@@ -34,7 +35,7 @@ class _Handler(BaseHTTPRequestHandler):
     drop_after: ClassVar[int | None] = None
     calls: ClassVar[int] = 0
 
-    def do_GET(self) -> None:
+    def do_get(self) -> None:
         """Serve the scripted response for this attempt."""
         index: int = min(type(self).calls, len(type(self).steps) - 1)
         type(self).calls += 1
@@ -44,13 +45,30 @@ class _Handler(BaseHTTPRequestHandler):
             return
         body: bytes = type(self).payload
         self.send_response(code=HTTPStatus.OK)
-        self.send_header("Content-Length", str(object=len(body)))
+        self.send_header(keyword="Content-Length", value=str(object=len(body)))
         self.end_headers()
         if type(self).drop_after is None:
             _ = self.wfile.write(body)
         else:
             _ = self.wfile.write(body[: type(self).drop_after])
         self.wfile.flush()
+
+    def __getattr__(self, name: str) -> object:
+        """Delegate the handler's uppercase dispatch name to do_get.
+
+        Args:
+            name: Attribute being resolved.
+
+        Returns:
+            The ``do_get`` handler for ``do_GET``.
+
+        Raises:
+            AttributeError: For every other missing attribute.
+
+        """
+        if name == "do_GET":
+            return self.do_get
+        raise AttributeError(name)
 
 
 def _server(

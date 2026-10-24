@@ -112,7 +112,7 @@ def test_existing_tag_blocks_the_plan() -> None:
             expected_exception=ValueError,
             match="already exists",
         ):
-            engine.plan(projects=("demo",), bump=Bump.PATCH)
+            engine.plan(projects=("demo",), bump=Bump.patch)
 
 
 def test_explicit_version_must_exceed_the_latest_tag() -> None:
@@ -133,7 +133,7 @@ def test_plan_succeeds_when_tags_allow_it() -> None:
             root=Path(directory),
             runner=FakeRunner(tags=("other/v9.0.0",)),
         )
-        plan: ReleasePlan = engine.plan(projects=("demo",), bump=Bump.MINOR)
+        plan: ReleasePlan = engine.plan(projects=("demo",), bump=Bump.minor)
         expect(actual=plan.projects[0].new_version, expected="1.1.0")
 
 
@@ -150,7 +150,7 @@ def test_plan_rejects_bump_and_version_together() -> None:
         ):
             engine.plan(
                 projects=("demo",),
-                bump=Bump.PATCH,
+                bump=Bump.patch,
                 version="9.9.9",
             )
 
@@ -199,7 +199,7 @@ def test_execute_writes_the_version_and_a_journal() -> None:
         )
         plan: ReleasePlan = engine.plan(
             projects=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
         )
         engine.execute(plan=plan)
         check(
@@ -226,7 +226,7 @@ def test_execute_dry_run_changes_nothing() -> None:
         engine: ReleaseEngine = _engine(root=root, runner=runner)
         plan: ReleasePlan = engine.plan(
             projects=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
         )
         planning_commands: int = len(runner.commands)
         engine.execute(plan=plan, dry_run=True)
@@ -252,7 +252,7 @@ def test_execute_resume_skips_completed_actions() -> None:
         engine: ReleaseEngine = _engine(root=root, runner=runner)
         plan: ReleasePlan = engine.plan(
             projects=("demo",),
-            bump=Bump.PATCH,
+            bump=Bump.patch,
         )
         engine.execute(plan=plan)
         ran: int = len(runner.commands)
@@ -272,7 +272,7 @@ def test_execute_rejects_a_malformed_write_action() -> None:
             projects=(),
             actions=(
                 Action(
-                    kind=ActionKind.WRITE,
+                    kind=ActionKind.write,
                     description="broken write",
                 ),
             ),

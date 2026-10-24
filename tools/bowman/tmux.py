@@ -7,129 +7,197 @@ from dataclasses import dataclass, fields
 from enum import StrEnum
 from shlex import join
 from sys import stdout
-from typing import Final, Self
+from typing import Final, Self, final
 
-_MAX_COLOUR_INDEX: Final[int] = 255
-_RGB_HEX_LENGTH: Final[int] = 7
-_CONTROL_RANGE_MAX: Final[int] = 9
-_USER_RANGE_MAX_BYTES: Final[int] = 15
+
+@final
+class Constants:
+    """Group module-level constants.
+
+    Attributes:
+        max_colour_index: Grouped module constant.
+        rgb_hex_length: Grouped module constant.
+        control_range_max: Grouped module constant.
+        user_range_max_bytes: Grouped module constant.
+
+    """
+
+    max_colour_index: Final[int] = 255
+    rgb_hex_length: Final[int] = 7
+    control_range_max: Final[int] = 9
+    user_range_max_bytes: Final[int] = 15
 
 
 class Scope(StrEnum):
-    """tmux option scopes."""
+    """tmux option scopes.
 
-    SESSION = "session"
-    WINDOW = "window"
-    PANE = "pane"
-    SERVER = "server"
+    Attributes:
+    pane: Pane.
+    server: Server.
+    session: Session.
+    window: Window.
+
+    """
+
+    session = "session"
+    window = "window"
+    pane = "pane"
+    server = "server"
 
 
 class StatusPosition(StrEnum):
-    """Status-line positions."""
+    """Status-line positions.
 
-    TOP = "top"
-    BOTTOM = "bottom"
+    Attributes:
+    bottom: Bottom.
+    top: Top.
+
+    """
+
+    top = "top"
+    bottom = "bottom"
 
 
 class StatusJustify(StrEnum):
-    """Window-list justification."""
+    """Window-list justification.
 
-    LEFT = "left"
-    CENTRE = "centre"
-    RIGHT = "right"
-    ABSOLUTE_CENTRE = "absolute-centre"
+    Attributes:
+    absolute_centre: Absolute centre.
+    centre: Centre.
+    left: Left.
+    right: Right.
+
+    """
+
+    left = "left"
+    centre = "centre"
+    right = "right"
+    absolute_centre = "absolute-centre"
 
 
 class StatusKeys(StrEnum):
-    """Status prompt key modes."""
+    """Status prompt key modes.
 
-    EMACS = "emacs"
-    VI = "vi"
+    Attributes:
+    emacs: Emacs.
+    vi: Vi.
+
+    """
+
+    emacs = "emacs"
+    vi = "vi"
 
 
 class ColourName(StrEnum):
-    """Named tmux colours."""
+    """Named tmux colours.
 
-    DEFAULT = "default"
-    TERMINAL = "terminal"
-    BLACK = "black"
-    RED = "red"
-    GREEN = "green"
-    YELLOW = "yellow"
-    BLUE = "blue"
-    MAGENTA = "magenta"
-    CYAN = "cyan"
-    WHITE = "white"
-    BRIGHTBLACK = "brightblack"
-    BRIGHTRED = "brightred"
-    BRIGHTGREEN = "brightgreen"
-    BRIGHTYELLOW = "brightyellow"
-    BRIGHTBLUE = "brightblue"
-    BRIGHTMAGENTA = "brightmagenta"
-    BRIGHTCYAN = "brightcyan"
-    BRIGHTWHITE = "brightwhite"
+    Attributes:
+    black: Black.
+    blue: Blue.
+    brightblack: Brightblack.
+    brightblue: Brightblue.
+    brightcyan: Brightcyan.
+    brightgreen: Brightgreen.
+    brightmagenta: Brightmagenta.
+    brightred: Brightred.
+    brightwhite: Brightwhite.
+    brightyellow: Brightyellow.
+    cyan: Cyan.
+    default: Default.
+    green: Green.
+    magenta: Magenta.
+    red: Red.
+    terminal: Terminal.
+    white: White.
+    yellow: Yellow.
+
+    """
+
+    default = "default"
+    terminal = "terminal"
+    black = "black"
+    red = "red"
+    green = "green"
+    yellow = "yellow"
+    blue = "blue"
+    magenta = "magenta"
+    cyan = "cyan"
+    white = "white"
+    brightblack = "brightblack"
+    brightred = "brightred"
+    brightgreen = "brightgreen"
+    brightyellow = "brightyellow"
+    brightblue = "brightblue"
+    brightmagenta = "brightmagenta"
+    brightcyan = "brightcyan"
+    brightwhite = "brightwhite"
 
 
 class Align(StrEnum):
-    """Inline style alignment."""
+    """Inline style alignment.
 
-    LEFT = "left"
-    CENTRE = "centre"
-    RIGHT = "right"
+    Attributes:
+    centre: Centre.
+    left: Left.
+    right: Right.
+
+    """
+
+    left = "left"
+    centre = "centre"
+    right = "right"
 
 
 class ListMarker(StrEnum):
-    """status-format window-list markers."""
+    """status-format window-list markers.
 
-    ON = "on"
-    FOCUS = "focus"
-    LEFT_MARKER = "left-marker"
-    RIGHT_MARKER = "right-marker"
+    Attributes:
+    focus: Focus.
+    left_marker: Left marker.
+    on: On.
+    right_marker: Right marker.
+
+    """
+
+    on = "on"
+    focus = "focus"
+    left_marker = "left-marker"
+    right_marker = "right-marker"
 
 
 class RangeKind(StrEnum):
-    """Mouse-sensitive status ranges."""
+    """Mouse-sensitive status ranges.
 
-    LEFT = "left"
-    RIGHT = "right"
-    SESSION = "session"
-    WINDOW = "window"
-    PANE = "pane"
-    USER = "user"
-    CONTROL = "control"
+    Attributes:
+    control: Control.
+    left: Left.
+    pane: Pane.
+    right: Right.
+    session: Session.
+    user: User.
+    window: Window.
+
+    """
+
+    left = "left"
+    right = "right"
+    session = "session"
+    window = "window"
+    pane = "pane"
+    user = "user"
+    control = "control"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Colour:
-    """Represent a tmux colour."""
+    """Represent a tmux colour.
+
+    Attributes:
+    value: Value.
+
+    """
 
     value: str
-
-    def __post_init__(self) -> None:
-        """Validate the colour.
-
-        Raises:
-            ValueError: If the colour is invalid.
-
-        """
-        named: Final[frozenset[str]] = frozenset(
-            item.value for item in ColourName
-        )
-        valid_index: bool = (
-            self.value.startswith("colour")
-            and self.value[6:].isdigit()
-            and 0 <= int(self.value[6:]) <= _MAX_COLOUR_INDEX
-        )
-        valid_rgb: bool = (
-            len(self.value) == _RGB_HEX_LENGTH
-            and self.value.startswith("#")
-            and all(
-                char in "0123456789abcdefABCDEF" for char in self.value[1:]
-            )
-        )
-        if self.value not in named and not valid_index and not valid_rgb:
-            msg: str = f"invalid tmux colour: {self.value}"
-            raise ValueError(msg)
 
     @classmethod
     def indexed(cls, *, index: int) -> Self:
@@ -145,7 +213,7 @@ class Colour:
             ValueError: If index is outside the supported range.
 
         """
-        if not 0 <= index <= _MAX_COLOUR_INDEX:
+        if not 0 <= index <= Constants.max_colour_index:
             msg: str = "colour index must be between 0 and 255"
             raise ValueError(msg)
         return cls(value=f"colour{index}")
@@ -167,15 +235,50 @@ class Colour:
 
         """
         channels: tuple[int, int, int] = (red, green, blue)
-        if any(not 0 <= channel <= _MAX_COLOUR_INDEX for channel in channels):
+        if any(
+            not 0 <= channel <= Constants.max_colour_index
+            for channel in channels
+        ):
             msg: str = "RGB channels must be between 0 and 255"
             raise ValueError(msg)
         return cls(value=f"#{red:02x}{green:02x}{blue:02x}")
 
+    def __post_init__(self) -> None:
+        """Validate the colour.
+
+        Raises:
+            ValueError: If the colour is invalid.
+
+        """
+        named: Final[frozenset[str]] = frozenset(
+            item.value for item in ColourName
+        )
+        valid_index: bool = (
+            self.value.startswith("colour")
+            and self.value[6:].isdigit()
+            and (0 <= int(self.value[6:]) <= Constants.max_colour_index)
+        )
+        valid_rgb: bool = (
+            len(self.value) == Constants.rgb_hex_length
+            and self.value.startswith("#")
+            and all(
+                char in "0123456789abcdefABCDEF" for char in self.value[1:]
+            )
+        )
+        if self.value not in named and (not valid_index) and (not valid_rgb):
+            msg: str = f"invalid tmux colour: {self.value}"
+            raise ValueError(msg)
+
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxRange:
-    """Represent a tmux inline mouse range."""
+    """Represent a tmux inline mouse range.
+
+    Attributes:
+    kind: Kind.
+    value: Value.
+
+    """
 
     kind: RangeKind
     value: str | int | None = None
@@ -190,7 +293,7 @@ class TmuxRange:
             ValueError: If the range value is invalid for its kind.
 
         """
-        if self.kind in {RangeKind.LEFT, RangeKind.RIGHT}:
+        if self.kind in {RangeKind.left, RangeKind.right}:
             if self.value is not None:
                 msg: str = "left/right ranges do not accept values"
                 raise ValueError(msg)
@@ -198,10 +301,10 @@ class TmuxRange:
         if self.value is None:
             msg = f"{self.kind.value} range requires a value"
             raise ValueError(msg)
-        if self.kind is RangeKind.CONTROL:
+        if self.kind is RangeKind.control:
             if (
                 not isinstance(self.value, int)
-                or not 0 <= self.value <= _CONTROL_RANGE_MAX
+                or not 0 <= self.value <= Constants.control_range_max
             ):
                 msg = "control range must be an integer from 0 to 9"
                 raise ValueError(msg)
@@ -209,8 +312,8 @@ class TmuxRange:
             msg = "only control ranges accept integer values"
             raise ValueError(msg)
         elif (
-            self.kind is RangeKind.USER
-            and len(self.value.encode()) > _USER_RANGE_MAX_BYTES
+            self.kind is RangeKind.user
+            and len(self.value.encode()) > Constants.user_range_max_bytes
         ):
             msg = "user range value must be at most 15 bytes"
             raise ValueError(msg)
@@ -219,7 +322,31 @@ class TmuxRange:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxStyle:
-    """Build a tmux style without hand-written style strings."""
+    """Build a tmux style without hand-written style strings.
+
+    Attributes:
+    align: Align.
+    background: Background.
+    blink: Blink.
+    bold: Bold.
+    dim: Dim.
+    fill: Fill.
+    foreground: Foreground.
+    hidden: Hidden.
+    italics: Italics.
+    link: Link.
+    list_marker: List marker.
+    noattr: Noattr.
+    pop_default: Pop default.
+    push_default: Push default.
+    range_: Range.
+    reverse: Reverse.
+    set_default: Set default.
+    strikethrough: Strikethrough.
+    underscore: Underscore.
+    width: Width.
+
+    """
 
     foreground: Colour | None = None
     background: Colour | None = None
@@ -241,6 +368,20 @@ class TmuxStyle:
     push_default: bool = False
     pop_default: bool = False
     set_default: bool = False
+
+    def render(self) -> str:
+        """Render the style.
+
+        Returns:
+            tmux style string.
+
+        """
+        parts: list[str] = [
+            *self._typed_parts(),
+            *self._attribute_parts(),
+            *self._default_parts(),
+        ]
+        return ",".join(parts) if parts else "default"
 
     @staticmethod
     def _flag(*, name: str, value: bool | None) -> str | None:
@@ -328,62 +469,17 @@ class TmuxStyle:
             if enabled
         ]
 
-    def render(self) -> str:
-        """Render the style.
-
-        Returns:
-            tmux style string.
-
-        """
-        parts: list[str] = [
-            *self._typed_parts(),
-            *self._attribute_parts(),
-            *self._default_parts(),
-        ]
-        return ",".join(parts) if parts else "default"
-
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxFormat:
-    """Composable tmux format expression."""
+    """Composable tmux format expression.
+
+    Attributes:
+    text: Text.
+
+    """
 
     text: str
-
-    def __str__(self) -> str:
-        """Return format text.
-
-        Returns:
-            Raw tmux format.
-
-        """
-        return self.text
-
-    def then(self, *, other: TmuxFormat | str) -> TmuxFormat:
-        """Concatenate another format.
-
-        Args:
-            other: Format or literal text.
-
-        Returns:
-            Combined format.
-
-        """
-        return TmuxFormat(text=self.text + TmuxFormat.raw(value=other).text)
-
-    @staticmethod
-    def raw(*, value: TmuxFormat | str) -> TmuxFormat:
-        """Normalize format input.
-
-        Args:
-            value: Existing format or raw tmux text.
-
-        Returns:
-            Format instance.
-
-        """
-        if isinstance(value, TmuxFormat):
-            return value
-        return TmuxFormat(text=value)
 
     @classmethod
     def literal(cls, *, value: str) -> TmuxFormat:
@@ -449,9 +545,7 @@ class TmuxFormat:
             condition_text = condition_text[2:-1]
         true_text: str = cls.raw(value=when_true).text
         false_text: str = cls.raw(value=when_false).text
-        return cls(
-            text=f"#{{?{condition_text},{true_text},{false_text}}}",
-        )
+        return cls(text=f"#{{?{condition_text},{true_text},{false_text}}}")
 
     @classmethod
     def operator(
@@ -617,64 +711,163 @@ class TmuxFormat:
             text=f"#[{style.render()}]{cls.raw(value=value).text}{tail}",
         )
 
+    @classmethod
+    def raw(cls, *, value: TmuxFormat | str) -> TmuxFormat:
+        """Normalize format input.
 
+        Args:
+            value: Existing format or raw tmux text.
+
+        Returns:
+            Format instance.
+
+        """
+        if isinstance(value, TmuxFormat):
+            return value
+        return cls(text=value)
+
+    def then(self, *, other: TmuxFormat | str) -> TmuxFormat:
+        """Concatenate another format.
+
+        Args:
+            other: Format or literal text.
+
+        Returns:
+            Combined format.
+
+        """
+        return TmuxFormat(text=self.text + TmuxFormat.raw(value=other).text)
+
+    def __str__(self) -> str:
+        """Return format text.
+
+        Returns:
+            Raw tmux format.
+
+        """
+        return self.text
+
+
+@final
 class Formats:
-    """Common tmux status variables and aliases."""
+    """Common tmux status variables and aliases.
 
-    SESSION_NAME: Final[TmuxFormat] = TmuxFormat.variable(name="session_name")
-    SESSION_ID: Final[TmuxFormat] = TmuxFormat.variable(name="session_id")
-    SESSION_WINDOWS: Final[TmuxFormat] = TmuxFormat.variable(
+    Attributes:
+    client_height: Client height.
+    client_name: Client name.
+    client_termname: Client termname.
+    client_width: Client width.
+    host: Host.
+    host_short: Host short.
+    pane_active: Pane active.
+    pane_command: Pane command.
+    pane_dead: Pane dead.
+    pane_dead_status: Pane dead status.
+    pane_height: Pane height.
+    pane_id: Pane id.
+    pane_index: Pane index.
+    pane_path: Pane path.
+    pane_pid: Pane pid.
+    pane_width: Pane width.
+    session_attached: Session attached.
+    session_id: Session id.
+    session_name: Session name.
+    session_windows: Session windows.
+    socket_path: Socket path.
+    version: Version.
+    window_active: Window active.
+    window_activity: Window activity.
+    window_bell: Window bell.
+    window_flags: Window flags.
+    window_id: Window id.
+    window_index: Window index.
+    window_name: Window name.
+
+    """
+
+    session_name: Final[TmuxFormat] = TmuxFormat.variable(name="session_name")
+    session_id: Final[TmuxFormat] = TmuxFormat.variable(name="session_id")
+    session_windows: Final[TmuxFormat] = TmuxFormat.variable(
         name="session_windows",
     )
-    SESSION_ATTACHED: Final[TmuxFormat] = TmuxFormat.variable(
+    session_attached: Final[TmuxFormat] = TmuxFormat.variable(
         name="session_attached",
     )
-    WINDOW_INDEX: Final[TmuxFormat] = TmuxFormat.variable(name="window_index")
-    WINDOW_NAME: Final[TmuxFormat] = TmuxFormat.variable(name="window_name")
-    WINDOW_ID: Final[TmuxFormat] = TmuxFormat.variable(name="window_id")
-    WINDOW_FLAGS: Final[TmuxFormat] = TmuxFormat.variable(name="window_flags")
-    WINDOW_ACTIVE: Final[TmuxFormat] = TmuxFormat.variable(
+    window_index: Final[TmuxFormat] = TmuxFormat.variable(name="window_index")
+    window_name: Final[TmuxFormat] = TmuxFormat.variable(name="window_name")
+    window_id: Final[TmuxFormat] = TmuxFormat.variable(name="window_id")
+    window_flags: Final[TmuxFormat] = TmuxFormat.variable(name="window_flags")
+    window_active: Final[TmuxFormat] = TmuxFormat.variable(
         name="window_active",
     )
-    WINDOW_ACTIVITY: Final[TmuxFormat] = TmuxFormat.variable(
+    window_activity: Final[TmuxFormat] = TmuxFormat.variable(
         name="window_activity",
     )
-    WINDOW_BELL: Final[TmuxFormat] = TmuxFormat.variable(
+    window_bell: Final[TmuxFormat] = TmuxFormat.variable(
         name="window_bell_flag",
     )
-    PANE_INDEX: Final[TmuxFormat] = TmuxFormat.variable(name="pane_index")
-    PANE_ID: Final[TmuxFormat] = TmuxFormat.variable(name="pane_id")
-    PANE_PID: Final[TmuxFormat] = TmuxFormat.variable(name="pane_pid")
-    PANE_COMMAND: Final[TmuxFormat] = TmuxFormat.variable(
+    pane_index: Final[TmuxFormat] = TmuxFormat.variable(name="pane_index")
+    pane_id: Final[TmuxFormat] = TmuxFormat.variable(name="pane_id")
+    pane_pid: Final[TmuxFormat] = TmuxFormat.variable(name="pane_pid")
+    pane_command: Final[TmuxFormat] = TmuxFormat.variable(
         name="pane_current_command",
     )
-    PANE_PATH: Final[TmuxFormat] = TmuxFormat.variable(
+    pane_path: Final[TmuxFormat] = TmuxFormat.variable(
         name="pane_current_path",
     )
-    PANE_ACTIVE: Final[TmuxFormat] = TmuxFormat.variable(name="pane_active")
-    PANE_DEAD: Final[TmuxFormat] = TmuxFormat.variable(name="pane_dead")
-    PANE_DEAD_STATUS: Final[TmuxFormat] = TmuxFormat.variable(
+    pane_active: Final[TmuxFormat] = TmuxFormat.variable(name="pane_active")
+    pane_dead: Final[TmuxFormat] = TmuxFormat.variable(name="pane_dead")
+    pane_dead_status: Final[TmuxFormat] = TmuxFormat.variable(
         name="pane_dead_status",
     )
-    PANE_WIDTH: Final[TmuxFormat] = TmuxFormat.variable(name="pane_width")
-    PANE_HEIGHT: Final[TmuxFormat] = TmuxFormat.variable(name="pane_height")
-    CLIENT_NAME: Final[TmuxFormat] = TmuxFormat.variable(name="client_name")
-    CLIENT_TERMNAME: Final[TmuxFormat] = TmuxFormat.variable(
+    pane_width: Final[TmuxFormat] = TmuxFormat.variable(name="pane_width")
+    pane_height: Final[TmuxFormat] = TmuxFormat.variable(name="pane_height")
+    client_name: Final[TmuxFormat] = TmuxFormat.variable(name="client_name")
+    client_termname: Final[TmuxFormat] = TmuxFormat.variable(
         name="client_termname",
     )
-    CLIENT_WIDTH: Final[TmuxFormat] = TmuxFormat.variable(name="client_width")
-    CLIENT_HEIGHT: Final[TmuxFormat] = TmuxFormat.variable(
+    client_width: Final[TmuxFormat] = TmuxFormat.variable(name="client_width")
+    client_height: Final[TmuxFormat] = TmuxFormat.variable(
         name="client_height",
     )
-    HOST: Final[TmuxFormat] = TmuxFormat.variable(name="host")
-    HOST_SHORT: Final[TmuxFormat] = TmuxFormat.variable(name="host_short")
-    VERSION: Final[TmuxFormat] = TmuxFormat.variable(name="version")
-    SOCKET_PATH: Final[TmuxFormat] = TmuxFormat.variable(name="socket_path")
+    host: Final[TmuxFormat] = TmuxFormat.variable(name="host")
+    host_short: Final[TmuxFormat] = TmuxFormat.variable(name="host_short")
+    version: Final[TmuxFormat] = TmuxFormat.variable(name="version")
+    socket_path: Final[TmuxFormat] = TmuxFormat.variable(name="socket_path")
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxStatusConfig:
-    """Describe status and window-status options."""
+    """Describe status and window-status options.
+
+    Attributes:
+    interval_seconds: Interval seconds.
+    justify: Justify.
+    keys: Keys.
+    left: Left.
+    left_length: Left length.
+    left_style: Left style.
+    message_command_style: Message command style.
+    message_style: Message style.
+    pane_current_status_format: Pane current status format.
+    pane_status_format: Pane status format.
+    position: Position.
+    right: Right.
+    right_length: Right length.
+    right_style: Right style.
+    rows: Rows.
+    style: Style.
+    window_activity_style: Window activity style.
+    window_bell_style: Window bell style.
+    window_current_format: Window current format.
+    window_current_style: Window current style.
+    window_format: Window format.
+    window_last_style: Window last style.
+    window_separator: Window separator.
+    window_silence_style: Window silence style.
+    window_style: Window style.
+
+    """
 
     rows: int | bool | None = None
     position: StatusPosition | None = None
@@ -711,8 +904,8 @@ class TmuxStatusConfig:
         """
         if (
             isinstance(self.rows, int)
-            and not isinstance(self.rows, bool)
-            and self.rows not in {2, 3, 4, 5}
+            and (not isinstance(self.rows, bool))
+            and (self.rows not in {2, 3, 4, 5})
         ):
             msg: str = "status rows must be 2, 3, 4, or 5"
             raise ValueError(msg)
@@ -728,7 +921,12 @@ class TmuxStatusConfig:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxCommand:
-    """One safe argv-based tmux command."""
+    """One safe argv-based tmux command.
+
+    Attributes:
+    argv: Argv.
+
+    """
 
     argv: tuple[str, ...]
 
@@ -739,7 +937,7 @@ class TmuxCommand:
             Shell-escaped command.
 
         """
-        return join(self.argv)
+        return join(split_command=self.argv)
 
 
 type TmuxValue = bool | int | str | StrEnum | TmuxFormat | TmuxStyle
@@ -747,18 +945,35 @@ type TmuxValue = bool | int | str | StrEnum | TmuxFormat | TmuxStyle
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxOption:
-    """Generic option assignment."""
+    """Generic option assignment.
+
+    Attributes:
+    global_: Global.
+    name: Name.
+    scope: Scope.
+    target: Target.
+    value: Value.
+
+    """
 
     name: str
     value: TmuxValue
-    scope: Scope = Scope.SESSION
+    scope: Scope = Scope.session
     target: str | None = None
     global_: bool = False
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxShowFlags:
-    """Display modifiers for show-options."""
+    """Display modifiers for show-options.
+
+    Attributes:
+    hooks: Hooks.
+    inherited: Inherited.
+    quiet: Quiet.
+    value_only: Value only.
+
+    """
 
     value_only: bool = False
     quiet: bool = False
@@ -787,44 +1002,45 @@ class TmuxDistrictState:
     initiator: str | None = None
 
 
+@final
 class TmuxStatusManager:
     """Build all tmux commands needed to manage status presentation."""
 
-    _STATUS_OPTIONS: Final[dict[str, tuple[str, Scope]]] = {
-        "rows": ("status", Scope.SESSION),
-        "position": ("status-position", Scope.SESSION),
-        "interval_seconds": ("status-interval", Scope.SESSION),
-        "justify": ("status-justify", Scope.SESSION),
-        "keys": ("status-keys", Scope.SESSION),
-        "left": ("status-left", Scope.SESSION),
-        "left_length": ("status-left-length", Scope.SESSION),
-        "left_style": ("status-left-style", Scope.SESSION),
-        "right": ("status-right", Scope.SESSION),
-        "right_length": ("status-right-length", Scope.SESSION),
-        "right_style": ("status-right-style", Scope.SESSION),
-        "style": ("status-style", Scope.SESSION),
-        "window_format": ("window-status-format", Scope.WINDOW),
+    _status_options: Final[dict[str, tuple[str, Scope]]] = {
+        "rows": ("status", Scope.session),
+        "position": ("status-position", Scope.session),
+        "interval_seconds": ("status-interval", Scope.session),
+        "justify": ("status-justify", Scope.session),
+        "keys": ("status-keys", Scope.session),
+        "left": ("status-left", Scope.session),
+        "left_length": ("status-left-length", Scope.session),
+        "left_style": ("status-left-style", Scope.session),
+        "right": ("status-right", Scope.session),
+        "right_length": ("status-right-length", Scope.session),
+        "right_style": ("status-right-style", Scope.session),
+        "style": ("status-style", Scope.session),
+        "window_format": ("window-status-format", Scope.window),
         "window_current_format": (
             "window-status-current-format",
-            Scope.WINDOW,
+            Scope.window,
         ),
-        "window_style": ("window-status-style", Scope.WINDOW),
-        "window_current_style": ("window-status-current-style", Scope.WINDOW),
-        "window_last_style": ("window-status-last-style", Scope.WINDOW),
+        "window_style": ("window-status-style", Scope.window),
+        "window_current_style": ("window-status-current-style", Scope.window),
+        "window_last_style": ("window-status-last-style", Scope.window),
         "window_activity_style": (
             "window-status-activity-style",
-            Scope.WINDOW,
+            Scope.window,
         ),
-        "window_bell_style": ("window-status-bell-style", Scope.WINDOW),
-        "window_silence_style": ("window-status-silence-style", Scope.WINDOW),
-        "window_separator": ("window-status-separator", Scope.WINDOW),
-        "pane_status_format": ("window-pane-status-format", Scope.WINDOW),
+        "window_bell_style": ("window-status-bell-style", Scope.window),
+        "window_silence_style": ("window-status-silence-style", Scope.window),
+        "window_separator": ("window-status-separator", Scope.window),
+        "pane_status_format": ("window-pane-status-format", Scope.window),
         "pane_current_status_format": (
             "window-pane-current-status-format",
-            Scope.WINDOW,
+            Scope.window,
         ),
-        "message_style": ("message-style", Scope.SESSION),
-        "message_command_style": ("message-command-style", Scope.SESSION),
+        "message_style": ("message-style", Scope.session),
+        "message_command_style": ("message-command-style", Scope.session),
     }
 
     def __init__(self, *, executable: str = "tmux") -> None:
@@ -837,50 +1053,36 @@ class TmuxStatusManager:
         self._executable: Final[str] = executable
 
     @staticmethod
-    def _render_value(*, value: TmuxValue) -> str:
-        """Render an option value.
+    def argv(
+        *,
+        commands: tuple[TmuxCommand, ...],
+    ) -> tuple[tuple[str, ...], ...]:
+        """Extract argv tuples.
 
         Args:
-            value: Typed option value.
+            commands: Commands.
 
         Returns:
-            tmux-compatible text.
+            argv sequences.
 
         """
-        if isinstance(value, bool):
-            return "on" if value else "off"
-        if isinstance(value, TmuxFormat):
-            return value.text
-        if isinstance(value, TmuxStyle):
-            return value.render()
-        if isinstance(value, StrEnum):
-            return value.value
-        return str(value)
+        return tuple(command.argv for command in commands)
 
     @staticmethod
-    def _scope_flags(*, scope: Scope, global_: bool) -> tuple[str, ...]:
-        """Return set/show scope flags.
+    def shell_commands(
+        *,
+        commands: tuple[TmuxCommand, ...],
+    ) -> tuple[str, ...]:
+        """Render commands for humans.
 
         Args:
-            scope: Option scope.
-            global_: Whether to target global options.
+            commands: Commands.
 
         Returns:
-            CLI flags.
+            Shell-escaped commands.
 
         """
-        scope_flag: Final[dict[Scope, str]] = {
-            Scope.SESSION: "",
-            Scope.WINDOW: "-w",
-            Scope.PANE: "-p",
-            Scope.SERVER: "-s",
-        }
-        flags: list[str] = []
-        if scope_flag[scope]:
-            flags.append(scope_flag[scope])
-        if global_:
-            flags.append("-g")
-        return tuple(flags)
+        return tuple(command.shell() for command in commands)
 
     def set_option(
         self,
@@ -995,7 +1197,7 @@ class TmuxStatusManager:
         *,
         name: str,
         value: str,
-        scope: Scope = Scope.SESSION,
+        scope: Scope = Scope.session,
         target: str | None = None,
         global_: bool = False,
     ) -> TmuxCommand:
@@ -1155,13 +1357,13 @@ class TmuxStatusManager:
 
         """
         commands: list[TmuxCommand] = []
-        for config_field in fields(config):
-            value = getattr(config, config_field.name)
+        for config_field in fields(class_or_instance=config):
+            value: TmuxValue | None = getattr(config, config_field.name)
             if value is None:
                 continue
-            name, scope = self._STATUS_OPTIONS[config_field.name]
+            name, scope = self._status_options[config_field.name]
             target: str | None = (
-                window_target if scope is Scope.WINDOW else session_target
+                window_target if scope is Scope.window else session_target
             )
             commands.append(
                 self.set_option(
@@ -1202,46 +1404,62 @@ class TmuxStatusManager:
             ("district_initiator", state.initiator),
         )
         return tuple(
-            self.set_user_option(
-                name=name,
-                value=str(value),
-                target=target,
-            )
-            for name, value in values
-            if value is not None
+            (
+                self.set_user_option(
+                    name=name,
+                    value=str(object=value),
+                    target=target,
+                )
+                for name, value in values
+                if value is not None
+            ),
         )
 
     @staticmethod
-    def argv(
-        *,
-        commands: tuple[TmuxCommand, ...],
-    ) -> tuple[tuple[str, ...], ...]:
-        """Extract argv tuples.
+    def _render_value(*, value: TmuxValue) -> str:
+        """Render an option value.
 
         Args:
-            commands: Commands.
+            value: Typed option value.
 
         Returns:
-            argv sequences.
+            tmux-compatible text.
 
         """
-        return tuple(command.argv for command in commands)
+        if isinstance(value, bool):
+            return "on" if value else "off"
+        if isinstance(value, TmuxFormat):
+            return value.text
+        if isinstance(value, TmuxStyle):
+            return value.render()
+        if isinstance(value, StrEnum):
+            return value.value
+        return str(object=value)
 
     @staticmethod
-    def shell_commands(
-        *,
-        commands: tuple[TmuxCommand, ...],
-    ) -> tuple[str, ...]:
-        """Render commands for humans.
+    def _scope_flags(*, scope: Scope, global_: bool) -> tuple[str, ...]:
+        """Return set/show scope flags.
 
         Args:
-            commands: Commands.
+            scope: Option scope.
+            global_: Whether to target global options.
 
         Returns:
-            Shell-escaped commands.
+            CLI flags.
 
         """
-        return tuple(command.shell() for command in commands)
+        scope_flag: Final[dict[Scope, str]] = {
+            Scope.session: "",
+            Scope.window: "-w",
+            Scope.pane: "-p",
+            Scope.server: "-s",
+        }
+        flags: list[str] = []
+        if scope_flag[scope]:
+            flags.append(scope_flag[scope])
+        if global_:
+            flags.append("-g")
+        return tuple(flags)
 
 
 if __name__ == "__main__":
@@ -1256,14 +1474,14 @@ if __name__ == "__main__":
     district_right: Final[TmuxFormat] = (
         TmuxFormat.user_option(name="district_state")
         .then(other=" │ attached: ")
-        .then(other=Formats.SESSION_ATTACHED)
+        .then(other=Formats.session_attached)
         .then(other=" │ ")
-        .then(other=Formats.PANE_COMMAND)
+        .then(other=Formats.pane_command)
         .then(other=" │ %H:%M ")
     )
     config: Final[TmuxStatusConfig] = TmuxStatusConfig(
         rows=True,
-        position=StatusPosition.BOTTOM,
+        position=StatusPosition.bottom,
         interval_seconds=1,
         left=district_left,
         left_length=100,
@@ -1290,7 +1508,5 @@ if __name__ == "__main__":
         ),
         manager.refresh_status(),
     )
-    rendered: Final[str] = "\n".join(
-        manager.shell_commands(commands=commands),
-    )
+    rendered: Final[str] = "\n".join(manager.shell_commands(commands=commands))
     stdout.write(f"{rendered}\n")

@@ -9,7 +9,7 @@ package; this facade keeps the stationer's names working and folds
 from __future__ import annotations
 
 from dataclasses import replace
-from typing import TYPE_CHECKING, Final
+from typing import TYPE_CHECKING, Final, final
 
 from tools.charter import (
     Charter,
@@ -40,6 +40,7 @@ __all__: tuple[str, ...] = (
 ExposureError: type[CharterError] = CharterError
 
 
+@final
 class ExposureConstants:
     """Group exposure constants.
 

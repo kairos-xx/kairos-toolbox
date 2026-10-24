@@ -6,10 +6,10 @@ from __future__ import annotations
 from pathlib import Path
 from subprocess import CompletedProcess, run
 from sys import executable
-from typing import Final
+from typing import Final, final
 
-import bowman
 import pytest
+from bowman import __file__ as bowman_file
 from bowman.tmux import (
     Align,
     Colour,
@@ -34,14 +34,24 @@ from bowman.tmux import (
 
 from .helpers import check, expect
 
-MANAGER: Final[TmuxStatusManager] = TmuxStatusManager()
+
+@final
+class Constants:
+    """Group module-level constants.
+
+    Attributes:
+        manager: Grouped module constant.
+
+    """
+
+    manager: Final[TmuxStatusManager] = TmuxStatusManager()
 
 
 def test_colour_accepts_named_values() -> None:
     """Named tmux colours validate."""
     expect(actual=Colour(value="red").value, expected="red")
     expect(
-        actual=Colour(value=ColourName.BRIGHTCYAN.value).value,
+        actual=Colour(value=ColourName.brightcyan.value).value,
         expected="brightcyan",
     )
 
@@ -68,10 +78,7 @@ def test_colour_rgb_validates_channels() -> None:
         actual=Colour.rgb(red=255, green=0, blue=16).value,
         expected="#ff0010",
     )
-    with pytest.raises(
-        expected_exception=ValueError,
-        match="RGB channels",
-    ):
+    with pytest.raises(expected_exception=ValueError, match="RGB channels"):
         Colour.rgb(red=256, green=0, blue=0)
     with pytest.raises(
         expected_exception=ValueError,
@@ -88,59 +95,59 @@ def test_colour_rgb_validates_channels() -> None:
 def test_range_renders_marker_kinds() -> None:
     """Left/right ranges render bare and reject values."""
     expect(
-        actual=TmuxRange(kind=RangeKind.LEFT).render(),
+        actual=TmuxRange(kind=RangeKind.left).render(),
         expected="range=left",
     )
     with pytest.raises(
         expected_exception=ValueError,
         match="do not accept values",
     ):
-        TmuxRange(kind=RangeKind.RIGHT, value="x").render()
+        TmuxRange(kind=RangeKind.right, value="x").render()
 
 
 def test_range_renders_value_kinds() -> None:
     """Value ranges render ``kind|value`` and require a value."""
     expect(
-        actual=TmuxRange(kind=RangeKind.PANE, value="%3").render(),
+        actual=TmuxRange(kind=RangeKind.pane, value="%3").render(),
         expected="range=pane|%3",
     )
     expect(
-        actual=TmuxRange(kind=RangeKind.USER, value="tag").render(),
+        actual=TmuxRange(kind=RangeKind.user, value="tag").render(),
         expected="range=user|tag",
     )
     with pytest.raises(
         expected_exception=ValueError,
         match="requires a value",
     ):
-        TmuxRange(kind=RangeKind.SESSION).render()
+        TmuxRange(kind=RangeKind.session).render()
 
 
 def test_range_validates_control_and_user() -> None:
     """Control ranges need ints 0-9; user ranges cap at 15 bytes."""
     expect(
-        actual=TmuxRange(kind=RangeKind.CONTROL, value=4).render(),
+        actual=TmuxRange(kind=RangeKind.control, value=4).render(),
         expected="range=control|4",
     )
     with pytest.raises(
         expected_exception=ValueError,
         match="integer from 0 to 9",
     ):
-        TmuxRange(kind=RangeKind.CONTROL, value=10).render()
+        TmuxRange(kind=RangeKind.control, value=10).render()
     with pytest.raises(
         expected_exception=ValueError,
         match="integer from 0 to 9",
     ):
-        TmuxRange(kind=RangeKind.CONTROL, value="x").render()
+        TmuxRange(kind=RangeKind.control, value="x").render()
     with pytest.raises(
         expected_exception=ValueError,
         match="only control ranges",
     ):
-        TmuxRange(kind=RangeKind.WINDOW, value=1).render()
+        TmuxRange(kind=RangeKind.window, value=1).render()
     with pytest.raises(
         expected_exception=ValueError,
         match="at most 15 bytes",
     ):
-        TmuxRange(kind=RangeKind.USER, value="x" * 16).render()
+        TmuxRange(kind=RangeKind.user, value="x" * 16).render()
 
 
 def test_style_render_empty_and_typed_fields() -> None:
@@ -151,25 +158,19 @@ def test_style_render_empty_and_typed_fields() -> None:
         background=Colour(value="black"),
         fill=Colour.rgb(red=1, green=2, blue=3),
         width=10,
-        align=Align.CENTRE,
-        range_=TmuxRange(kind=RangeKind.PANE, value="%1"),
-        list_marker=ListMarker.FOCUS,
+        align=Align.centre,
+        range_=TmuxRange(kind=RangeKind.pane, value="%1"),
+        list_marker=ListMarker.focus,
     )
     expect(
         actual=style.render(),
-        expected=(
-            "fg=colour250,bg=black,fill=#010203,width=10,align=centre,"
-            "range=pane|%1,list=focus"
-        ),
+        expected="fg=colour250,bg=black,fill=#010203,width=10,align=centre,range=pane|%1,list=focus",
     )
 
 
 def test_style_render_link_and_attributes() -> None:
     """Link and attribute flags render with no-prefixed negations."""
-    expect(
-        actual=TmuxStyle(link="x").render(),
-        expected="link=x",
-    )
+    expect(actual=TmuxStyle(link="x").render(), expected="link=x")
     expect(actual=TmuxStyle(link="").render(), expected="nolink")
     style: TmuxStyle = TmuxStyle(
         bold=True,
@@ -182,18 +183,13 @@ def test_style_render_link_and_attributes() -> None:
     )
     expect(
         actual=style.render(),
-        expected=(
-            "bold,nodim,italics,noattr,push-default,pop-default,set-default"
-        ),
+        expected="bold,nodim,italics,noattr,push-default,pop-default,set-default",
     )
 
 
 def test_format_composition_and_escaping() -> None:
     """Formats chain, escape literals, and normalize inputs."""
-    expect(
-        actual=TmuxFormat.literal(value="a#b").text,
-        expected="a##b",
-    )
+    expect(actual=TmuxFormat.literal(value="a#b").text, expected="a##b")
     expect(
         actual=TmuxFormat.variable(name="pane_id").text,
         expected="#{pane_id}",
@@ -208,14 +204,11 @@ def test_format_composition_and_escaping() -> None:
     )
     expect(
         actual=str(
-            TmuxFormat.literal(value="x").then(other=Formats.PANE_ID),
+            object=TmuxFormat.literal(value="x").then(other=Formats.pane_id),
         ),
         expected="x#{pane_id}",
     )
-    expect(
-        actual=TmuxFormat.raw(value="#{a}").text,
-        expected="#{a}",
-    )
+    expect(actual=TmuxFormat.raw(value="#{a}").text, expected="#{a}")
 
 
 def test_format_conditional_operator_match() -> None:
@@ -230,7 +223,7 @@ def test_format_conditional_operator_match() -> None:
     )
     expect(
         actual=TmuxFormat.conditional(
-            condition=Formats.PANE_DEAD,
+            condition=Formats.pane_dead,
             when_true="D",
             when_false="",
         ).text,
@@ -239,13 +232,13 @@ def test_format_conditional_operator_match() -> None:
     expect(
         actual=TmuxFormat.operator(
             operator="==",
-            left=Formats.PANE_COMMAND,
+            left=Formats.pane_command,
             right="ssh",
         ).text,
         expected="#{==:#{pane_current_command},ssh}",
     )
     expect(
-        actual=TmuxFormat.match(pattern="dev*", value=Formats.HOST).text,
+        actual=TmuxFormat.match(pattern="dev*", value=Formats.host).text,
         expected="#{m:dev*,#{host}}",
     )
     expect(
@@ -296,10 +289,7 @@ def test_format_modified_time_loop_shell_styled() -> None:
         expected="#(uptime)",
     )
     expect(
-        actual=TmuxFormat.styled(
-            value="x",
-            style=TmuxStyle(bold=True),
-        ).text,
+        actual=TmuxFormat.styled(value="x", style=TmuxStyle(bold=True)).text,
         expected="#[bold]x#[default]",
     )
     expect(
@@ -316,10 +306,7 @@ def test_status_config_validates_rows_and_numbers() -> None:
     """Row counts and negative numerics are rejected."""
     expect(actual=TmuxStatusConfig(rows=True).rows, expected=True)
     expect(actual=TmuxStatusConfig(rows=3).rows, expected=3)
-    with pytest.raises(
-        expected_exception=ValueError,
-        match="status rows",
-    ):
+    with pytest.raises(expected_exception=ValueError, match="status rows"):
         TmuxStatusConfig(rows=6)
     with pytest.raises(
         expected_exception=ValueError,
@@ -335,11 +322,11 @@ def test_status_config_validates_rows_and_numbers() -> None:
 
 def test_set_option_builds_scoped_argv() -> None:
     """set-option renders scopes, flags, targets, and typed values."""
-    command: TmuxCommand = MANAGER.set_option(
+    command: TmuxCommand = Constants.manager.set_option(
         option=TmuxOption(
             name="status",
             value=True,
-            scope=Scope.WINDOW,
+            scope=Scope.window,
             target="s:",
             global_=True,
         ),
@@ -369,22 +356,19 @@ def test_set_option_builds_scoped_argv() -> None:
 
 def test_set_option_renders_typed_values() -> None:
     """Option values render enums, formats, styles, and numbers."""
-    command: TmuxCommand = MANAGER.set_option(
-        option=TmuxOption(
-            name="status-position",
-            value=StatusPosition.TOP,
-        ),
+    command: TmuxCommand = Constants.manager.set_option(
+        option=TmuxOption(name="status-position", value=StatusPosition.top),
     )
     expect(actual=command.argv[-1], expected="top")
-    command = MANAGER.set_option(
-        option=TmuxOption(name="status-left", value=Formats.HOST_SHORT),
+    command = Constants.manager.set_option(
+        option=TmuxOption(name="status-left", value=Formats.host_short),
     )
     expect(actual=command.argv[-1], expected="#{host_short}")
-    command = MANAGER.set_option(
+    command = Constants.manager.set_option(
         option=TmuxOption(name="status-style", value=TmuxStyle(bold=True)),
     )
     expect(actual=command.argv[-1], expected="bold")
-    command = MANAGER.set_option(
+    command = Constants.manager.set_option(
         option=TmuxOption(name="status-interval", value=5),
     )
     expect(actual=command.argv[-1], expected="5")
@@ -393,11 +377,11 @@ def test_set_option_renders_typed_values() -> None:
 def test_unset_and_show_option_build_argv() -> None:
     """Option reset and show commands render their switches."""
     expect(
-        actual=MANAGER.unset_option(
+        actual=Constants.manager.unset_option(
             option=TmuxOption(
                 name="status",
                 value="",
-                scope=Scope.PANE,
+                scope=Scope.pane,
                 target="%1",
             ),
             quiet=True,
@@ -415,18 +399,14 @@ def test_unset_and_show_option_build_argv() -> None:
         ),
     )
     expect(
-        actual=MANAGER.unset_option(
+        actual=Constants.manager.unset_option(
             option=TmuxOption(name="status", value=""),
         ).argv,
         expected=("tmux", "set-option", "-u", "status"),
     )
     expect(
-        actual=MANAGER.show_option(
-            option=TmuxOption(
-                name="status",
-                value="",
-                scope=Scope.SERVER,
-            ),
+        actual=Constants.manager.show_option(
+            option=TmuxOption(name="status", value="", scope=Scope.server),
             flags=TmuxShowFlags(
                 value_only=True,
                 quiet=True,
@@ -453,7 +433,7 @@ def test_unset_and_show_option_build_argv() -> None:
 def test_show_option_omits_empty_name_and_defaults() -> None:
     """An empty option name lists every option."""
     expect(
-        actual=MANAGER.show_option(
+        actual=Constants.manager.show_option(
             option=TmuxOption(name="", value=""),
         ).argv,
         expected=("tmux", "show-options"),
@@ -463,22 +443,15 @@ def test_show_option_omits_empty_name_and_defaults() -> None:
 def test_user_option_normalizes_prefix() -> None:
     """User options gain the @ prefix when missing."""
     expect(
-        actual=MANAGER.set_user_option(
+        actual=Constants.manager.set_user_option(
             name="district_state",
             value="ready",
             target="s",
         ).argv,
-        expected=(
-            "tmux",
-            "set-option",
-            "-t",
-            "s",
-            "@district_state",
-            "ready",
-        ),
+        expected=("tmux", "set-option", "-t", "s", "@district_state", "ready"),
     )
     expect(
-        actual=MANAGER.set_user_option(
+        actual=Constants.manager.set_user_option(
             name="@x",
             value="1",
             global_=True,
@@ -490,50 +463,45 @@ def test_user_option_normalizes_prefix() -> None:
 def test_status_format_array_commands() -> None:
     """status-format array indices are set and unset safely."""
     expect(
-        actual=MANAGER.set_status_format(
+        actual=Constants.manager.set_status_format(
             index=1,
             format_="#[list=on]x",
         ).argv,
-        expected=(
-            "tmux",
-            "set-option",
-            "status-format[1]",
-            "#[list=on]x",
-        ),
+        expected=("tmux", "set-option", "status-format[1]", "#[list=on]x"),
     )
     expect(
-        actual=MANAGER.unset_status_format(index=2).argv,
+        actual=Constants.manager.unset_status_format(index=2).argv,
         expected=("tmux", "set-option", "-u", "status-format[2]"),
     )
     expect(
-        actual=MANAGER.unset_status_format().argv,
+        actual=Constants.manager.unset_status_format().argv,
         expected=("tmux", "set-option", "-u", "status-format"),
     )
     with pytest.raises(
         expected_exception=ValueError,
         match="cannot be negative",
     ):
-        MANAGER.set_status_format(index=-1, format_="x")
+        Constants.manager.set_status_format(index=-1, format_="x")
     with pytest.raises(
         expected_exception=ValueError,
         match="cannot be negative",
     ):
-        MANAGER.unset_status_format(index=-1)
+        Constants.manager.unset_status_format(index=-1)
 
 
 def test_refresh_and_display_commands() -> None:
     """Refresh and display-message commands render targets."""
     expect(
-        actual=MANAGER.refresh_status().argv,
+        actual=Constants.manager.refresh_status().argv,
         expected=("tmux", "refresh-client", "-S"),
     )
     expect(
-        actual=MANAGER.refresh_status(client="c1").argv,
+        actual=Constants.manager.refresh_status(client="c1").argv,
         expected=("tmux", "refresh-client", "-S", "-t", "c1"),
     )
     expect(
-        actual=MANAGER.display(
-            format_=Formats.VERSION,
+        actual=Constants.manager.display(
+            format_=Formats.version,
             target="%0",
         ).argv,
         expected=(
@@ -550,13 +518,13 @@ def test_refresh_and_display_commands() -> None:
 
 def test_config_commands_route_targets_by_scope() -> None:
     """Config fields map to options with per-scope targets."""
-    commands: tuple[TmuxCommand, ...] = MANAGER.config_commands(
+    commands: tuple[TmuxCommand, ...] = Constants.manager.config_commands(
         config=TmuxStatusConfig(
             rows=True,
-            position=StatusPosition.BOTTOM,
+            position=StatusPosition.bottom,
             interval_seconds=1,
-            justify=StatusJustify.ABSOLUTE_CENTRE,
-            keys=StatusKeys.VI,
+            justify=StatusJustify.absolute_centre,
+            keys=StatusKeys.vi,
             left="L",
             window_format="W",
             message_style=TmuxStyle(dim=True),
@@ -565,7 +533,9 @@ def test_config_commands_route_targets_by_scope() -> None:
         window_target="district-main:",
         global_=True,
     )
-    rendered: tuple[str, ...] = MANAGER.shell_commands(commands=commands)
+    rendered: tuple[str, ...] = Constants.manager.shell_commands(
+        commands=commands,
+    )
     expect(actual=len(commands), expected=8)
     expect(
         actual=rendered[0],
@@ -587,10 +557,10 @@ def test_config_commands_route_targets_by_scope() -> None:
     )
     expect(
         actual=rendered[7],
-        expected=("tmux set-option -g -t district-main message-style dim"),
+        expected="tmux set-option -g -t district-main message-style dim",
     )
     expect(
-        actual=MANAGER.argv(commands=commands)[-1],
+        actual=Constants.manager.argv(commands=commands)[-1],
         expected=(
             "tmux",
             "set-option",
@@ -602,9 +572,7 @@ def test_config_commands_route_targets_by_scope() -> None:
         ),
     )
     check(
-        condition=MANAGER.config_commands(
-            config=TmuxStatusConfig(),
-        )
+        condition=Constants.manager.config_commands(config=TmuxStatusConfig())
         == (),
         reason="empty config emits no commands",
     )
@@ -612,14 +580,16 @@ def test_config_commands_route_targets_by_scope() -> None:
 
 def test_district_state_commands_render_user_options() -> None:
     """District session fields map present values to @-options."""
-    commands: tuple[TmuxCommand, ...] = MANAGER.district_state_commands(
-        target="district-main",
-        state=TmuxDistrictState(
-            agent="devin",
-            agent_state="EXECUTING",
-            id="abc123",
-            initiator="joaolopes",
-        ),
+    commands: tuple[TmuxCommand, ...] = (
+        Constants.manager.district_state_commands(
+            target="district-main",
+            state=TmuxDistrictState(
+                agent="devin",
+                agent_state="EXECUTING",
+                id="abc123",
+                initiator="joaolopes",
+            ),
+        )
     )
     expect(
         actual=tuple(command.argv for command in commands),
@@ -659,7 +629,7 @@ def test_district_state_commands_render_user_options() -> None:
         ),
     )
     check(
-        condition=MANAGER.district_state_commands(
+        condition=Constants.manager.district_state_commands(
             target="s",
             state=TmuxDistrictState(),
         )
@@ -685,7 +655,7 @@ def test_executable_override_and_command_shell() -> None:
 
 def test_main_block_renders_demo_commands() -> None:
     """The ``python -m bowman.tmux`` demo prints generated commands."""
-    tools_dir: Path = Path(bowman.__file__).resolve().parent.parent
+    tools_dir: Path = Path(bowman_file).resolve().parent.parent
     result: CompletedProcess[str] = run(
         args=[executable, "-m", "bowman.tmux"],
         cwd=tools_dir,

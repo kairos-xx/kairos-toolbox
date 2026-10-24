@@ -64,7 +64,7 @@ class Settings:
 class SettingsLoader:
     """Load layered charter settings."""
 
-    _FIELDS: Final[frozenset[str]] = frozenset(
+    _fields: Final[frozenset[str]] = frozenset(
         {
             "backend",
             "json_output",
@@ -113,7 +113,7 @@ class SettingsLoader:
         for name, value in (overrides or {}).items():
             if value is None:
                 continue
-            if name not in cls._FIELDS:
+            if name not in cls._fields:
                 msg: str = f"Unknown charter setting: {name}"
                 raise ValueError(msg)
             raw[name] = value
@@ -171,7 +171,7 @@ class SettingsLoader:
             raise TypeError(msg)
         values: SettingTable = {}
         for key, value in charter.items():
-            if key not in cls._FIELDS:
+            if key not in cls._fields:
                 msg = f"Unknown charter setting: {key}"
                 raise ValueError(msg)
             values[key] = value

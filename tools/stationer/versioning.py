@@ -78,9 +78,9 @@ class Version:
             The bumped version without prerelease or build metadata.
 
         """
-        if kind is Bump.MAJOR:
+        if kind is Bump.major:
             return Version(major=self.major + 1, minor=0, patch=0)
-        if kind is Bump.MINOR:
+        if kind is Bump.minor:
             return Version(major=self.major, minor=self.minor + 1, patch=0)
         return Version(
             major=self.major,
@@ -102,7 +102,7 @@ class Version:
         return f"{self.major}.{self.minor}.{self.patch}{suffix}{build}"
 
 
-_VERSION_LINE: Final[Pattern[str]] = regex_compile(
+_version_line: Final[Pattern[str]] = regex_compile(
     pattern="(?m)^(\\s*version(?:\\s*:[^=\\n]+)?\\s*=\\s*[\"'])([^\"'\\n]+)([\"'])",
 )
 
@@ -120,7 +120,7 @@ def read_version(*, text: str) -> str | None:
         The version value, or ``None`` when no assignment is found.
 
     """
-    if (match := _VERSION_LINE.search(string=text)) is None:
+    if (match := _version_line.search(string=text)) is None:
         return None
     return match.group(2)
 
@@ -150,7 +150,17 @@ def replace_version(*, text: str, old: str, new: str) -> tuple[str, int]:
     )
 
 
-def _rank(*, version: Version) -> tuple[int, int, int, tuple[object, ...]]:
+type _PrereleaseIdentifierRank = tuple[int, int | str]
+type _VersionRank = tuple[
+    int,
+    int,
+    int,
+    int,
+    tuple[_PrereleaseIdentifierRank, ...],
+]
+
+
+def _rank(*, version: Version) -> _VersionRank:
     """Order key treating a stable release above any prerelease.
 
     Args:
@@ -160,18 +170,21 @@ def _rank(*, version: Version) -> tuple[int, int, int, tuple[object, ...]]:
         Comparable ordering key.
 
     """
-    tail: tuple[object, ...] = (
-        (1,)
+    identifiers: tuple[_PrereleaseIdentifierRank, ...] = (
+        ()
         if version.prerelease is None
-        else (
-            0,
-            *tuple(
-                int(part) if part.isdigit() else part
-                for part in version.prerelease.split(".")
-            ),
+        else tuple(
+            (0, int(part)) if part.isdigit() else (1, part)
+            for part in version.prerelease.split(sep=".")
         )
     )
-    return (version.major, version.minor, version.patch, tail)
+    return (
+        version.major,
+        version.minor,
+        version.patch,
+        int(version.prerelease is None),
+        identifiers,
+    )
 
 
 def is_newer(
@@ -193,9 +206,26 @@ def is_newer(
         ignored prereleases return ``False``.
 
     """
+    normalized: Pattern[str] = regex_compile(
+        pattern="^(\\d+\\.\\d+\\.\\d+)(?=[A-Za-z])",
+    )
     try:
-        next_version: Version = Version.parse(value=candidate)
-        have_version: Version = Version.parse(value=current)
+        next_version: Version = Version.parse(
+            value=subn(
+                pattern=normalized,
+                repl="\\g<1>-",
+                string=candidate,
+                count=1,
+            )[0],
+        )
+        have_version: Version = Version.parse(
+            value=subn(
+                pattern=normalized,
+                repl="\\g<1>-",
+                string=current,
+                count=1,
+            )[0],
+        )
     except ValueError:
         return False
     if next_version.prerelease is not None and not allow_prerelease:

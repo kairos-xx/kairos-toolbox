@@ -57,7 +57,7 @@ def _fake_result(*, response: str) -> DistrictBowmanResult:
             security=SecurityContext(authenticated=True),
             validity=ValidityResult(
                 valid=True,
-                code=ValidityCode.VALID,
+                code=ValidityCode.valid,
                 reason="ok",
             ),
             trace=Trace(),

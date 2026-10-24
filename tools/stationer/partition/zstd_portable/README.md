@@ -8,10 +8,10 @@ Portable Zstandard CLI wrapper with lazy zipped-binary extraction.
 ### Files
 
 - [`__init__.py`](__init__.py) — Portable Zstandard CLI wrapper with lazy zipped-binary extraction.
-- [`py.typed`](py.typed) — Provide py.typed content.
+- [`py.typed`](py.typed) — Provide py typed content.
 
 ### Subdirectories
 
-- [`bin/`](bin/) — Per-platform zipped ``zstd`` binaries.
+- [`bin/`](bin/README.md) — Provide SHA256SUMS project content.
 
 <!-- exactus:inventory:end -->

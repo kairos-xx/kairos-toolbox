@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from urllib.request import OpenerDirector, Request
     from urllib.response import addinfourl
 
-    from .json_types import Json
+    from .json_types import JsonObject
 
 
 class FetchError(RuntimeError):
@@ -32,10 +32,10 @@ class Constants:
     """Group module-level constants.
 
     Attributes:
-        user_agent: User-Agent header sent with every request.
-        retryable: HTTP status codes worth retrying.
-        chunk: Streaming read size in bytes.
-        backoff: Initial retry delay in seconds.
+        user_agent: Grouped module constant.
+        retryable: Grouped module constant.
+        chunk: Grouped module constant.
+        backoff: Grouped module constant.
 
     """
 
@@ -154,9 +154,7 @@ def fetch(
             response exceeds ``max_bytes``, or the stream ends early.
 
     """
-    resolved: FetchOptions = (
-        options if options is not None else (FetchOptions())
-    )
+    resolved: FetchOptions = options if options is not None else FetchOptions()
     parsed: ParseResult = urlparse(url=url)
     if (
         parsed.scheme.lower() not in resolved.allowed_schemes
@@ -178,7 +176,7 @@ def fetch(
         if length is not None:
             declared = int(length)
         reader: ResponseReader = cast(typ="ResponseReader", val=response)
-        with response, os_fdopen(descriptor, "wb") as stream:
+        with response, os_fdopen(fd=descriptor, mode="wb") as stream:
             while chunk := reader.read(
                 min(Constants.chunk, resolved.max_bytes - received + 1),
             ):
@@ -198,22 +196,20 @@ def fetch(
         declared is not None and received != declared
     ):
         temporary.unlink(missing_ok=True)
-        failure: str = (
+        msg = (
             f"Response from {url} exceeded {resolved.max_bytes} bytes."
             if received > resolved.max_bytes
-            else f"Truncated response from {url}: "
-            f"{received} of {declared} bytes."
+            else (
+                f"Truncated response from "
+                f"{url}: {received} of {declared} bytes."
+            )
         )
-        raise FetchError(failure)
+        raise FetchError(msg)
     temporary.replace(target=destination)
     return destination
 
 
-def fetch_bytes(
-    *,
-    url: str,
-    options: FetchOptions | None = None,
-) -> bytes:
+def fetch_bytes(*, url: str, options: FetchOptions | None = None) -> bytes:
     """Download ``url`` and return its body bytes.
 
     Args:
@@ -233,11 +229,7 @@ def fetch_bytes(
         return destination.read_bytes()
 
 
-def fetch_json(
-    *,
-    url: str,
-    options: FetchOptions | None = None,
-) -> Json:
+def fetch_json(*, url: str, options: FetchOptions | None = None) -> JsonObject:
     """GET and decode a JSON document over the bounded transport.
 
     Args:
@@ -249,4 +241,4 @@ def fetch_json(
 
     """
     body: bytes = fetch_bytes(url=url, options=options)
-    return cast(typ="Json", val=json_loads(body))
+    return cast(typ="JsonObject", val=json_loads(s=body))

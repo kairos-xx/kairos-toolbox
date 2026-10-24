@@ -18,7 +18,7 @@ from select import select
 from shlex import quote
 from shutil import copy2, copytree, ignore_patterns, rmtree, which
 from sys import argv, executable, stdin, stdout
-from typing import TYPE_CHECKING, Final, Protocol, TypedDict, cast
+from typing import TYPE_CHECKING, Final, Protocol, TypedDict, cast, final
 from zipfile import is_zipfile
 
 from .claude import ClaudeHooks
@@ -46,6 +46,7 @@ if TYPE_CHECKING:
 type TerminalAttributes = list[int | bytes | list[bytes]]
 
 
+@final
 class _Termios(Protocol):
     """Describe the POSIX terminal operations used by the wizard.
 

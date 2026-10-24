@@ -14,28 +14,28 @@ class Bump(StrEnum):
     """Supported semantic-version increments.
 
     Attributes:
-        MAJOR: Increment the major component.
-        MINOR: Increment the minor component.
-        PATCH: Increment the patch component.
+        major: Increment the major component.
+        minor: Increment the minor component.
+        patch: Increment the patch component.
 
     """
 
-    MAJOR = "major"
-    MINOR = "minor"
-    PATCH = "patch"
+    major = "major"
+    minor = "minor"
+    patch = "patch"
 
 
 class ActionKind(StrEnum):
     """Kinds of release action.
 
     Attributes:
-        COMMAND: Execute a subprocess command.
-        WRITE: Write file content.
+        command: Execute a subprocess command.
+        write: Write file content.
 
     """
 
-    COMMAND = "command"
-    WRITE = "write"
+    command = "command"
+    write = "write"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

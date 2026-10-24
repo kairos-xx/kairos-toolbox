@@ -125,7 +125,7 @@ def _parser() -> ArgumentParser:
         _ = group(
             "--bump",
             choices=tuple(Bump),
-            default=Bump.PATCH,
+            default=Bump.patch,
             type=Bump,
         )
         _ = group("--version")

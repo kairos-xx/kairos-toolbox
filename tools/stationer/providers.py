@@ -79,7 +79,7 @@ class GitHubProvider:
         """
         slug: str = f"{config.owner}/{config.name}"
         create: Action = Action(
-            kind=ActionKind.COMMAND,
+            kind=ActionKind.command,
             description=f"Ensure GitHub repository {slug} exists",
             command=(
                 "gh",
@@ -96,7 +96,7 @@ class GitHubProvider:
             ),
         )
         edit: Action = Action(
-            kind=ActionKind.COMMAND,
+            kind=ActionKind.command,
             description=f"Synchronize GitHub repository {slug}",
             command=(
                 "gh",
@@ -139,7 +139,7 @@ class GitHubProvider:
         slug: str = f"{repository.owner}/{repository.name}"
         return (
             Action(
-                kind=ActionKind.COMMAND,
+                kind=ActionKind.command,
                 description=f"Upload assets to GitHub release {tag}",
                 command=(
                     "gh",
@@ -200,7 +200,7 @@ class GitHubProvider:
         )
         return (
             Action(
-                kind=ActionKind.COMMAND,
+                kind=ActionKind.command,
                 description=f"Create GitHub release {details.tag}",
                 command=command,
                 cwd=root,
@@ -232,7 +232,7 @@ class PyPiProvider:
         """
         return (
             Action(
-                kind=ActionKind.COMMAND,
+                kind=ActionKind.command,
                 description=f"Build Python distribution in {project_root}",
                 command=("python", "-m", "build"),
                 cwd=project_root,
@@ -268,7 +268,7 @@ class PyPiProvider:
         )
         return (
             Action(
-                kind=ActionKind.COMMAND,
+                kind=ActionKind.command,
                 description=(
                     f"Publish Python distribution from {project_root}"
                 ),

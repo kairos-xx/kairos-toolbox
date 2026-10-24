@@ -120,13 +120,14 @@ def _requires(catalog: Catalog) -> dict[str, tuple[str, ...]]:
     }
 
 
+@final
 class _PosixLock(Protocol):
     """Typed interface to the optional POSIX locking module.
 
     Attributes:
-        LOCK_EX: Lock ex recorded by this structure.
-        LOCK_NB: Lock nb recorded by this structure.
-        LOCK_UN: Lock un recorded by this structure.
+        LOCK_EX: Exclusive lock flag.
+        LOCK_NB: Non-blocking flag.
+        LOCK_UN: Unlock flag.
 
     """
 
@@ -144,12 +145,13 @@ class _PosixLock(Protocol):
         """
 
 
+@final
 class _WindowsLock(Protocol):
     """Typed interface to the optional Windows locking module.
 
     Attributes:
-        LK_NBLCK: Lk nblck recorded by this structure.
-        LK_UNLCK: Lk unlck recorded by this structure.
+        LK_NBLCK: Non-blocking lock flag.
+        LK_UNLCK: Unlock flag.
 
     """
 

@@ -8,6 +8,7 @@ from sys import executable as sys_executable
 from typing import TYPE_CHECKING
 
 from tests.tools.stationer.helpers import check
+from tools import stationer
 
 if TYPE_CHECKING:
     from subprocess import CompletedProcess
@@ -28,17 +29,19 @@ def _import_exit(*, module: str, forbidden: str) -> int:
         args=[
             sys_executable,
             "-c",
-            f"import {module}, sys; sys.exit(int({forbidden!r} in sys.modules))",
+            (
+                f"import {module}, sys;"
+                f" sys.exit(int({forbidden!r} in sys.modules))"
+            ),
         ],
         capture_output=True,
+        check=False,
     )
     return result.returncode
 
 
 def test_every_public_name_still_imports() -> None:
     """Every ``__all__`` name resolves through the lazy API."""
-    from tools import stationer
-
     for name in stationer.__all__:
         check(
             condition=getattr(stationer, name) is not None,
@@ -52,13 +55,20 @@ def test_partition_import_stays_light() -> None:
         module="tools.stationer.partition",
         forbidden="tools.stationer.builder",
     )
-    check(condition=expect_exit == 0, reason="partition import pulled builder.")
+    check(
+        condition=expect_exit == 0,
+        reason="partition import pulled builder.",
+    )
 
 
 def test_versioning_and_naming_import_light() -> None:
     """Versioning and naming modules stay builder-free on import."""
     for module in ("tools.stationer.versioning", "tools.stationer.naming"):
         check(
-            condition=_import_exit(module=module, forbidden="tools.stationer.builder") == 0,
+            condition=_import_exit(
+                module=module,
+                forbidden="tools.stationer.builder",
+            )
+            == 0,
             reason=f"{module} import pulled builder.",
         )

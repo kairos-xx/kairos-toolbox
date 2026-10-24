@@ -14,6 +14,7 @@ Bowman native-elevation platform branch tests.
 - [`test_elevation_uri.py`](test_elevation_uri.py) — Elevation URI tests.
 - [`test_hardening.py`](test_hardening.py) — Production-hardening feature tests.
 - [`test_security.py`](test_security.py) — Security lifecycle tests.
+- [`test_tmux.py`](test_tmux.py) — Bowman tmux status DSL and command builder tests.
 - [`test_trust_layer.py`](test_trust_layer.py) — Trust-envelope framework tests.
 - [`test_uri.py`](test_uri.py) — Bowman signed URI tests.
 

@@ -12,7 +12,15 @@ VERSION=@@VERSION@@
 IDENTIFIER=@@IDENTIFIER@@
 SRC="$ROOT/src"
 
-@@PYTHON@@ -m zipfile -e "$ROOT/source.zip" "$SRC"
+if [ -f "$ROOT/catalog.json" ]; then
+    @@PYTHON@@ -m zipfile -e "@@STORE@@/partition-runtime.zip" "$ROOT/rt"
+    PYTHONPATH="$ROOT/rt" @@PYTHON@@ -m stationer.partition materialize \
+        "$ROOT/catalog.json" \
+        --store-root "@@STORE@@" --objects "@@STORE@@/objects" \
+        --component source --out "$SRC"
+else
+    @@PYTHON@@ -m zipfile -e "$ROOT/source.zip" "$SRC"
+fi
 @@PYTHON@@ -m venv "$ROOT/venv"
 "$ROOT/venv/bin/python" -m pip install \
   --disable-pip-version-check --upgrade pip

@@ -29,7 +29,7 @@ from tests.conftest import sibling_tree
 
 if TYPE_CHECKING:
     from pathlib import Path
-WORKSPACE: Final[Path] = sibling_tree().project.parent
+workspace: Final[Path] = sibling_tree().project.parent
 
 
 def expect(*, actual: object, expected: object) -> None:
@@ -94,7 +94,7 @@ def layout(home: Path) -> Layout:
         lib_dir=home / ".local" / "lib",
         alias="testshared",
         mode="live",
-        source_root=WORKSPACE,
+        source_root=workspace,
         python=executable,
     )
 

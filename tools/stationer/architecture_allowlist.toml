@@ -1,0 +1,46 @@
+# Architecture allowlist — current boundary offenders and the work that
+# retires each one. The AST guard in
+# tests/tools/stationer/test_architecture.py fails when a stationer module
+# gains a new direct-execution site and when an entry goes stale.
+#
+# Contract: everything that runs in Docker, QEMU, UTM, a VM or a remote
+# worker goes through tools.conjure sessions. Business modules must not
+# spawn processes or speak docker/qemu/utmctl directly.
+
+[[offenders]]
+file = "tools/stationer/remote_builder.py"
+patterns = ["subprocess_run(", "from subprocess import"]
+reason = "Remote rsync/ssh orchestration predates the conjure session layer."
+retires = "Plan phase: remote execution routed through tools.conjure sessions"
+
+[[offenders]]
+file = "tools/stationer/upload.py"
+patterns = ["from subprocess import"]
+reason = "Artifact upload shells out to the system uploader tool."
+retires = "Plan phase: remote execution routed through tools.conjure sessions"
+
+# Sanctioned cross-product seams. A seam owns delegation to a sibling
+# product; business modules must reach the sibling through the seam.
+[[imports]]
+file = "tools/stationer/remote_exposure.py"
+module = "tools.charter"
+reason = "Facade that re-exports charter's exposure/shortening surface."
+retires = "none — sanctioned charter seam"
+
+[[offenders]]
+file = "tools/stationer/sessions.py"
+patterns = ["utmctl"]
+reason = "Docstring describes the conjure runner seam; the session classes are the sanctioned boundary."
+retires = "none — conjure session seam"
+
+[[offenders]]
+file = "tools/stationer/partition/zstd_portable/__init__.py"
+patterns = ["from subprocess import", "Popen(", "qemu-system"]
+reason = "Runs the bundled zstd binary locally; qemu-system appears in docstring context only."
+retires = "none — local codec execution is its purpose"
+
+[[offenders]]
+file = "tools/stationer/partition/launcher.py"
+patterns = ["from subprocess import"]
+reason = "Launcher dispatches local tool commands (python module, probe, JS, binary); these run on the local host, not remotes."
+retires = "none — local dispatch is the launcher's purpose"

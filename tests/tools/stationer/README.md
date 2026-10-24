@@ -23,7 +23,9 @@ Tests for the cross-platform release builder and publishing control plane.
 - [`test_installer_support.py`](test_installer_support.py) — Tests for the installer payload helpers shared by every builder.
 - [`test_installerless_results.py`](test_installerless_results.py) — Tests for builds that produce a frozen executable but no installer.
 - [`test_layout.py`](test_layout.py) — Tests for the ``<os>/<arch>/<abi>/<package>/`` output layout.
+- [`test_lazy_init.py`](test_lazy_init.py) — Tests for the lazy stationer public API.
 - [`test_local_dependencies.py`](test_local_dependencies.py) — Tests for installing local sibling projects before the main project.
+- [`test_naming.py`](test_naming.py) — Tests for release asset and tag naming.
 - [`test_planner.py`](test_planner.py) — Planner tests.
 - [`test_progress.py`](test_progress.py) — Tests for guest-to-host build progress reporting.
 - [`test_providers.py`](test_providers.py) — Tests for the release providers' action planning.
@@ -45,6 +47,6 @@ Tests for the cross-platform release builder and publishing control plane.
 
 ### Subdirectories
 
-No subdirectories.
+- [`partition/`](partition/README.md) — Partition engine tests.
 
 <!-- exactus:inventory:end -->

@@ -109,6 +109,6 @@ def hermetic_conjure_user_settings(
 
     """
     monkeypatch.setattr(
-        "tools.conjure.settings.Constants.default_user_settings",
-        tmp_path / "no-user-settings.toml",
+        target="tools.conjure.settings.Constants.default_user_settings",
+        name=tmp_path / "no-user-settings.toml",
     )

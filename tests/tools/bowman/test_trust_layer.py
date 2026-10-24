@@ -57,14 +57,14 @@ def test_key_rotation_signing_and_revocation() -> None:
         reason="freshly signed envelopes must verify",
     )
     second: SigningKey = keys.rotate(key_id="second")
-    expect(actual=second.status, expected=KeyStatus.ACTIVE)
+    expect(actual=second.status, expected=KeyStatus.active)
     first_key: SigningKey | None = keys.get(key_id="first")
     check(
         condition=first_key is not None,
         reason="retired keys must remain for verification",
     )
     if first_key is not None:
-        expect(actual=first_key.status, expected=KeyStatus.RETIRING)
+        expect(actual=first_key.status, expected=KeyStatus.retiring)
     check(
         condition=envelope.verify(keys=keys),
         reason="retiring keys must still verify",
@@ -140,7 +140,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             session_id="session",
             now=now,
         ).code,
-        expected=ValidityCode.VALID,
+        expected=ValidityCode.valid,
     )
     wrong_issuer: ValidityWindow = ValidityWindow(
         issued_at=now,
@@ -154,7 +154,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             window=wrong_issuer,
             now=now,
         ).code,
-        expected=ValidityCode.WRONG_ISSUER,
+        expected=ValidityCode.wrong_issuer,
     )
     expired: ValidityWindow = ValidityWindow(
         issued_at=now - timedelta(minutes=2),
@@ -168,7 +168,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             window=expired,
             now=now,
         ).code,
-        expected=ValidityCode.EXPIRED,
+        expected=ValidityCode.expired,
     )
     future_issued: ValidityWindow = ValidityWindow(
         issued_at=now + timedelta(minutes=1),
@@ -180,7 +180,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             window=future_issued,
             now=now,
         ).code,
-        expected=ValidityCode.CLOCK_SKEW,
+        expected=ValidityCode.clock_skew,
     )
     not_yet: ValidityWindow = ValidityWindow(
         issued_at=now,
@@ -193,7 +193,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             window=not_yet,
             now=now,
         ).code,
-        expected=ValidityCode.NOT_YET_VALID,
+        expected=ValidityCode.not_yet_valid,
     )
     wrong_audience: ValidityWindow = ValidityWindow(
         issued_at=now,
@@ -206,7 +206,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             window=wrong_audience,
             now=now,
         ).code,
-        expected=ValidityCode.WRONG_AUDIENCE,
+        expected=ValidityCode.wrong_audience,
     )
     expect(
         actual=policy.evaluate(
@@ -215,7 +215,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             session_id="session",
             now=now,
         ).code,
-        expected=ValidityCode.WRONG_MACHINE,
+        expected=ValidityCode.wrong_machine,
     )
     expect(
         actual=policy.evaluate(
@@ -224,7 +224,7 @@ def test_validity_policy_all_major_time_and_binding_states() -> None:
             session_id="other",
             now=now,
         ).code,
-        expected=ValidityCode.WRONG_SESSION,
+        expected=ValidityCode.wrong_session,
     )
 
 
@@ -232,20 +232,20 @@ def test_principal_strength_and_evidence() -> None:
     """Principals enforce a minimum authentication strength."""
     principal: Principal = Principal(
         subject="user",
-        strength=AuthenticationStrength.OAUTH,
+        strength=AuthenticationStrength.oauth,
         evidence=(
             Evidence(
-                kind=EvidenceKind.OAUTH,
+                kind=EvidenceKind.oauth,
                 name="subject",
                 value="user",
-                trust=TrustLevel.CRYPTOGRAPHICALLY_VERIFIED,
+                trust=TrustLevel.cryptographically_verified,
             ),
         ),
     )
-    principal.require_strength(minimum=AuthenticationStrength.PROCESS)
+    principal.require_strength(minimum=AuthenticationStrength.process)
     with pytest.raises(expected_exception=AuthenticationError):
         principal.require_strength(
-            minimum=AuthenticationStrength.OS_ADMIN,
+            minimum=AuthenticationStrength.os_admin,
         )
 
 
@@ -256,7 +256,7 @@ def test_trace_context_deadline_and_request_context() -> None:
     span: Span = trace.finish(
         name="authorization",
         started_at=started,
-        status=SpanStatus.OK,
+        status=SpanStatus.ok,
         attributes={"policy": "default"},
     )
     check(
@@ -266,7 +266,7 @@ def test_trace_context_deadline_and_request_context() -> None:
     expect(actual=len(trace.spans), expected=1)
     validity: ValidityResult = ValidityResult(
         valid=True,
-        code=ValidityCode.VALID,
+        code=ValidityCode.valid,
         reason="ok",
     )
     context: RequestContext = RequestContext(

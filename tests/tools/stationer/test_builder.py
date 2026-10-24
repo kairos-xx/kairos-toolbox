@@ -43,6 +43,7 @@ from tools.stationer.builder import (
     SourceArchive,
     job_failure,
 )
+from tools.stationer.source_packs import SourcePacks
 
 from .fake_sessions import (
     FakeSession,
@@ -833,7 +834,19 @@ def test_linux_guest_builder_probes_and_pulls_artifacts(
         destination.rsplit(sep="/", maxsplit=1)[-1]
         for destination in session.files
     )
-    expect(actual=uploaded, expected=["build.sh", "source.zip"])
+    check(
+        condition="source.zip" not in uploaded,
+        reason="source travels as content-addressed packs",
+    )
+    expect(
+        actual={"build.sh", "catalog.json", "partition-runtime.zip"}
+        <= set(uploaded),
+        expected=True,
+    )
+    check(
+        condition=any(name.endswith(".zst") for name in uploaded),
+        reason="at least one content pack must reach the guest",
+    )
     check(
         condition=any(
             command[-1].endswith("build.sh") for command in session.commands
@@ -841,6 +854,66 @@ def test_linux_guest_builder_probes_and_pulls_artifacts(
         reason="the worker script must run in the guest",
     )
     expect(actual=session.events[-1], expected="close")
+
+
+def test_guest_build_uploads_only_missing_packs(tmp_path: Path) -> None:
+    """A store the guest already holds transfers only new metadata.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+
+    """
+    identity: Path = tmp_path / "id_ed25519"
+    identity.write_text(data="key\n", encoding="utf-8")
+    output: Path = tmp_path / "out"
+    first: Opener = Opener(handler=glibc_probe)
+    _ = PosixQemuBuilder(open_session=first).build(
+        build=PosixBuild(
+            project=project(root=tmp_path / "src"),
+            config=guest_config(identity=identity),
+            platform_name="linux",
+            linux=linux_config(),
+        ),
+        output=output,
+    )
+
+    def warm_probe(*, arguments: tuple[str, ...]) -> str | None:
+        """Answer probes as a guest holding every pack and runtime.
+
+        Args:
+            arguments: Command arguments being faked.
+
+        Returns:
+            Probe or store listing output for matching commands.
+
+        """
+        if "uname" in arguments[-1]:
+            return "x86_64\n"
+        if "find" in arguments[-1]:
+            packs: dict[str, Path] = SourcePacks.packs(
+                store=output / ".partition",
+            )
+            names: str = "".join(
+                f"./{name}\n" for name in sorted(packs)
+            )
+            return names + "./partition-runtime.zip\n"
+        return None
+
+    second: Opener = Opener(handler=warm_probe)
+    _ = PosixQemuBuilder(open_session=second).build(
+        build=PosixBuild(
+            project=project(root=tmp_path / "src"),
+            config=guest_config(identity=identity),
+            platform_name="linux",
+            linux=linux_config(),
+        ),
+        output=output,
+    )
+    uploaded: list[str] = sorted(
+        destination.rsplit(sep="/", maxsplit=1)[-1]
+        for destination in second.created[0].files
+    )
+    expect(actual=uploaded, expected=["build.sh", "catalog.json"])
 
 
 def test_linux_guest_musl_probe_names_the_apk(

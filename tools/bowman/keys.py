@@ -38,15 +38,15 @@ class KeyStatus(StrEnum):
     """Signing key lifecycle state.
 
     Attributes:
-        ACTIVE: Key may sign and verify.
-        RETIRING: Key may verify but not sign.
-        REVOKED: Key may neither sign nor verify.
+        active: Key may sign and verify.
+        retiring: Key may verify but not sign.
+        revoked: Key may neither sign nor verify.
 
     """
 
-    ACTIVE = "active"
-    RETIRING = "retiring"
-    REVOKED = "revoked"
+    active = "active"
+    retiring = "retiring"
+    revoked = "revoked"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -62,7 +62,7 @@ class SigningKey:
 
     key_id: str
     material: bytes
-    status: KeyStatus = KeyStatus.ACTIVE
+    status: KeyStatus = KeyStatus.active
 
 
 @dataclass(slots=True, kw_only=True)
@@ -129,7 +129,7 @@ class KeyRing:
         new_key: SigningKey = SigningKey(
             key_id=key_id,
             material=material,
-            status=KeyStatus.ACTIVE,
+            status=KeyStatus.active,
         )
         self._keys[key_id] = new_key
         self._active_id = key_id
@@ -137,7 +137,7 @@ class KeyRing:
             self._keys[current.key_id] = SigningKey(
                 key_id=current.key_id,
                 material=current.material,
-                status=KeyStatus.RETIRING,
+                status=KeyStatus.retiring,
             )
         return new_key
 
@@ -168,7 +168,7 @@ class KeyRing:
         self._keys[key_id] = SigningKey(
             key_id=current.key_id,
             material=current.material,
-            status=KeyStatus.REVOKED,
+            status=KeyStatus.revoked,
         )
 
     def sign(self, *, payload: bytes) -> tuple[str, str]:
@@ -206,7 +206,7 @@ class KeyRing:
 
         """
         key: SigningKey | None = self._keys.get(key_id)
-        if key is None or key.status is KeyStatus.REVOKED:
+        if key is None or key.status is KeyStatus.revoked:
             return False
         expected: str = urlsafe_b64encode(
             s=digest(key=key.material, msg=payload, digest="sha256"),

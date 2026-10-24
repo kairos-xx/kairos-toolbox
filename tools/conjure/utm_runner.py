@@ -7,7 +7,7 @@ from secrets import token_hex
 from socket import AF_INET, SOCK_DGRAM, socket
 from subprocess import CompletedProcess, TimeoutExpired, run
 from time import monotonic, sleep
-from typing import TYPE_CHECKING, Final, Self
+from typing import TYPE_CHECKING, Final, Self, final
 
 from tools.conjure.errors import (
     QemuRunnerError,
@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from types import TracebackType
 
 
+@final
 class UtmRunner:
     """Drive one UTM virtual machine without an SSH server in the guest.
 
@@ -33,27 +34,27 @@ class UtmRunner:
     and its status and output are real. Guests must be Windows.
 
     Attributes:
-        DEFAULT_UTMCTL: Where the App Store and DMG builds install ``utmctl``.
-        IPV4_DOTS: Number of dots in a dotted-quad IPv4 address.
-        WORK_DIRECTORY: Guest folder for a command's script, log and status.
-        SHELL: Guest program that runs the wrapper script.
-        STATUS_POLL_SECONDS: Wait between looks for a command's status file.
+        default_utmctl: Where the App Store and DMG builds install ``utmctl``.
+        ipv4_dots: Number of dots in a dotted-quad IPv4 address.
+        work_directory: Guest folder for a command's script, log and status.
+        shell: Guest program that runs the wrapper script.
+        status_poll_seconds: Wait between looks for a command's status file.
 
     """
 
-    DEFAULT_UTMCTL: Final[Path] = Path(
+    default_utmctl: Final[Path] = Path(
         "/Applications/UTM.app/Contents/MacOS/utmctl",
     )
-    IPV4_DOTS: Final[int] = 3
-    WORK_DIRECTORY: Final[str] = "C:\\Windows\\Temp"
-    SHELL: Final[tuple[str, ...]] = (
+    ipv4_dots: Final[int] = 3
+    work_directory: Final[str] = "C:\\Windows\\Temp"
+    shell: Final[tuple[str, ...]] = (
         "powershell.exe",
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
     )
-    STATUS_POLL_SECONDS: Final[float] = 1.0
+    status_poll_seconds: Final[float] = 1.0
     _name: str
     _utmctl: Path
     _start_timeout: float
@@ -84,7 +85,7 @@ class UtmRunner:
 
         """
         self._name = name
-        self._utmctl = utmctl if utmctl is not None else self.DEFAULT_UTMCTL
+        self._utmctl = utmctl if utmctl is not None else self.default_utmctl
         self._start_timeout = start_timeout_seconds
         self._poll_interval = poll_interval_seconds
         self._stop_on_close = stop_on_close
@@ -115,7 +116,7 @@ class UtmRunner:
             (
                 line.strip()
                 for line in completed.stdout.splitlines()
-                if line.strip().count(".") == self.IPV4_DOTS
+                if line.strip().count(".") == self.ipv4_dots
                 and ":" not in line
             ),
             None,
@@ -198,7 +199,7 @@ class UtmRunner:
         if not command:
             msg = "UTM command must not be empty."
             raise ValueError(msg)
-        base: str = f"{self.WORK_DIRECTORY}\\conjure-{token_hex(nbytes=6)}"
+        base: str = f"{self.work_directory}\\conjure-{token_hex(nbytes=6)}"
         self._push(
             destination=f"{base}.ps1",
             data=self._wrapper(command=command, base=base).encode(
@@ -208,7 +209,7 @@ class UtmRunner:
         started: CompletedProcess[str] = self._control(
             "exec",
             "--cmd",
-            *self.SHELL,
+            *self.shell,
             f"{base}.ps1",
         )
         if started.returncode != 0:
@@ -402,7 +403,7 @@ class UtmRunner:
                 return int(text)
             if deadline is not None and monotonic() >= deadline:
                 raise TimeoutExpired(cmd=command, timeout=timeout_seconds or 0)
-            sleep(self.STATUS_POLL_SECONDS)
+            sleep(self.status_poll_seconds)
 
     def _read_log(self, *, base: str) -> str:
         """Read a finished command's output, if it produced any.

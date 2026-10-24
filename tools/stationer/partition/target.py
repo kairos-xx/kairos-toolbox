@@ -31,8 +31,8 @@ class Constants:
     """Group module-level constants.
 
     Attributes:
-        os_names: Host OS name to release tag OS.
-        arch_names: Host machine names to canonical architecture.
+        os_names: Grouped module constant.
+        arch_names: Grouped module constant.
 
     """
 
@@ -68,12 +68,7 @@ class Platform:
     abi: Literal["glibc", "musl", "native"]
 
 
-def host_platform(
-    *,
-    system: str,
-    machine: str,
-    libc: str | None,
-) -> Platform:
+def host_platform(*, system: str, machine: str, libc: str | None) -> Platform:
     """Map host identity values onto a release platform.
 
     Args:

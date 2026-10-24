@@ -14,24 +14,22 @@ from tests.tools.stationer.helpers import expect
 
 
 @pytest.mark.parametrize(
-    ("system", "machine", "libc", "os", "arch", "abi"),
+    ("system", "machine", "libc", "expected"),
     [
-        ("Darwin", "arm64", None, "macos", "arm64", "native"),
-        ("Darwin", "x86_64", None, "macos", "amd64", "native"),
-        ("Linux", "x86_64", "glibc", "linux", "amd64", "glibc"),
-        ("Linux", "x86_64", "musl", "linux", "amd64", "musl"),
-        ("Linux", "aarch64", "glibc", "linux", "arm64", "glibc"),
-        ("Windows", "AMD64", None, "windows", "amd64", "native"),
-        ("Windows", "ARM64", None, "windows", "arm64", "native"),
+        ("Darwin", "arm64", None, ("macos", "arm64", "native")),
+        ("Darwin", "x86_64", None, ("macos", "amd64", "native")),
+        ("Linux", "x86_64", "glibc", ("linux", "amd64", "glibc")),
+        ("Linux", "x86_64", "musl", ("linux", "amd64", "musl")),
+        ("Linux", "aarch64", "glibc", ("linux", "arm64", "glibc")),
+        ("Windows", "AMD64", None, ("windows", "amd64", "native")),
+        ("Windows", "ARM64", None, ("windows", "arm64", "native")),
     ],
 )
 def test_host_platform(
     system: str,
     machine: str,
     libc: str | None,
-    os: str,
-    arch: str,
-    abi: str,
+    expected: tuple[str, str, str],
 ) -> None:
     """Map injected host values onto platform identity.
 
@@ -39,9 +37,7 @@ def test_host_platform(
         system: Injected OS name.
         machine: Injected CPU name.
         libc: Injected libc flavor.
-        os: Expected OS.
-        arch: Expected architecture.
-        abi: Expected ABI.
+        expected: Expected ``(os, arch, abi)`` triple.
 
     """
     platform: Platform = host_platform(
@@ -49,14 +45,23 @@ def test_host_platform(
         machine=machine,
         libc=libc,
     )
-    expect(actual=(platform.os, platform.arch, platform.abi), expected=(os, arch, abi))
+    expect(
+        actual=(platform.os, platform.arch, platform.abi),
+        expected=expected,
+    )
 
 
 def test_host_platform_rejects_unsupported() -> None:
     """Unknown OS or CPU raises instead of guessing."""
-    with pytest.raises(expected_exception=RuntimeError, match="Unsupported OS"):
+    with pytest.raises(
+        expected_exception=RuntimeError,
+        match="Unsupported OS",
+    ):
         host_platform(system="Plan9", machine="x86_64", libc=None)
-    with pytest.raises(expected_exception=RuntimeError, match="Unsupported CPU"):
+    with pytest.raises(
+        expected_exception=RuntimeError,
+        match="Unsupported CPU",
+    ):
         host_platform(system="Linux", machine="riscv64", libc="glibc")
 
 

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from stationer.naming import (
-    CHECKSUM_NAME,
+    Constants,
     asset_name,
     parse_tag,
     tag_name,
@@ -15,13 +15,17 @@ from tests.tools.stationer.helpers import check, expect
 
 def test_checksum_name_is_stable() -> None:
     """The manifest name district's updater reads stays fixed."""
-    expect(actual=CHECKSUM_NAME, expected="SHA256SUMS.txt")
+    expect(actual=Constants.checksum_name, expected="SHA256SUMS.txt")
 
 
 def test_asset_name_default_and_suffix() -> None:
     """Asset names follow ``<name>-<version>-<tag>.<suffix>``."""
     expect(
-        actual=asset_name(project="maire", version="1.2.3", tag="linux-x86_64"),
+        actual=asset_name(
+            project="maire",
+            version="1.2.3",
+            tag="linux-x86_64",
+        ),
         expected="maire-1.2.3-linux-x86_64.pyz",
     )
     expect(

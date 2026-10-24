@@ -435,7 +435,7 @@ def test_run_waits_for_the_guest_status_and_returns_its_output() -> None:
         result: CommandResult = runner.run(command=("echo", "it's"))
     expect(actual=result.return_code, expected=3)
     expect(actual=result.stdout, expected="guest output")
-    expect(actual=pauses, expected=[UtmRunner.STATUS_POLL_SECONDS])
+    expect(actual=pauses, expected=[UtmRunner.status_poll_seconds])
     script: str = dispatch.inputs[0].decode()
     check(condition="& 'echo' 'it''s'" in script, reason=script)
     check(condition=".status" in script and ".log" in script, reason=script)
@@ -443,8 +443,8 @@ def test_run_waits_for_the_guest_status_and_returns_its_output() -> None:
         call for call in dispatch.calls if call[1] == "exec"
     ]
     expect(
-        actual=execs[0][-len(UtmRunner.SHELL) - 2 : -1],
-        expected=("--cmd", *UtmRunner.SHELL),
+        actual=execs[0][-len(UtmRunner.shell) - 2 : -1],
+        expected=("--cmd", *UtmRunner.shell),
     )
     check(condition=execs[0][-1].endswith(".ps1"), reason=str(object=execs[0]))
     check(

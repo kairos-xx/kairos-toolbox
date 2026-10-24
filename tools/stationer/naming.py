@@ -3,9 +3,19 @@
 
 from __future__ import annotations
 
-from typing import Final
+from typing import Final, final
 
-CHECKSUM_NAME: Final[str] = "SHA256SUMS.txt"
+
+@final
+class Constants:
+    """Group module-level constants.
+
+    Attributes:
+        checksum_name: Grouped module constant.
+
+    """
+
+    checksum_name: Final[str] = "SHA256SUMS.txt"
 
 
 def asset_name(
@@ -55,6 +65,6 @@ def parse_tag(*, tag: str) -> tuple[str, str] | None:
 
     """
     project, separator, version = tag.rpartition("/v")
-    if not separator or not project or not version:
+    if not separator or not project or (not version):
         return None
     return (project, version)

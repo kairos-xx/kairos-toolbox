@@ -194,6 +194,8 @@ Requires **Python ≥ 3.13**; plugins target VS Code-compatible editors on macOS
 - [`AGENTS_EXTENDED.md`](AGENTS_EXTENDED.md) — Companion to `AGENTS.md`. Where that file states the canonical standard, this file spells out the **concrete, mechanically checked requirements** your code must satisfy. Nothing here is aspirational: every item is verified automatically, and a change is incomplete while any applicable requirement fails.
 - [`TODO.md`](TODO.md) — Rule for everything below: **no lint suppressions, no skipped tests.**
 - [`eslint.config.mjs`](eslint.config.mjs) — ", "*
+- [`files-fixed-v2.zip`](files-fixed-v2.zip) — Provide files fixed v2 zip content.
+- [`files-fixed.zip`](files-fixed.zip) — Provide files fixed zip content.
 - [`jsconfig.json`](jsconfig.json) — Provide jsconfig json content.
 - [`package-lock.json`](package-lock.json) — Provide package lock json content.
 - [`package.json`](package.json) — Provide package json content.
@@ -209,6 +211,5 @@ Requires **Python ≥ 3.13**; plugins target VS Code-compatible editors on macOS
 - [`tests/`](tests/README.md) — Provide core.test js content.
 - [`tools/`](tools/README.md) — Developer tools: the District Terminal control plane, the Bowman URI trust framework, and the stationer release tool.
 - [`wiki/`](wiki/README.md) — GitHub-wiki pages for this repository — flat `.md` files in wiki convention:
-- [`zip_project/`](zip_project/README.md) — Provide project 001 zip content.
 
 <!-- exactus:inventory:end -->

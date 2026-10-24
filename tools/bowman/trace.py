@@ -16,13 +16,13 @@ class SpanStatus(StrEnum):
     """Trace span status.
 
     Attributes:
-        OK: Span completed successfully.
-        ERROR: Span completed with an error.
+        ok: Span completed successfully.
+        error: Span completed with an error.
 
     """
 
-    OK = "ok"
-    ERROR = "error"
+    ok = "ok"
+    error = "error"
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -80,7 +80,7 @@ class Trace:
         name: str,
         started_at: datetime,
         parent_span_id: str | None = None,
-        status: SpanStatus = SpanStatus.OK,
+        status: SpanStatus = SpanStatus.ok,
         attributes: Mapping[str, str] | None = None,
     ) -> Span:
         """Finish and collect a span.

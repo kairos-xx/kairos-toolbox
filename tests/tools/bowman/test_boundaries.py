@@ -16,7 +16,7 @@ from .helpers import check, expect
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
-KEY_TEXT_LENGTH: Final[int] = 64
+key_text_length: Final[int] = 64
 
 
 def test_expect_and_check_raise_assertion_errors() -> None:
@@ -130,7 +130,7 @@ def test_keyring_load_generates_and_reloads(tmp_path: Path) -> None:
     )
     expect(
         actual=len(key_path.read_text().strip()),
-        expected=KEY_TEXT_LENGTH,
+        expected=key_text_length,
     )
     second: KeyRing = KeyRing.load(path=key_path)
     first_key: SigningKey | None = first.get()
@@ -181,7 +181,7 @@ def test_keyring_sign_verify_and_revoke_edges() -> None:
         reason="revoked keys remain in the ring",
     )
     if revoked is not None:
-        expect(actual=revoked.status, expected=KeyStatus.REVOKED)
+        expect(actual=revoked.status, expected=KeyStatus.revoked)
     check(
         condition=not ring.verify(
             key_id="primary",

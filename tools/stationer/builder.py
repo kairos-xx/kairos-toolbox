@@ -7,7 +7,7 @@ from contextlib import suppress
 from dataclasses import dataclass, replace
 from hashlib import sha256
 from importlib import import_module
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from platform import machine, system
 from shlex import quote
 from shutil import copy2, copytree, ignore_patterns, rmtree
@@ -26,10 +26,10 @@ from typing import (
     Protocol,
     TypedDict,
     cast,
+    final,
 )
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from tools.charter import CharterConstants
 from tools.conjure import (
     QemuRunnerError,
     RemoteCommandError,
@@ -46,6 +46,7 @@ from tools.stationer.progress import (
     ProgressTracker,
     StepMarker,
 )
+from tools.stationer.remote_exposure import ExposureConstants
 from tools.stationer.sessions import (
     ContainerOpener,
     HostConstants,
@@ -606,6 +607,7 @@ class LinuxConfig:
             when no musl cells are built.
         maintainer: Debian package maintainer.
         description: Debian package description.
+        guest: Optional SSH-reachable Linux build guest.
 
     """
 
@@ -629,6 +631,7 @@ class MacOSConfig:
             resolves x86_64 wheels; required for amd64 builds.
         minimum_macos: Minimum macOS version to record; the build host's
             version is used when omitted.
+        guest: Optional SSH-reachable macOS build guest.
 
     """
 
@@ -1027,10 +1030,11 @@ class ManifestLoader:
         raise BuildError(msg)
 
 
+@final
 class SourceArchive:
     """Create a bounded source archive for remote builds."""
 
-    _EXCLUDED_PARTS: Final[frozenset[str]] = frozenset(
+    _excluded_parts: Final[frozenset[str]] = frozenset(
         {
             ".git",
             ".venv",
@@ -1089,12 +1093,13 @@ class SourceArchive:
         for path in sorted(root.rglob(pattern="*")):
             relative: Path = path.relative_to(root)
             if path.is_file() and not any(
-                part in cls._EXCLUDED_PARTS for part in relative.parts
+                part in cls._excluded_parts for part in relative.parts
             ):
                 selected.append(path)
         return tuple(selected)
 
 
+@final
 class SourceStaging:
     """Copy a project and its local dependencies to a scratch directory.
 
@@ -1102,7 +1107,7 @@ class SourceStaging:
     ``*.egg-info`` directories inside the user's checkout.
     """
 
-    _IGNORED: Final[tuple[str, ...]] = (
+    _ignored: Final[tuple[str, ...]] = (
         "build",
         "dist",
         "*.egg-info",
@@ -1131,7 +1136,7 @@ class SourceStaging:
 
         """
         ignore: Callable[[str, list[str]], set[str]] = ignore_patterns(
-            *cls._IGNORED,
+            *cls._ignored,
         )
         dependencies: list[Path] = []
         for dependency in project.local_dependencies:
@@ -2635,6 +2640,7 @@ class PosixQemuBuilder:
         *,
         build: PosixBuild,
         remote: str,
+        store: str,
         payload: PyzPayload | None = None,
     ) -> str:
         """Generate the controlled POSIX guest build worker.
@@ -2642,6 +2648,8 @@ class PosixQemuBuilder:
         Args:
             build: Shared guest build request.
             remote: Unique remote build directory.
+            store: Persistent remote partition store; the worker
+                materializes the source tree from its packs.
             payload: ``.pyz`` payload built in the guest and bundled into
                 the installer when present.
 
@@ -2671,6 +2679,7 @@ class PosixQemuBuilder:
         )
         values: dict[str, str] = {
             "ROOT": quote(s=remote),
+            "STORE": quote(s=store),
             "PYTHON": " ".join(
                 quote(s=value) for value in build.config.python
             ),
@@ -2712,6 +2721,135 @@ class PosixQemuBuilder:
                 ),
             ),
             values=values,
+        )
+
+    def build(self, *, build: PosixBuild, output: Path) -> BuildResult:
+        """Build POSIX guest artifacts over SSH.
+
+        The release output root is passed in ``output``; the package
+        folder, release tag and artifact names are derived from the guest's
+        own ``uname -m`` (and, on Linux, its C library) so the guest
+        describes what it built.
+
+        Args:
+            build: Shared guest build request.
+            output: Release output root.
+
+        Returns:
+            Verified POSIX build result.
+
+        Raises:
+            BuildError: If the guest, a command or a transfer fails.
+            job_failure: When a guest command or transfer fails.
+
+        """
+        packs_mod: ModuleType = import_module(
+            name="tools.stationer.source_packs",
+        )
+        started_at: float = monotonic()
+        temporary_text: str
+        with TemporaryDirectory(prefix="stationer-") as temporary_text:
+            temporary: Path = Path(temporary_text)
+            worker: Path = temporary / "build.sh"
+            runtime_zip: Path = temporary / "partition-runtime.zip"
+            store: Path = output / ".partition"
+            catalog: Path = packs_mod.SourcePacks.create(
+                project=build.project,
+                store=store,
+            )
+            packs_mod.SourcePacks.bootstrap(destination=runtime_zip)
+            build_id: str = ArtifactUtilities.digest(path=catalog)[:16]
+            remote: str = f"{build.config.remote_root.rstrip('/')}/{build_id}"
+            remote_store: str = (
+                f"{build.config.remote_root.rstrip('/')}/.partition"
+            )
+            session: JobSession = self._open_session(config=build.config)
+            layout: _PosixLayout
+            executable_path: Path
+            installer_path: Path
+            minimum_glibc: str
+            minimum_macos: str
+            try:
+                session.start()
+                layout = self._layout(
+                    session=session,
+                    build=build,
+                    output=output,
+                )
+                worker.write_text(
+                    data=PosixQemuBuilder.worker_script(
+                        build=build,
+                        remote=remote,
+                        store=remote_store,
+                        payload=layout.payload,
+                    ),
+                    encoding="utf-8",
+                )
+                _ = session.run(command=("rm", "-rf", remote), check=False)
+                _ = session.run(
+                    command=("mkdir", "-p", remote, remote_store),
+                    check=True,
+                )
+                self._sync_remote_store(
+                    session=session,
+                    remote_store=remote_store,
+                    store=store,
+                    runtime_zip=runtime_zip,
+                )
+                session.upload(
+                    source=catalog,
+                    destination=f"{remote}/catalog.json",
+                )
+                session.upload(
+                    source=worker,
+                    destination=f"{remote}/build.sh",
+                )
+                if layout.payload is not None:
+                    self._stage_payload(
+                        session=session,
+                        temporary=temporary,
+                        remote=remote,
+                        build=build,
+                        payload=layout.payload,
+                    )
+                _ = session.run(
+                    command=("sh", f"{remote}/build.sh"),
+                    check=True,
+                    timeout_seconds=3600,
+                )
+                (
+                    executable_path,
+                    installer_path,
+                    minimum_glibc,
+                    minimum_macos,
+                ) = self._collect(
+                    session=session,
+                    temporary=temporary,
+                    remote=remote,
+                    build=build,
+                    layout=layout,
+                )
+            except QemuRunnerError as error:
+                raise job_failure(error=error) from error
+            finally:
+                with suppress(QemuRunnerError):
+                    _ = session.run(
+                        command=("rm", "-rf", remote),
+                        check=False,
+                        timeout_seconds=60,
+                    )
+                session.close()
+        return replace(
+            ArtifactUtilities.result(
+                platform_name=build.platform_name,
+                architecture=layout.architecture,
+                executable_path=executable_path,
+                installer_path=installer_path,
+                started_at=started_at,
+            ),
+            abi=layout.abi,
+            minimum_glibc=minimum_glibc or None,
+            minimum_macos=minimum_macos or None,
         )
 
     @staticmethod
@@ -2911,6 +3049,65 @@ class PosixQemuBuilder:
             ),
         )
 
+
+    @staticmethod
+    def _sync_remote_store(
+        *,
+        session: JobSession,
+        remote_store: str,
+        store: Path,
+        runtime_zip: Path,
+    ) -> None:
+        """Upload the runtime zip and every source pack the guest lacks.
+
+        Args:
+            session: Active guest session.
+            remote_store: Persistent remote content store directory.
+            store: Local partition store holding the packs.
+            runtime_zip: Launcher runtime archive for the guest.
+
+        """
+        packs_mod: ModuleType = import_module(
+            name="tools.stationer.source_packs",
+        )
+        listing: JobResult = session.run(
+            command=(
+                "sh",
+                "-c",
+                f"cd {quote(s=remote_store)} 2>/dev/null"
+                " && find . -type f || true",
+            ),
+            check=True,
+        )
+        have: frozenset[str] = frozenset(listing.stdout.split())
+        if "./partition-runtime.zip" not in have:
+            session.upload(
+                source=runtime_zip,
+                destination=f"{remote_store}/partition-runtime.zip",
+            )
+        pack_files: dict[str, Path] = packs_mod.SourcePacks.packs(
+            store=store,
+        )
+        made: set[str] = set()
+        for relative, source in pack_files.items():
+            if f"./{relative}" in have:
+                continue
+            parent: str = PurePosixPath(relative).parent.as_posix()
+            if parent not in made:
+                _ = session.run(
+                    command=(
+                        "mkdir",
+                        "-p",
+                        f"{remote_store}/{parent}",
+                    ),
+                    check=True,
+                )
+                made.add(parent)
+            session.upload(
+                source=source,
+                destination=f"{remote_store}/{relative}",
+            )
+
     @staticmethod
     def _stage_payload(
         *,
@@ -3027,120 +3224,6 @@ class PosixQemuBuilder:
             installer_path,
             minimum_glibc,
             minimum_macos,
-        )
-
-    def build(self, *, build: PosixBuild, output: Path) -> BuildResult:
-        """Build POSIX guest artifacts over SSH.
-
-        The release output root is passed in ``output``; the package
-        folder, release tag and artifact names are derived from the guest's
-        own ``uname -m`` (and, on Linux, its C library) so the guest
-        describes what it built.
-
-        Args:
-            build: Shared guest build request.
-            output: Release output root.
-
-        Returns:
-            Verified POSIX build result.
-
-        Raises:
-            BuildError: If the guest, a command or a transfer fails.
-            job_failure: When a guest command or transfer fails.
-
-        """
-        started_at: float = monotonic()
-        temporary_text: str
-        with TemporaryDirectory(prefix="stationer-") as temporary_text:
-            temporary: Path = Path(temporary_text)
-            source_zip: Path = temporary / "source.zip"
-            worker: Path = temporary / "build.sh"
-            SourceArchive.create(
-                project=build.project,
-                destination=source_zip,
-            )
-            build_id: str = ArtifactUtilities.digest(path=source_zip)[:16]
-            remote: str = f"{build.config.remote_root.rstrip('/')}/{build_id}"
-            session: JobSession = self._open_session(config=build.config)
-            layout: _PosixLayout
-            executable_path: Path
-            installer_path: Path
-            minimum_glibc: str
-            minimum_macos: str
-            try:
-                session.start()
-                layout = self._layout(
-                    session=session,
-                    build=build,
-                    output=output,
-                )
-                worker.write_text(
-                    data=PosixQemuBuilder.worker_script(
-                        build=build,
-                        remote=remote,
-                        payload=layout.payload,
-                    ),
-                    encoding="utf-8",
-                )
-                _ = session.run(command=("rm", "-rf", remote), check=False)
-                _ = session.run(
-                    command=("mkdir", "-p", remote),
-                    check=True,
-                )
-                session.upload(
-                    source=source_zip,
-                    destination=f"{remote}/source.zip",
-                )
-                session.upload(
-                    source=worker,
-                    destination=f"{remote}/build.sh",
-                )
-                if layout.payload is not None:
-                    self._stage_payload(
-                        session=session,
-                        temporary=temporary,
-                        remote=remote,
-                        build=build,
-                        payload=layout.payload,
-                    )
-                _ = session.run(
-                    command=("sh", f"{remote}/build.sh"),
-                    check=True,
-                    timeout_seconds=3600,
-                )
-                (
-                    executable_path,
-                    installer_path,
-                    minimum_glibc,
-                    minimum_macos,
-                ) = self._collect(
-                    session=session,
-                    temporary=temporary,
-                    remote=remote,
-                    build=build,
-                    layout=layout,
-                )
-            except QemuRunnerError as error:
-                raise job_failure(error=error) from error
-            finally:
-                with suppress(QemuRunnerError):
-                    _ = session.run(
-                        command=("rm", "-rf", remote),
-                        check=False,
-                        timeout_seconds=60,
-                    )
-                session.close()
-        return replace(
-            ArtifactUtilities.result(
-                platform_name=build.platform_name,
-                architecture=layout.architecture,
-                executable_path=executable_path,
-                installer_path=installer_path,
-                started_at=started_at,
-            ),
-            abi=layout.abi,
-            minimum_glibc=minimum_glibc or None,
-            minimum_macos=minimum_macos or None,
         )
 
 
@@ -3884,7 +3967,7 @@ class Cli:
         )
         parser.add_argument(
             "--expose",
-            choices=tuple(sorted(CharterConstants.backends)),
+            choices=tuple(sorted(ExposureConstants.backends)),
             help="Remote: charter that makes the job server public.",
         )
         parser.add_argument(

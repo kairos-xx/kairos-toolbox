@@ -178,7 +178,11 @@ def test_default_user_settings_path_is_used(
         data="[tool.conjure.ssh]\nhost='default-user'\n",
         encoding="utf-8",
     )
-    monkeypatch.setattr(Constants, "default_user_settings", user)
+    monkeypatch.setattr(
+        target=Constants,
+        name="default_user_settings",
+        value=user,
+    )
     monkeypatch.chdir(path=tmp_path)
     settings: Settings = SettingsLoader.load()
     expect(actual=settings.ssh_host, expected="default-user")

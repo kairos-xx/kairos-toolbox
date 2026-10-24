@@ -9,10 +9,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Final, TextIO, cast, final
 
 from .store import (
+    Materializer,
     ObjectStore,
+    PackCodec,
     PartitionStore,
     RecipeScanner,
     deep_verify,
+    destination,
     garbage_collect,
     load_catalog,
     rollback,
@@ -30,8 +33,8 @@ class Constants:
     """Group module-level constants.
 
     Attributes:
-        platform: Platform label recorded in built catalogs.
-        cache_name: Default build-cache directory name.
+        platform: Grouped module constant.
+        cache_name: Grouped module constant.
 
     """
 
@@ -109,6 +112,22 @@ def _parser() -> ArgumentParser:
     )
     _ = collect.add_argument("root", type=Path)
     _ = collect.add_argument("--dry-run", action="store_true")
+    materialize: ArgumentParser = add(
+        "materialize",
+        help="Decode packs and recreate one component's tree",
+    )
+    _ = materialize.add_argument("catalog", type=Path)
+    _ = materialize.add_argument("--out", type=Path, required=True)
+    _ = materialize.add_argument("--objects", type=Path, required=True)
+    _ = materialize.add_argument(
+        "--store-root",
+        type=Path,
+        help="Directory pack paths resolve under (default: catalog's)",
+    )
+    _ = materialize.add_argument(
+        "--component",
+        help="Component to materialize (required unless only one exists)",
+    )
     return parser
 
 
@@ -199,10 +218,7 @@ def _update(*, args: Namespace) -> int:
         source=args.current.parent,
         output=args.out,
     )
-    missing: list[str] = cast(
-        typ="list[str]",
-        val=manifest["missing_packs"],
-    )
+    missing: list[str] = cast(typ="list[str]", val=manifest["missing_packs"])
     _write(text=f"{len(missing)} packs\n")
     return 0
 
@@ -242,6 +258,44 @@ def _gc(*, args: Namespace) -> int:
     return 0
 
 
+def _materialize(*, args: Namespace) -> int:
+    """Decode a catalog's packs and rebuild one component's tree.
+
+    Args:
+        args: Parsed ``materialize`` arguments.
+
+    Returns:
+        Process exit code.
+
+    """
+    catalog: Catalog = load_catalog(path=args.catalog)
+    root: Path = args.store_root or args.catalog.parent
+    objects: ObjectStore = ObjectStore(root=args.objects)
+    for record in catalog["packs"].values():
+        PackCodec.decode(
+            path=destination(root=root, relative=record["path"]),
+            expected={
+                digest: catalog["objects"][digest]["size"]
+                for digest in record["objects"]
+            },
+            store=objects,
+        )
+    components: dict[str, Recipe] = catalog["components"]
+    name: str = args.component or next(
+        iter(components),
+        "",
+    )
+    if name not in components:
+        msg: str = f"Unknown component {name!r}."
+        raise ValueError(msg)
+    Materializer(store=objects).materialize(
+        recipe=components[name],
+        root=args.out,
+    )
+    _write(text=f"{name}\n")
+    return 0
+
+
 def main(*, arguments: tuple[str, ...]) -> int:
     """Run a partition operation.
 
@@ -259,6 +313,7 @@ def main(*, arguments: tuple[str, ...]) -> int:
         "update": _update,
         "rollback": _rollback,
         "gc": _gc,
+        "materialize": _materialize,
     }
     try:
         return handlers[args.operation](args=args)

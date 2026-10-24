@@ -119,6 +119,13 @@ guest yields `{name}_{version}_{arch}.deb`, an Alpine guest
 script is `templates/linux_build.sh.tmpl` or `templates/macos_build.sh.tmpl`,
 rendered through the same `@@NAME@@` engine as the Windows worker.
 
+Guest builds transfer source through the content-addressed partition
+engine rather than a whole-tree zip: `source_packs.py` scans the staged
+project into a catalog + zstd packs under `build/.partition/` (persistent,
+so unchanged blocks are packed once), uploads to the guest only the packs
+its `<remote_root>/.partition` store is missing, and the worker rebuilds
+the tree with `python -m stationer.partition materialize`.
+
 ## CLI reference
 
 ```bash

@@ -7,7 +7,7 @@ from shutil import copy as shutil_copy
 from typing import TYPE_CHECKING
 
 from stationer.partition.cli import main
-from stationer.partition.store import load_catalog
+from stationer.partition.store import Catalog, load_catalog
 
 from tests.tools.stationer.helpers import check, expect
 
@@ -46,7 +46,7 @@ def _build(source: Path, out: Path) -> str:
     """
     expect(
         actual=main(
-            arguments=("build", str(source), "--out", str(out)),
+            arguments=("build", str(object=source), "--out", str(object=out)),
         ),
         expected=0,
     )
@@ -67,7 +67,7 @@ def test_build_produces_catalog_and_packs(tmp_path: Path) -> None:
     _component(root=source, name="extra", payload=b"extra-payload" * 32)
     out: Path = tmp_path / "dist"
     _build(source=source, out=out)
-    catalog = load_catalog(path=out / "catalog.json")
+    catalog: Catalog = load_catalog(path=out / "catalog.json")
     check(
         condition=set(catalog["components"]) == {"core", "extra"},
         reason="Components missing from the catalog.",
@@ -89,13 +89,13 @@ def test_verify_detects_pack_corruption(tmp_path: Path) -> None:
     _build(source=source, out=out)
     catalog_path: Path = out / "catalog.json"
     expect(
-        actual=main(arguments=("verify", str(catalog_path))),
+        actual=main(arguments=("verify", str(object=catalog_path))),
         expected=0,
     )
     pack: Path = next((out / "packs").glob(pattern="*/*.zst"))
     _ = pack.write_bytes(data=b"tampered" + pack.read_bytes()[8:])
     expect(
-        actual=main(arguments=("verify", str(catalog_path))),
+        actual=main(arguments=("verify", str(object=catalog_path))),
         expected=1,
     )
 
@@ -124,17 +124,17 @@ def test_update_writes_only_new_packs(tmp_path: Path) -> None:
             arguments=(
                 "update",
                 "--from",
-                str(baseline_out / "catalog.json"),
+                str(object=baseline_out / "catalog.json"),
                 "--to",
-                str(current_out / "catalog.json"),
+                str(object=current_out / "catalog.json"),
                 "--out",
-                str(delta),
+                str(object=delta),
             ),
         ),
         expected=0,
     )
-    baseline = load_catalog(path=baseline_out / "catalog.json")
-    current = load_catalog(path=current_out / "catalog.json")
+    baseline: Catalog = load_catalog(path=baseline_out / "catalog.json")
+    current: Catalog = load_catalog(path=current_out / "catalog.json")
     added: set[str] = set(current["packs"]) - set(baseline["packs"])
     written: set[str] = {
         path.stem for path in (delta / "packs").glob(pattern="*/*.zst")
@@ -163,10 +163,10 @@ def test_rollback_restores_earlier_catalog(tmp_path: Path) -> None:
     _ = (source / "core" / "data.txt").write_bytes(data=b"r2" * 512)
     newer: str = _build(source=source, out=store)
     expect(
-        actual=main(arguments=("rollback", str(store), earlier)),
+        actual=main(arguments=("rollback", str(object=store), earlier)),
         expected=0,
     )
-    active = load_catalog(path=store / "catalog.json")
+    active: Catalog = load_catalog(path=store / "catalog.json")
     expect(actual=active["root_sha256"], expected=earlier)
     check(condition=active["root_sha256"] != newer, reason="No rollback.")
 
@@ -192,7 +192,7 @@ def test_gc_removes_unreachable_packs_only(tmp_path: Path) -> None:
         if path != stale_pack
     ]
     expect(
-        actual=main(arguments=("gc", str(store))),
+        actual=main(arguments=("gc", str(object=store))),
         expected=0,
     )
     check(
@@ -204,6 +204,39 @@ def test_gc_removes_unreachable_packs_only(tmp_path: Path) -> None:
         reason="Reachable pack was collected.",
     )
     expect(
-        actual=main(arguments=("gc", str(store), "--dry-run")),
+        actual=main(arguments=("gc", str(object=store), "--dry-run")),
         expected=0,
+    )
+
+
+def test_materialize_rebuilds_a_component_tree(tmp_path: Path) -> None:
+    """``materialize`` decodes packs back into the original tree.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+
+    """
+    source: Path = tmp_path / "components"
+    _component(root=source, name="core", payload=b"core-payload" * 32)
+    out: Path = tmp_path / "store"
+    _build(source=source, out=out)
+    target: Path = tmp_path / "unpacked"
+    expect(
+        actual=main(
+            arguments=(
+                "materialize",
+                str(object=out / "catalog.json"),
+                "--out",
+                str(object=target),
+                "--objects",
+                str(object=tmp_path / "objects"),
+                "--component",
+                "core",
+            ),
+        ),
+        expected=0,
+    )
+    expect(
+        actual=(target / "data.txt").read_bytes(),
+        expected=b"core-payload" * 32,
     )

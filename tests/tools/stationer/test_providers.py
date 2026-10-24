@@ -37,7 +37,7 @@ def test_github_sync_plans_create_and_edit(tmp_path: Path) -> None:
     )
     expect(actual=len(actions), expected=2)
     create, edit = actions
-    expect(actual=create.kind, expected=ActionKind.COMMAND)
+    expect(actual=create.kind, expected=ActionKind.command)
     expect(actual=create.command[:3], expected=("gh", "repo", "create"))
     check(condition="octo/demo" in create.command, reason=str(object=create))
     check(condition="--private" in create.command, reason=str(object=create))

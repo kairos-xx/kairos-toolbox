@@ -12,6 +12,7 @@ No direct files besides this README.
 ### Subdirectories
 
 - [`plugins/`](plugins/README.md) — Technical documentation for the VS Code-compatible extension projects.
+- [`superpowers/`](superpowers/README.md) — > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- \\\[ \\\]`) syntax for tracking.
 - [`todo/`](todo/README.md) — Pending work items. Currently empty — the Devin-readiness assessment and the District Terminal update/settings/release work were completed and removed.
 - [`tools/`](tools/README.md) — Technical documentation for the companion tools.
 

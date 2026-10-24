@@ -8,15 +8,11 @@ from importlib import import_module
 from pathlib import Path
 from secrets import token_bytes
 from stat import S_IXUSR
-from typing import TYPE_CHECKING, Final, cast
+from typing import TYPE_CHECKING, Final, cast, final
 from zipfile import ZipFile
 
 import pytest
-from stationer.partition.zstd_portable import (
-    Zstd,
-    ZstdOptions,
-    export_binary,
-)
+from stationer.partition.zstd_portable import Zstd, ZstdOptions, export_binary
 
 from tests.tools.stationer.helpers import check, expect
 
@@ -28,10 +24,25 @@ zstd_module: ModuleType = import_module(
     name="stationer.partition.zstd_portable",
 )
 
-_PAYLOAD: Final[bytes] = b"stationer-partition\x00" * 4096 + bytes(range(256))
-_READ_CHUNK: Final[int] = 64
-_COMPLETE: Final[float] = 100.0
-_ONE_MIB: Final[int] = 1024 * 1024
+
+@final
+class Constants:
+    """Group module-level constants.
+
+    Attributes:
+        payload: Grouped module constant.
+        read_chunk: Grouped module constant.
+        complete: Grouped module constant.
+        one_mib: Grouped module constant.
+
+    """
+
+    payload: Final[bytes] = b"stationer-partition\x00" * 4096 + bytes(
+        range(256),
+    )
+    read_chunk: Final[int] = 64
+    complete: Final[float] = 100.0
+    one_mib: Final[int] = 1024 * 1024
 
 
 def _call(owner: object, *, helper: str, **arguments: object) -> object:
@@ -63,7 +74,7 @@ def _attribute(owner: object, *, name: str) -> object:
     return getattr(owner, name)
 
 
-def _roundtrip(*, target: Path, payload: bytes = _PAYLOAD) -> None:
+def _roundtrip(*, target: Path, payload: bytes = Constants.payload) -> None:
     """Compress then decompress ``payload`` through real ``zstd``.
 
     Args:
@@ -196,47 +207,47 @@ def test_roundtrip_and_counters(tmp_path: Path) -> None:
             level=1,
             threads=1,
             progress=_progress,
-            expected_size=len(_PAYLOAD),
+            expected_size=len(Constants.payload),
         ),
         cache=tmp_path / "cli-cache",
     )
     check(condition=not writer.closed, reason="Stream starts open.")
     writer.open()
     check(condition=writer.progress == 0.0, reason="No bytes written yet.")
-    expect(actual=writer.write(data=_PAYLOAD[:100]), expected=100)
+    expect(actual=writer.write(data=Constants.payload[:100]), expected=100)
     writer.flush()
-    _ = writer.write(data=bytearray(_PAYLOAD[100:]))
+    _ = writer.write(data=bytearray(Constants.payload[100:]))
     check(
         condition=writer.progress is not None and writer.progress > 0.0,
         reason="Expected progress after writes.",
     )
     writer.close()
     check(condition=writer.closed, reason="Stream must be closed.")
-    expect(actual=writer.bytes_written, expected=len(_PAYLOAD))
+    expect(actual=writer.bytes_written, expected=len(Constants.payload))
     statuses: list[str] = [status for _, status in seen]
     check(condition="started" in statuses, reason="started emitted.")
     check(condition="compressing" in statuses, reason="compressing emitted.")
     check(condition="complete" in statuses, reason="complete emitted.")
     check(
-        condition=seen[-1][0] == _COMPLETE,
+        condition=seen[-1][0] == Constants.complete,
         reason="Completion reports 100 percent.",
     )
     head: bytearray = bytearray(10)
-    tail: bytearray = bytearray(len(_PAYLOAD) - 10)
+    tail: bytearray = bytearray(len(Constants.payload) - 10)
     with Zstd(file=target, mode="rb") as reader:
         expect(actual=reader.readinto(buffer=head), expected=10)
         expect(
             actual=reader.readinto(buffer=tail),
-            expected=len(_PAYLOAD) - 10,
+            expected=len(Constants.payload) - 10,
         )
         expect(actual=reader.read(), expected=b"")
-    expect(actual=bytes(head + tail), expected=_PAYLOAD)
+    expect(actual=bytes(head + tail), expected=Constants.payload)
     check(
-        condition=reader.bytes_read == len(_PAYLOAD),
+        condition=reader.bytes_read == len(Constants.payload),
         reason="Decompressed byte counter mismatch.",
     )
     check(
-        condition=reader.progress == _COMPLETE,
+        condition=reader.progress == Constants.complete,
         reason="Consumed input reports 100 percent.",
     )
     writer.close()
@@ -250,7 +261,10 @@ def test_round_trip_on_host(tmp_path: Path) -> None:
         tmp_path: Per-test temporary directory.
 
     """
-    _roundtrip(target=tmp_path / "random.zst", payload=token_bytes(_ONE_MIB))
+    _roundtrip(
+        target=tmp_path / "random.zst",
+        payload=token_bytes(nbytes=Constants.one_mib),
+    )
 
 
 def test_zero_expected_size(tmp_path: Path) -> None:
@@ -265,7 +279,7 @@ def test_zero_expected_size(tmp_path: Path) -> None:
         options=ZstdOptions(expected_size=0),
     )
     check(
-        condition=writer.progress == _COMPLETE,
+        condition=writer.progress == Constants.complete,
         reason="Zero-length input reports complete.",
     )
     writer.close()
@@ -343,13 +357,13 @@ def test_partial_read_close(tmp_path: Path) -> None:
     reader: Zstd = Zstd(file=target, mode="r")
     reader.open()
     expect(
-        actual=len(reader.read(size=_READ_CHUNK)),
-        expected=_READ_CHUNK,
+        actual=len(reader.read(size=Constants.read_chunk)),
+        expected=Constants.read_chunk,
     )
     reader.close()
     check(condition=reader.closed, reason="Stream must be closed.")
     check(
-        condition=reader.bytes_read == _READ_CHUNK,
+        condition=reader.bytes_read == Constants.read_chunk,
         reason="Counter stops at the partial read.",
     )
 
@@ -363,10 +377,10 @@ def test_expected_size_mismatch(tmp_path: Path) -> None:
     """
     writer: Zstd = Zstd(
         file=tmp_path / "payload.zst",
-        options=ZstdOptions(expected_size=len(_PAYLOAD) + 1),
+        options=ZstdOptions(expected_size=len(Constants.payload) + 1),
     )
     writer.open()
-    _ = writer.write(data=_PAYLOAD)
+    _ = writer.write(data=Constants.payload)
     with pytest.raises(expected_exception=RuntimeError, match="Expected"):
         writer.close()
 
@@ -401,7 +415,7 @@ def test_context_exit_failures(tmp_path: Path) -> None:
         Zstd(file=target, mode="r") as reader,
     ):
         _ = reader.read()
-    reader = Zstd(file=target, mode="r")
+    reader: Zstd = Zstd(file=target, mode="r")
     reader.open()
     _ = reader.read()
     with pytest.raises(expected_exception=RuntimeError):
@@ -513,11 +527,7 @@ def test_unsupported_platforms(monkeypatch: pytest.MonkeyPatch) -> None:
         _call(owner=Zstd(file="x.zst"), helper="_get_executable")
 
 
-def _fake_package(
-    *,
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> Path:
+def _fake_package(*, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Retarget the payload root at a synthetic package.
 
     Args:
@@ -554,7 +564,7 @@ def _write_sums(*, directory: Path, name: str, content: bytes) -> None:
 
     """
     (directory / "SHA256SUMS").write_text(
-        data=f"{sha256(content).hexdigest()}  {name}\n",
+        data=f"{sha256(data=content).hexdigest()}  {name}\n",
         encoding="ascii",
     )
 
@@ -633,11 +643,7 @@ def test_loader_refuses_archive_with_wrong_digest(
         match="Missing checksum manifest",
     ):
         _call(owner=owner, helper="_get_executable")
-    _write_sums(
-        directory=payload_dir,
-        name="other.zip",
-        content=b"x",
-    )
+    _write_sums(directory=payload_dir, name="other.zip", content=b"x")
     with pytest.raises(
         expected_exception=RuntimeError,
         match="No pinned digest",
@@ -659,7 +665,7 @@ def test_archives_match_sha256sums() -> None:
     for name in sorted(names):
         archive: Path = payload_dir / name
         expect(
-            actual=sha256(archive.read_bytes()).hexdigest(),
+            actual=sha256(data=archive.read_bytes()).hexdigest(),
             expected=_call(
                 owner=zstd_module,
                 helper="_expected_digest",
@@ -729,7 +735,7 @@ def test_large_corrupt_input_feeds_until_pipe_breaks(tmp_path: Path) -> None:
 
     """
     target: Path = tmp_path / "huge-broken.zst"
-    target.write_bytes(data=b"0" * (8 * _ONE_MIB))
+    target.write_bytes(data=b"0" * (8 * Constants.one_mib))
     reader: Zstd = Zstd(file=target, mode="r")
     reader.open()
     _ = reader.read()

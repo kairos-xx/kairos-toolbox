@@ -3,8 +3,10 @@
 
 from __future__ import annotations
 
-from stationer.partition.json_types import JsonObject, JsonValue
+from typing import TYPE_CHECKING, cast
 
+if TYPE_CHECKING:
+    from stationer.partition.json_types import JsonObject, JsonValue
 from tests.tools.stationer.helpers import check, expect
 
 
@@ -19,7 +21,7 @@ def test_json_types_cover_the_union() -> None:
         "items": [1, "two"],
         "nested": {"deep": [None]},
     }
-    value: JsonValue = document
+    value: JsonValue = cast(typ="JsonValue", val=document)
     check(
         condition=isinstance(value, dict),
         reason="JsonObject is not a dict.",

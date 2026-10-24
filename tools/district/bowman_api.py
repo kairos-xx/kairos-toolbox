@@ -250,15 +250,15 @@ class DistrictBowman:
 
         """
         evidence: Evidence = Evidence(
-            kind=EvidenceKind.SIGNATURE,
+            kind=EvidenceKind.signature,
             name="district-uri",
             value=request.request_id,
-            trust=TrustLevel.CRYPTOGRAPHICALLY_VERIFIED,
+            trust=TrustLevel.cryptographically_verified,
             issuer="district",
         )
         principal: Principal = Principal(
             subject=request.subject,
-            strength=AuthenticationStrength.LOCAL_SESSION,
+            strength=AuthenticationStrength.local_session,
             capabilities=frozenset({operation.name}),
             evidence=(evidence,),
         )
@@ -282,7 +282,7 @@ class DistrictBowman:
             ),
             validity=ValidityResult(
                 valid=True,
-                code=ValidityCode.VALID,
+                code=ValidityCode.valid,
                 reason="Signed Bowman URI validated.",
             ),
             trace=Trace(trace_id=request.trace_id),

@@ -1,5 +1,7 @@
 """Versioning tests."""
 
+from stationer.versioning import is_newer
+
 from tools.stationer.models import Bump
 from tools.stationer.versioning import (
     Version,
@@ -14,15 +16,15 @@ def test_parse_and_bump() -> None:
     """Versions parse and bump deterministically."""
     version: Version = Version.parse(value="1.2.3")
     expect(
-        actual=str(object=version.bump(kind=Bump.MAJOR)),
+        actual=str(object=version.bump(kind=Bump.major)),
         expected="2.0.0",
     )
     expect(
-        actual=str(object=version.bump(kind=Bump.MINOR)),
+        actual=str(object=version.bump(kind=Bump.minor)),
         expected="1.3.0",
     )
     expect(
-        actual=str(object=version.bump(kind=Bump.PATCH)),
+        actual=str(object=version.bump(kind=Bump.patch)),
         expected="1.2.4",
     )
 

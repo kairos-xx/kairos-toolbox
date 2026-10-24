@@ -239,7 +239,7 @@ class ReleaseEngine:
                 continue
             if dry_run:
                 continue
-            if action.kind is ActionKind.WRITE:
+            if action.kind is ActionKind.write:
                 if action.path is None or action.content is None:
                     msg: str = "Invalid write action"
                     raise RuntimeError(msg)

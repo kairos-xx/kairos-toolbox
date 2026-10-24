@@ -17,6 +17,7 @@ from stationer.partition.checksums import (
 from tests.tools.stationer.helpers import check, expect
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
 
@@ -30,10 +31,12 @@ def test_write_and_parse_round_trip(tmp_path: Path) -> None:
     _ = (tmp_path / "a.bin").write_bytes(data=b"alpha")
     _ = (tmp_path / "b.bin").write_bytes(data=b"beta")
     manifest: Path = write_sums(directory=tmp_path)
-    entries = parse_sums(text=manifest.read_text(encoding="ascii"))
+    entries: Mapping[str, str] = parse_sums(
+        text=manifest.read_text(encoding="ascii"),
+    )
     expect(
         actual=entries["a.bin"],
-        expected=sha256(b"alpha").hexdigest(),
+        expected=sha256(data=b"alpha").hexdigest(),
     )
     check(
         condition=manifest.name == "SHA256SUMS.txt",
@@ -44,7 +47,7 @@ def test_write_and_parse_round_trip(tmp_path: Path) -> None:
 def test_parse_sums_accepts_star_form() -> None:
     """Both ``sha256  name`` and ``sha256 *name`` forms parse."""
     text: str = "ab12  plain.bin\ncd34 *star.bin\n"
-    entries = parse_sums(text=text)
+    entries: Mapping[str, str] = parse_sums(text=text)
     expect(actual=entries["plain.bin"], expected="ab12")
     expect(actual=entries["star.bin"], expected="cd34")
 
@@ -58,7 +61,7 @@ def test_expected_digest_and_verify_file(tmp_path: Path) -> None:
     """
     payload: Path = tmp_path / "blob.bin"
     _ = payload.write_bytes(data=b"blob")
-    good: str = f"{sha256(b'blob').hexdigest()}  blob.bin\n"
+    good: str = f"{sha256(data=b'blob').hexdigest()}  blob.bin\n"
     check(
         condition=expected_digest(text=good, name="blob.bin") is not None,
         reason="Digest lookup failed.",
@@ -88,4 +91,7 @@ def test_file_digest_chunks_large_files(tmp_path: Path) -> None:
     big: Path = tmp_path / "big.bin"
     payload: bytes = b"z" * (3 * 1024 * 1024 + 7)
     _ = big.write_bytes(data=payload)
-    expect(actual=file_digest(path=big), expected=sha256(payload).hexdigest())
+    expect(
+        actual=file_digest(path=big),
+        expected=sha256(data=payload).hexdigest(),
+    )

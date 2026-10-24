@@ -150,10 +150,10 @@ def test_the_vm_describes_the_captured_launch() -> None:
     expect(
         actual=kinds,
         expected={
-            DependencyKind.DIRECTORY,
-            DependencyKind.FILE,
-            DependencyKind.SOCKET,
-            DependencyKind.UTM_RUNTIME,
+            DependencyKind.directory,
+            DependencyKind.file,
+            DependencyKind.socket,
+            DependencyKind.utm_runtime,
         },
     )
     expect(actual=len(vm.fidelity_warnings), expected=3)
@@ -290,7 +290,7 @@ def test_availability_needs_macos_and_utm(tmp_path: Path) -> None:
     with (
         patch.object(
             target=UtmQemuExtractor,
-            attribute="UTM_APPS",
+            attribute="utm_apps",
             new=local_apps,
         ),
         patch(target="tools.conjure.utm.system", return_value="Linux"),
@@ -299,7 +299,7 @@ def test_availability_needs_macos_and_utm(tmp_path: Path) -> None:
     with (
         patch.object(
             target=UtmQemuExtractor,
-            attribute="UTM_APPS",
+            attribute="utm_apps",
             new=local_apps,
         ),
         patch(target="tools.conjure.utm.system", return_value="Darwin"),
@@ -313,7 +313,7 @@ def test_availability_needs_macos_and_utm(tmp_path: Path) -> None:
     with (
         patch.object(
             target=UtmQemuExtractor,
-            attribute="UTM_APPS",
+            attribute="utm_apps",
             new=local_apps,
         ),
         patch(target="tools.conjure.utm.system", return_value="Darwin"),

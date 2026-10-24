@@ -28,6 +28,7 @@ $ python -m tools.stationer               # pipeline from [tool.stationer.builde
 - [`git.py`](git.py) — Git repository adapter.
 - [`installer_support.py`](installer_support.py) — Shared installer-payload helpers for every native builder.
 - [`models.py`](models.py) — Immutable domain models.
+- [`naming.py`](naming.py) — Release asset and tag naming for kairos-toolbox projects.
 - [`planner.py`](planner.py) — Release planning and dependency ordering.
 - [`progress.py`](progress.py) — Track and display build progress reported by VM and container guests.
 - [`providers.py`](providers.py) — Repository and package-registry adapters.
@@ -40,6 +41,7 @@ $ python -m tools.stationer               # pipeline from [tool.stationer.builde
 - [`remote_workers.py`](remote_workers.py) — Render the Windows and POSIX remote build workers.
 - [`runner.py`](runner.py) — Run release commands through ``conjure`` host sessions.
 - [`sessions.py`](sessions.py) — Open the ``conjure`` runners the platform builders execute in.
+- [`source_packs.py`](source_packs.py) — Content-addressed packaging of project source for remote builds.
 - [`upload.py`](upload.py) — Safe package-registry upload helper.
 - [`versioning.py`](versioning.py) — Strict semantic-version operations.
 - [`wiki.py`](wiki.py) — Synchronize a local ``wiki/`` directory with the repository's GitHub Wiki.

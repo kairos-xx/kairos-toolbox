@@ -121,10 +121,11 @@ class Settings:
     guest_ssh_port: int = 22
 
 
+@final
 class SettingsLoader:
     """Load layered conjure settings."""
 
-    _FIELDS: Final[frozenset[str]] = frozenset(
+    _fields: Final[frozenset[str]] = frozenset(
         {
             "json_output",
             "registry_path",
@@ -206,7 +207,7 @@ class SettingsLoader:
         for name, value in (overrides or {}).items():
             if value is None:
                 continue
-            if name not in cls._FIELDS:
+            if name not in cls._fields:
                 msg: str = f"Unknown conjure setting: {name}"
                 raise ValueError(msg)
             raw[name] = value
@@ -271,10 +272,10 @@ class SettingsLoader:
             for key, value in body.items():
                 name: str = (
                     f"{prefix}{key}"
-                    if f"{prefix}{key}" in cls._FIELDS
+                    if f"{prefix}{key}" in cls._fields
                     else key
                 )
-                if name not in cls._FIELDS:
+                if name not in cls._fields:
                     msg = f"Unknown conjure setting: {section}.{key}"
                     raise ValueError(msg)
                 values[name] = value

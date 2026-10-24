@@ -7,6 +7,7 @@ from hashlib import sha256
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from _hashlib import HASH
     from collections.abc import Mapping, Sequence
     from pathlib import Path
 
@@ -21,7 +22,7 @@ def file_digest(*, path: Path) -> str:
         Lowercase hexadecimal digest.
 
     """
-    digest = sha256()
+    digest: HASH = sha256()
     with path.open(mode="rb") as stream:
         while chunk := stream.read(1024 * 1024):
             digest.update(chunk)

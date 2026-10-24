@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass, field
 from json import dump, load
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Final, cast
+from typing import Final, cast, final
 
 from tools.conjure.config import GuestConfig, QemuConfig, SshConfig
 from tools.conjure.vm import QemuVm
@@ -43,10 +43,11 @@ class VmDefinition:
             raise ValueError(msg)
 
 
+@final
 class VmRegistry:
     """Persist and materialize named QEMU VM definitions."""
 
-    _VERSION: Final[int] = 1
+    _version: Final[int] = 1
     _path: Path
 
     def __init__(self, *, path: Path) -> None:
@@ -548,7 +549,7 @@ class VmRegistry:
             msg: str = "VM registry root must be an object."
             raise TypeError(msg)
         root: JsonObject = decoded
-        if root.get("version") != self._VERSION:
+        if root.get("version") != self._version:
             msg = "Unsupported VM registry version."
             raise ValueError(msg)
         raw_definitions: JsonValue = root.get("definitions")
@@ -575,7 +576,7 @@ class VmRegistry:
         """
         self._path.parent.mkdir(parents=True, exist_ok=True)
         payload: JsonObject = {
-            "version": self._VERSION,
+            "version": self._version,
             "definitions": [
                 self._encode(definition=definitions[name])
                 for name in sorted(definitions)

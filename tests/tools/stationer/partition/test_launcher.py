@@ -30,6 +30,7 @@ from tests.tools.stationer.partition.test_store import (
 )
 
 if TYPE_CHECKING:
+    from multiprocessing.context import SpawnContext
     from multiprocessing.process import BaseProcess
 
     from stationer.partition.store import Json
@@ -154,7 +155,7 @@ def test_cache_lock_serializes_two_processes(tmp_path: Path) -> None:
     """
     root: Path = tmp_path / "locked"
     output: Path = tmp_path / "lines.txt"
-    context = get_context(method="spawn")
+    context: SpawnContext = get_context(method="spawn")
     workers: list[BaseProcess] = [
         context.Process(
             target=_lock_worker,
@@ -213,7 +214,10 @@ def test_main_replaces_process_via_injected_boundary(
         monkeypatch: Fixture pointing the runtime cache at ``tmp_path``.
 
     """
-    monkeypatch.setenv("KAIROS_TOOLS_CACHE", str(object=tmp_path / "cache"))
+    monkeypatch.setenv(
+        name="KAIROS_TOOLS_CACHE",
+        value=str(object=tmp_path / "cache"),
+    )
     output: Path = _catalog_with_tool(
         tmp_path=tmp_path,
         metadata={
@@ -276,7 +280,10 @@ def test_runtime_reuses_ready_component(
         monkeypatch: Fixture pointing the runtime cache at ``tmp_path``.
 
     """
-    monkeypatch.setenv("KAIROS_TOOLS_CACHE", str(object=tmp_path / "cache"))
+    monkeypatch.setenv(
+        name="KAIROS_TOOLS_CACHE",
+        value=str(object=tmp_path / "cache"),
+    )
     output: Path = _catalog_with_tool(tmp_path=tmp_path, metadata={})
     runtime: Runtime = Runtime(catalog_path=output / "catalog.json")
     first: Path = runtime.ensure(name="core")
@@ -304,7 +311,10 @@ def test_environment_merges_dependency_paths(
         monkeypatch: Fixture pointing the runtime cache at ``tmp_path``.
 
     """
-    monkeypatch.setenv("KAIROS_TOOLS_CACHE", str(object=tmp_path / "cache"))
+    monkeypatch.setenv(
+        name="KAIROS_TOOLS_CACHE",
+        value=str(object=tmp_path / "cache"),
+    )
     objects: ObjectStore = ObjectStore(root=tmp_path / "build" / "objects")
     base_tree: Path = tmp_path / "base-src"
     (base_tree / "libs").mkdir(parents=True)
@@ -341,7 +351,7 @@ def test_environment_merges_dependency_paths(
     )
     runtime: Runtime = Runtime(catalog_path=output / "catalog.json")
     env: dict[str, str] = runtime.environment(name="tool")
-    parts: list[str] = env["LD_LIBRARY_PATH"].split(os_pathsep)
+    parts: list[str] = env["LD_LIBRARY_PATH"].split(sep=os_pathsep)
     expect(actual=len(parts), expected=2)
     check(
         condition="base" in parts[0],
