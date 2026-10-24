@@ -55,7 +55,8 @@ blocker for Tasks 24/33; each build provisions its own.
 |---|---|---|---|
 | 0 | 776dcd0 | ruff 0, basedpyright 0 | baselines above |
 | 1 | 95ec727 | ruff 0, basedpyright 0, 26 tests, 96% cov | notes below |
-| 2 | pending | ruff 0, basedpyright 0, 38 tests, 96% cov, stationer 337 pass | notes below |
+| 2 | 6d3a726 | ruff 0, basedpyright 0, 38 tests, 96% cov, stationer 337 pass | notes below |
+| 3 | pending | ruff 0, basedpyright 0, 45 partition tests | notes below |
 
 ### Task 1 — zstd_portable port
 
@@ -97,3 +98,28 @@ blocker for Tasks 24/33; each build provisions its own.
   upstream in Exactus. Not suppressed.
 - Gates: ruff clean, basedpyright 0, coverage 96% on `store.py`, full
   `tests/tools/stationer` suite 337 passed in 6m06s (no regressions).
+
+### Task 3 — launcher runtime port
+
+- Module: `tools/stationer/partition/launcher.py` ported from
+  `partition_launcher.py`; conditional import block collapsed to one
+  `from .store import ...`; `PackRecord`/`Recipe`/`Catalog`/`Json` stay
+  `TYPE_CHECKING`-only.
+- `closure` generalized to the plan signature
+  `closure(*, components: Mapping[str, tuple[str, ...]], requested:
+  tuple[str, ...]) -> tuple[str, ...]`; catalog adaptation via new
+  `_requires(catalog)` helper used by `Runtime.ensure`/`environment`.
+- `main` is now kw-only `main(*, catalog_path, arguments: tuple |
+  None, replace_process)` per plan; `_maintenance` takes the tuple.
+- Removed `conflict_copies` dependency, `_bundle_root`, and its call in
+  `main` (Exactus-specific cleanup).
+- Renames: `EXACTUS_TOOLS_*` env vars → `KAIROS_TOOLS_*`; `exactus-tools`
+  cache dirs → `kairos-tools`; help text updated.
+- Tests: 7 new cases in `test_launcher.py` — closure order/diamond/cycle/
+  ghost, spawn-process lock serialization (line-interleave check),
+  per-owner cache-root fallback, `main` dispatch through the injected
+  `ProcessReplacement` seam (fake is `NoReturn` raising `SystemExit`,
+  matching `execvpe`), ready-tree reuse, dependency-first env merge.
+- Reuses `component_tree`/`publish`/`scan_recipe` from `test_store.py`
+  rather than duplicating fixtures.
+- Gates: ruff clean, basedpyright 0, partition suite 45 passed.
