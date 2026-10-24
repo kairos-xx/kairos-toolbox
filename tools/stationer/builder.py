@@ -306,6 +306,7 @@ class BuilderDefaults:
         vm: Registered VM that runs the remote workers; empty for the VM that
             ``[tool.conjure]`` defines.
         attach: Use the already-running guest ``[tool.conjure]`` describes.
+        arch: ``--arch`` value applied to native formats.
 
     """
 
@@ -321,6 +322,7 @@ class BuilderDefaults:
     remote: tuple[str, ...] = ()
     vm: str | None = None
     attach: bool = False
+    arch: str | None = None
 
     @classmethod
     def load(cls, *, start: Path) -> BuilderDefaults | None:
@@ -406,6 +408,7 @@ class BuilderDefaults:
                 "remote",
                 "vm",
                 "attach",
+                "arch",
             },
         )
         unknown: set[str] = set(table) - known
@@ -421,6 +424,18 @@ class BuilderDefaults:
         vm: JsonValue | None = table.get("vm")
         if vm is not None and not isinstance(vm, str):
             msg = "[tool.stationer.builder] vm must be a string"
+            raise BuildError(msg)
+        arch: JsonValue | None = table.get("arch")
+        if arch is not None and arch not in (
+            "native",
+            "arm64",
+            "amd64",
+            "all",
+        ):
+            msg = (
+                "[tool.stationer.builder] arch must be native, arm64, "
+                "amd64 or all"
+            )
             raise BuildError(msg)
         return cls(
             project=cls._path(table=table, key="project", root=root),
@@ -467,6 +482,7 @@ class BuilderDefaults:
             ),
             vm=vm,
             attach=cls._flag(table=table, key="attach", default=False),
+            arch=cast(typ="str | None", val=arch),
         )
 
     @staticmethod
@@ -4274,6 +4290,8 @@ class Cli:
         if output_format == "native":
             for platform in defaults.platforms:
                 argv.extend(("--platform", platform))
+            if defaults.arch is not None:
+                argv.extend(("--arch", defaults.arch))
         if defaults.dry_run:
             argv.append("--dry-run")
         return tuple(argv)
