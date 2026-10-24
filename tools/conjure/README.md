@@ -23,7 +23,7 @@ Public API for host- and guest-agnostic execution backends.
 - [`qemu_inventory.py`](qemu_inventory.py) — QEMU disk-image and running-process discovery.
 - [`qemu_snapshot.py`](qemu_snapshot.py) — QEMU qcow2 and QMP snapshot management.
 - [`registry.py`](registry.py) — Persistent named QEMU VM definitions.
-- [`settings.py`](settings.py) — Layered settings: defaults < ``~/.conjure/settings.toml`` < ``pyproject.toml`` < CLI overrides.
+- [`settings.py`](settings.py) — Layered settings: defaults < user file < ``pyproject.toml`` < CLI.
 - [`transport.py`](transport.py) — OpenSSH transport for Windows guests.
 - [`utm.py`](utm.py) — Discover UTM-managed QEMU VMs and derive standalone QEMU commands.
 - [`utm_runner.py`](utm_runner.py) — Run commands in a UTM guest through ``utmctl`` and the guest agent.

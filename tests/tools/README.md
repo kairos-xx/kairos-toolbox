@@ -12,9 +12,9 @@ Point pytest at the workspace source root for package imports.
 ### Subdirectories
 
 - [`bowman/`](bowman/README.md) — Bowman native-elevation platform branch tests.
+- [`charter/`](charter/README.md) — Tests for the charter package.
 - [`conjure/`](conjure/README.md) — Additional AttachedVm coverage.
 - [`district/`](district/README.md) — Point pytest at the workspace source root for package imports.
-- [`charter/`](charter/README.md) — Tests for the charter package.
 - [`stationer/`](stationer/README.md) — Tests for the cross-platform release builder and publishing control plane.
 
 <!-- exactus:inventory:end -->
