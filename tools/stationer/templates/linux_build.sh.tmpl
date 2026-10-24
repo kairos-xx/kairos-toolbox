@@ -1,0 +1,52 @@
+#!/bin/sh
+# Linux QEMU guest build worker.
+# Rendered by tools.stationer.builder.PosixQemuBuilder (@@ROOT@@, @@PYTHON@@,
+# @@NAME@@, @@VERSION@@, @@ENTRYPOINT@@, @@PIP_EXTRA@@, @@PYINSTALLER_EXTRA@@,
+# @@CONSOLE@@, @@MAINTAINER@@, @@DESCRIPTION@@, @@PYZ_BUILD@@, @@APK_DEPENDS@@,
+# @@APK_SCRIPTS@@, @@DEB_DEPENDS@@, @@DEB_PREP@@). No {work}-style braces may
+# appear here.
+set -eu
+
+ROOT=@@ROOT@@
+NAME=@@NAME@@
+VERSION=@@VERSION@@
+MAINTAINER=@@MAINTAINER@@
+DESCRIPTION=@@DESCRIPTION@@
+SRC="$ROOT/src"
+
+@@PYTHON@@ -m zipfile -e "$ROOT/source.zip" "$SRC"
+@@PYTHON@@ -m venv "$ROOT/venv"
+"$ROOT/venv/bin/python" -m pip install \
+  --disable-pip-version-check --upgrade pip
+cd "$SRC"
+"$ROOT/venv/bin/python" -m pip install \
+  --disable-pip-version-check pyinstaller @@PIP_EXTRA@@ .
+"$ROOT/venv/bin/python" -m PyInstaller \
+  --noconfirm --clean --onefile @@CONSOLE@@ --name "$NAME" \
+  --distpath "$ROOT/dist" --workpath "$ROOT/build" \
+  --specpath "$ROOT/spec" @@PYINSTALLER_EXTRA@@ \
+  "$SRC/@@ENTRYPOINT@@"
+mkdir -p "$ROOT/out" "$ROOT/pkg/usr/local/bin"
+cp "$ROOT/dist/$NAME" "$ROOT/out/executable"
+cp "$ROOT/dist/$NAME" "$ROOT/pkg/usr/local/bin/$NAME"
+@@PYZ_BUILD@@
+if command -v apk >/dev/null 2>&1; then
+  echo musl > "$ROOT/out/abi"
+  apk mkpkg -I "name:$NAME" -I "version:$VERSION" \
+    -I "arch:$(apk --print-arch)" @@APK_DEPENDS@@-I "description:$DESCRIPTION" \
+    @@APK_SCRIPTS@@-o "$ROOT/out/installer" "$ROOT/pkg"
+elif command -v dpkg-deb >/dev/null 2>&1; then
+  echo glibc > "$ROOT/out/abi"
+  getconf GNU_LIBC_VERSION | sed 's/^glibc //' > "$ROOT/out/glibc"
+  mkdir -p "$ROOT/pkg/DEBIAN"
+  printf 'Package: %s\nVersion: %s\nArchitecture: %s\n@@DEB_DEPENDS@@' \
+    "$NAME" "$VERSION" "$(dpkg --print-architecture)" \
+    > "$ROOT/pkg/DEBIAN/control"
+  printf 'Maintainer: %s\nDescription: %s\n' \
+    "$MAINTAINER" "$DESCRIPTION" >> "$ROOT/pkg/DEBIAN/control"
+  @@DEB_PREP@@dpkg-deb --build --root-owner-group \
+    "$ROOT/pkg" "$ROOT/out/installer"
+else
+  echo "linux guest needs apk or dpkg-deb to package the installer" >&2
+  exit 1
+fi

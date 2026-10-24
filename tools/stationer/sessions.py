@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from tools.conjure import CommandResult, Settings
     from tools.stationer.builder import (
         LinuxConfig,
+        PosixGuestConfig,
         WindowsConfig,
     )
 
@@ -211,13 +212,17 @@ class ContainerOpener(Protocol):
 
 
 class SshOpener(Protocol):
-    """Create the session of a Windows build on a running SSH guest."""
+    """Create the session of a build on a running SSH guest."""
 
-    def __call__(self, *, config: WindowsConfig) -> JobSession:
+    def __call__(
+        self,
+        *,
+        config: WindowsConfig | PosixGuestConfig,
+    ) -> JobSession:
         """Create a session that has not been started.
 
         Args:
-            config: Windows guest configuration.
+            config: Guest configuration.
 
         Returns:
             The session.
@@ -262,11 +267,14 @@ def open_container(*, config: LinuxConfig) -> StreamingSession:
     )
 
 
-def open_ssh(*, config: WindowsConfig) -> JobSession:
-    """Attach to the running SSH-reachable Windows guest of a build.
+def open_ssh(
+    *,
+    config: WindowsConfig | PosixGuestConfig,
+) -> JobSession:
+    """Attach to the running SSH-reachable guest of a build.
 
     Args:
-        config: Windows guest configuration.
+        config: Guest configuration.
 
     Returns:
         An attached-VM runner that has not been started.

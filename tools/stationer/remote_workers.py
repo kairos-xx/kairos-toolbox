@@ -5,8 +5,9 @@ from __future__ import annotations
 
 from base64 import b64encode
 from json import dumps
-from pathlib import Path
 from typing import TYPE_CHECKING, Final, final
+
+from tools.stationer.installer_support import render, template
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -23,50 +24,18 @@ class WorkerConstants:
     """Group worker-template constants.
 
     Attributes:
-        folder: Directory containing template files.
         windows_template: PowerShell template file name.
         posix_template: Python template file name for Linux and macOS.
         posix_markers: Heredoc delimiters wrapping the Python program.
 
     """
 
-    folder: Final[Path] = Path(__file__).parent / "templates"
     windows_template: Final[str] = "worker_windows.ps1.tmpl"
     posix_template: Final[str] = "worker_posix.py.tmpl"
     posix_markers: Final[tuple[str, str]] = (
         "<<'STATIONER_PY'",
         "STATIONER_PY",
     )
-
-
-def _template(*, name: str) -> str:
-    """Read a worker template shipped beside this module.
-
-    Args:
-        name: Template file name.
-
-    Returns:
-        The template text.
-
-    """
-    return WorkerConstants.folder.joinpath(name).read_text(encoding="utf-8")
-
-
-def _render(*, template: str, values: dict[str, str]) -> str:
-    """Substitute ``@@NAME@@`` placeholders.
-
-    Args:
-        template: Template text.
-        values: Replacement text per placeholder name.
-
-    Returns:
-        The rendered text.
-
-    """
-    rendered: str = template
-    for name, value in values.items():
-        rendered = rendered.replace(f"@@{name}@@", value)
-    return rendered
 
 
 def _python_literal(value: str) -> str:
@@ -162,8 +131,8 @@ def windows_worker(
         PowerShell source.
 
     """
-    return _render(
-        template=_template(name=WorkerConstants.windows_template),
+    return render(
+        source=template(name=WorkerConstants.windows_template),
         values=_quoted(
             raw=_raw(
                 base_url=base_url,
@@ -202,8 +171,8 @@ def posix_worker(
 
     """
     opener, closer = WorkerConstants.posix_markers
-    program: str = _render(
-        template=_template(name=WorkerConstants.posix_template),
+    program: str = render(
+        source=template(name=WorkerConstants.posix_template),
         values=_quoted(
             raw=_raw(
                 base_url=base_url,

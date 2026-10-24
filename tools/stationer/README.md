@@ -46,6 +46,9 @@ $ python -m tools.stationer               # pipeline from [tool.stationer.builde
 
 ### Subdirectories
 
-- [`templates/`](templates/README.md) — Provide stationer.example toml content.
+- [`example/`](example/README.md) — Provide stationer.example toml content.
+- [`guest/`](guest/README.md) — One-time SSH bootstrap scripts for stationer build guests.
+- [`partition/`](partition/README.md) — Content-addressed partition engine for stationer.
+- [`templates/`](templates/README.md) — Rendered ``@@NAME@@`` templates consumed by the builders and workers.
 
 <!-- exactus:inventory:end -->

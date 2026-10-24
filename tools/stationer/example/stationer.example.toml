@@ -22,6 +22,27 @@ musl_image = "python:3.13-alpine"
 maintainer = "Example <dev@example.com>"
 description = "My application"
 
+# [linux.guest] replaces the Docker cells with one build inside an
+# SSH-reachable QEMU guest (see guest/linux-guest-setup.sh); the guest's
+# uname -m and C library decide the artifact names.
+# [linux.guest]
+# host = "127.0.0.1"
+# port = 2223
+# user = "builder"
+# identity_file = "~/.ssh/linux_builder_ed25519"
+# python = ["python3"]
+# remote_root = "/tmp/stationer"
+
+# [macos.guest] likewise replaces the native macOS build with an
+# SSH-reachable macOS guest (see guest/macos-guest-setup.sh).
+# [macos.guest]
+# host = "127.0.0.1"
+# port = 2224
+# user = "builder"
+# identity_file = "~/.ssh/macos_builder_ed25519"
+# python = ["python3"]
+# remote_root = "/tmp/stationer"
+
 [windows]
 # With QEMU hostfwd=tcp:127.0.0.1:2222-:22:
 host = "127.0.0.1"

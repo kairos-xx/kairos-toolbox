@@ -122,6 +122,27 @@ class ProjectTable(TypedDict, total=False):
     local_dependencies: list[str]
 
 
+class GuestTable(TypedDict, total=False):
+    """Describe an SSH-reachable POSIX QEMU guest's keys.
+
+    Attributes:
+        host: SSH host of the guest.
+        port: SSH port of the guest.
+        user: SSH user on the guest.
+        identity_file: SSH private key path.
+        python: Python launcher command on the guest.
+        remote_root: Remote build directory root.
+
+    """
+
+    host: str
+    port: int
+    user: str
+    identity_file: str
+    python: list[str]
+    remote_root: str
+
+
 class LinuxTable(TypedDict, total=False):
     """Describe accepted Linux configuration keys.
 
@@ -133,6 +154,8 @@ class LinuxTable(TypedDict, total=False):
             ``python:3.13-alpine``; musl cells are skipped when omitted.
         maintainer: Debian package maintainer.
         description: Debian package description.
+        guest: ``[linux.guest]`` table; when present Linux builds run on
+            the SSH-reachable guest it describes instead of in Docker.
 
     """
 
@@ -142,6 +165,7 @@ class LinuxTable(TypedDict, total=False):
     musl_image: str
     maintainer: str
     description: str
+    guest: GuestTable
 
 
 class MacOSTable(TypedDict, total=False):
@@ -152,6 +176,8 @@ class MacOSTable(TypedDict, total=False):
         python_amd64: x86_64 Python for amd64 builds on Apple Silicon.
         signing_identity: Optional Installer signing identity.
         minimum_macos: Override of the minimum macOS version recorded.
+        guest: ``[macos.guest]`` table; when present macOS builds run on
+            the SSH-reachable guest it describes instead of natively.
 
     """
 
@@ -159,6 +185,7 @@ class MacOSTable(TypedDict, total=False):
     python_amd64: str
     signing_identity: str
     minimum_macos: str
+    guest: GuestTable
 
 
 class WindowsTable(TypedDict, total=False):
@@ -588,6 +615,7 @@ class LinuxConfig:
     docker_platforms: tuple[str, ...] = ()
     musl_image: str | None = None
     docker_platform: str = "linux/arm64"
+    guest: PosixGuestConfig | None = None
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -608,6 +636,29 @@ class MacOSConfig:
     signing_identity: str | None
     python_amd64: str | None = None
     minimum_macos: str | None = None
+    guest: PosixGuestConfig | None = None
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class PosixGuestConfig:
+    """Hold an SSH-reachable POSIX QEMU guest's configuration.
+
+    Attributes:
+        host: SSH host of the guest.
+        port: SSH port of the guest.
+        user: SSH user on the guest.
+        identity_file: SSH private key path.
+        python: Python launcher command on the guest.
+        remote_root: Remote build directory root.
+
+    """
+
+    host: str
+    port: int
+    user: str
+    identity_file: Path
+    python: tuple[str, ...]
+    remote_root: str
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -854,15 +905,71 @@ class ManifestLoader:
                     "description",
                     f"{name} {version}",
                 ),
+                guest=cls._guest(
+                    table=linux_table.get("guest"),
+                    key="linux.guest",
+                ),
             ),
             macos=MacOSConfig(
                 python=macos_table.get("python", executable),
                 signing_identity=macos_table.get("signing_identity"),
                 python_amd64=macos_table.get("python_amd64"),
                 minimum_macos=macos_table.get("minimum_macos"),
+                guest=cls._guest(
+                    table=macos_table.get("guest"),
+                    key="macos.guest",
+                ),
             ),
             windows=windows,
             pyz=pyz,
+        )
+
+    @classmethod
+    def _guest(
+        cls,
+        *,
+        table: GuestTable | None,
+        key: str,
+    ) -> PosixGuestConfig | None:
+        """Validate a ``[<platform>.guest]`` SSH guest table.
+
+        Args:
+            table: The nested guest table, when present.
+            key: Dotted setting prefix used in error messages.
+
+        Returns:
+            The guest configuration, or ``None`` when absent.
+
+        Raises:
+            BuildError: If a required key is missing or the identity file
+                does not exist.
+
+        """
+        if not table:
+            return None
+        host: str = cls._required_string(
+            value=table.get("host"),
+            key=f"{key}.host",
+        )
+        user: str = cls._required_string(
+            value=table.get("user"),
+            key=f"{key}.user",
+        )
+        identity_text: str = cls._required_string(
+            value=table.get("identity_file"),
+            key=f"{key}.identity_file",
+        )
+        identity_file: Path = Path(identity_text).expanduser().resolve()
+        if not identity_file.is_file():
+            msg: str = f"SSH identity file does not exist: {identity_file}"
+            raise BuildError(msg)
+        return PosixGuestConfig(
+            host=host,
+            port=table.get("port", 2222),
+            user=user,
+            identity_file=identity_file,
+            python=tuple(table.get("python", ["python3"])),
+            remote_root=table.get("remote_root", ".stationer"),
         )
 
     @staticmethod
@@ -2136,38 +2243,6 @@ class WindowsBuildConstants:
     worker_template: Final[str] = "windows_build.ps1.tmpl"
 
 
-def _template(*, name: str) -> str:
-    """Read a worker template shipped beside this module.
-
-    Args:
-        name: Template file name.
-
-    Returns:
-        The template text.
-
-    """
-    return (Path(__file__).parent / "templates" / name).read_text(
-        encoding="utf-8",
-    )
-
-
-def _render(*, template: str, values: dict[str, str]) -> str:
-    """Substitute ``@@NAME@@`` placeholders.
-
-    Args:
-        template: Template text.
-        values: Replacement text per placeholder name.
-
-    Returns:
-        The rendered text.
-
-    """
-    rendered: str = template
-    for name, value in values.items():
-        rendered = rendered.replace(f"@@{name}@@", value)
-    return rendered
-
-
 class WindowsQemuBuilder:
     """Build Windows ARM64 artifacts through an SSH-accessible QEMU guest."""
 
@@ -2258,8 +2333,13 @@ class WindowsQemuBuilder:
                 "Flags: runhidden waituntilterminated; "
                 'StatusMsg: "Checking for a Python interpreter..."'
             )
-        return _render(
-            template=_template(name=WindowsBuildConstants.worker_template),
+        support: ModuleType = import_module(
+            name="tools.stationer.installer_support",
+        )
+        return support.render(
+            source=support.template(
+                name=WindowsBuildConstants.worker_template,
+            ),
             values={
                 "ROOT": cls.ps_quote(value=remote),
                 "PYTHON": python_command,
@@ -2450,6 +2530,620 @@ class WindowsQemuBuilder:
         )
 
 
+class PosixBuildConstants:
+    """Group POSIX-guest build constants.
+
+    Attributes:
+        linux_template: Linux guest worker-template file name.
+        macos_template: macOS guest worker-template file name.
+        probe: Shell probe reporting ``uname -m`` and, on musl guests
+            (Alpine), an extra ``musl`` line.
+        linux_support: Installer-support files a Linux guest needs for a
+            bundled ``.pyz``; both maintainer scripts ship because the
+            packager is detected inside the guest.
+        macos_support: Installer-support files a macOS guest needs for a
+            bundled ``.pyz``.
+
+    """
+
+    linux_template: Final[str] = "linux_build.sh.tmpl"
+    macos_template: Final[str] = "macos_build.sh.tmpl"
+    probe: Final[str] = (
+        "uname -m; command -v apk >/dev/null 2>&1 && echo musl || true"
+    )
+    linux_support: Final[tuple[str, ...]] = (
+        "make_pyz.py",
+        "ensure-python.sh",
+        "postinst",
+        "post-install",
+    )
+    macos_support: Final[tuple[str, ...]] = (
+        "make_pyz.py",
+        "ensure-python.sh",
+        "postinstall",
+    )
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class PosixBuild:
+    """Inputs shared by one POSIX guest build request.
+
+    Attributes:
+        project: Project configuration.
+        config: POSIX guest configuration.
+        platform_name: ``linux`` or ``macos``.
+        linux: Linux packaging metadata, required for Linux guests.
+        macos: macOS configuration for signing and the recorded
+            minimum version on macOS guests.
+        pyz: ``(name, bootstrap)`` from ``[pyz]``, when the installer
+            bundles a ``.pyz``.
+
+    """
+
+    project: ProjectConfig
+    config: PosixGuestConfig
+    platform_name: Literal["linux", "macos"]
+    linux: LinuxConfig | None = None
+    macos: MacOSConfig | None = None
+    pyz: tuple[str, str] | None = None
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class _PosixLayout:
+    """Probed guest facts and the artifact layout they imply.
+
+    Attributes:
+        architecture: Guest-reported canonical architecture.
+        abi: ``glibc``, ``musl`` or ``native``.
+        package: Release package folder for the probe result.
+        executable_name: Final executable file name.
+        installer_name: Final installer file name.
+        payload: ``.pyz`` payload built in the guest, when bundled.
+
+    """
+
+    architecture: str
+    abi: str
+    package: Path
+    executable_name: str
+    installer_name: str
+    payload: PyzPayload | None
+
+
+class PosixQemuBuilder:
+    """Build on an SSH-reachable POSIX QEMU guest (Linux or macOS).
+
+    Unlike the Windows guest, a POSIX guest reports its own architecture
+    through ``uname -m`` and, for Linux, its C library through the presence
+    of ``apk``: the package folder, the ``.pyz`` release tag and the
+    artifact names all derive from the probe, so any guest the manifest
+    points at describes itself.
+    """
+
+    def __init__(self, *, open_session: SshOpener = open_ssh) -> None:
+        """Initialize the builder.
+
+        Args:
+            open_session: Creates the guest session of a build.
+
+        """
+        self._open_session: Final[SshOpener] = open_session
+
+    @classmethod
+    def worker_script(
+        cls,
+        *,
+        build: PosixBuild,
+        remote: str,
+        payload: PyzPayload | None = None,
+    ) -> str:
+        """Generate the controlled POSIX guest build worker.
+
+        Args:
+            build: Shared guest build request.
+            remote: Unique remote build directory.
+            payload: ``.pyz`` payload built in the guest and bundled into
+                the installer when present.
+
+        Returns:
+            POSIX shell worker source.
+
+        """
+        support: ModuleType = import_module(
+            name="tools.stationer.installer_support",
+        )
+        project: ProjectConfig = build.project
+        entrypoint: str = project.entrypoint.relative_to(
+            project.root,
+        ).as_posix()
+        pip_extra: str = " ".join(
+            quote(s=value)
+            for value in (
+                *project.pip_args,
+                *(
+                    f".local-deps/{dependency.name}"
+                    for dependency in project.local_dependencies
+                ),
+            )
+        )
+        pyinstaller_extra: str = " ".join(
+            quote(s=value) for value in project.pyinstaller_args
+        )
+        values: dict[str, str] = {
+            "ROOT": quote(s=remote),
+            "PYTHON": " ".join(
+                quote(s=value) for value in build.config.python
+            ),
+            "NAME": quote(s=project.name),
+            "VERSION": quote(s=project.version),
+            "ENTRYPOINT": quote(s=entrypoint),
+            "PIP_EXTRA": pip_extra,
+            "PYINSTALLER_EXTRA": pyinstaller_extra,
+            "CONSOLE": "" if project.console else "--windowed",
+        }
+        if build.platform_name == "linux":
+            linux_config: LinuxConfig = (
+                build.linux
+                if build.linux is not None
+                else LinuxConfig(
+                    image="",
+                    maintainer="Unknown",
+                    description=project.name,
+                )
+            )
+            values |= cls._linux_values(
+                linux=linux_config,
+                pyz=payload,
+                pip_extra=pip_extra,
+            )
+        else:
+            values |= cls._macos_values(
+                project=project,
+                macos=build.macos,
+                pyz=payload,
+                pip_extra=pip_extra,
+            )
+        return support.render(
+            source=support.template(
+                name=(
+                    PosixBuildConstants.linux_template
+                    if build.platform_name == "linux"
+                    else PosixBuildConstants.macos_template
+                ),
+            ),
+            values=values,
+        )
+
+    @staticmethod
+    def _linux_values(
+        *,
+        linux: LinuxConfig,
+        pyz: PyzPayload | None,
+        pip_extra: str,
+    ) -> dict[str, str]:
+        """Collect the Linux-only placeholders of the guest worker.
+
+        Args:
+            linux: Linux packaging metadata.
+            pyz: ``.pyz`` payload, if bundled.
+            pip_extra: Rendered pip argument text for ``make_pyz.py``.
+
+        Returns:
+            Replacement text per placeholder name.
+
+        """
+        pyz_build: str = ""
+        apk_depends: str = ""
+        apk_scripts: str = ""
+        deb_depends: str = ""
+        deb_prep: str = ""
+        if pyz is not None:
+            bundled: str = quote(s=pyz.bundled)
+            bootstrap: str = quote(s=pyz.bootstrap)
+            pyz_build = (
+                '"$ROOT/venv/bin/python" "$ROOT/support/make_pyz.py" '
+                '--python "$ROOT/venv/bin/python" --source "$ROOT/src" '
+                f'--bootstrap "$ROOT/src/{bootstrap}" '
+                f'--output "$ROOT/out/pyz" -- {pip_extra}\n'
+                'mkdir -p "$ROOT/pkg/usr/local/lib/$NAME"\n'
+                f'cp "$ROOT/out/pyz" '
+                f'"$ROOT/pkg/usr/local/lib/$NAME/{bundled}"\n'
+                'cp "$ROOT/support/ensure-python.sh" '
+                '"$ROOT/pkg/usr/local/lib/$NAME/"\n'
+                'cp "$ROOT/support/$NAME-pyz" '
+                '"$ROOT/pkg/usr/local/bin/$NAME-pyz"\n'
+                'chmod 755 "$ROOT/pkg/usr/local/bin/$NAME-pyz" '
+                '"$ROOT/pkg/usr/local/lib/$NAME/ensure-python.sh"\n'
+            )
+            apk_depends = '-I "depends:python3 curl ca-certificates" '
+            apk_scripts = '-s "post-install:$ROOT/support/post-install" '
+            deb_depends = "Depends: python3, curl, ca-certificates\\n"
+            deb_prep = (
+                'cp "$ROOT/support/postinst" "$ROOT/pkg/DEBIAN/postinst"\n'
+                'chmod 755 "$ROOT/pkg/DEBIAN/postinst"\n'
+            )
+        return {
+            "MAINTAINER": quote(s=linux.maintainer),
+            "DESCRIPTION": quote(s=linux.description),
+            "PYZ_BUILD": pyz_build,
+            "APK_DEPENDS": apk_depends,
+            "APK_SCRIPTS": apk_scripts,
+            "DEB_DEPENDS": deb_depends,
+            "DEB_PREP": deb_prep,
+        }
+
+    @staticmethod
+    def _macos_values(
+        *,
+        project: ProjectConfig,
+        macos: MacOSConfig | None,
+        pyz: PyzPayload | None,
+        pip_extra: str,
+    ) -> dict[str, str]:
+        """Collect the macOS-only placeholders of the guest worker.
+
+        Args:
+            project: Project configuration.
+            macos: macOS configuration, for signing and the recorded
+                minimum version.
+            pyz: ``.pyz`` payload, if bundled.
+            pip_extra: Rendered pip argument text for ``make_pyz.py``.
+
+        Returns:
+            Replacement text per placeholder name.
+
+        """
+        pyz_build: str = ""
+        pkg_scripts: str = ""
+        if pyz is not None:
+            bundled: str = quote(s=pyz.bundled)
+            bootstrap: str = quote(s=pyz.bootstrap)
+            pyz_build = (
+                '"$ROOT/venv/bin/python" "$ROOT/support/make_pyz.py" '
+                '--python "$ROOT/venv/bin/python" --source "$ROOT/src" '
+                f'--bootstrap "$ROOT/src/{bootstrap}" '
+                f'--output "$ROOT/out/pyz" -- {pip_extra}\n'
+                'mkdir -p "$ROOT/scripts" '
+                '"$ROOT/pkg-root/usr/local/lib/$NAME"\n'
+                f'cp "$ROOT/out/pyz" '
+                f'"$ROOT/pkg-root/usr/local/lib/$NAME/{bundled}"\n'
+                'cp "$ROOT/support/ensure-python.sh" '
+                '"$ROOT/pkg-root/usr/local/lib/$NAME/"\n'
+                'cp "$ROOT/support/$NAME-pyz" '
+                '"$ROOT/pkg-root/usr/local/bin/$NAME-pyz"\n'
+                'cp "$ROOT/support/postinstall" '
+                '"$ROOT/scripts/postinstall"\n'
+                'chmod 755 "$ROOT/pkg-root/usr/local/bin/$NAME-pyz" '
+                '"$ROOT/pkg-root/usr/local/lib/$NAME/ensure-python.sh" '
+                '"$ROOT/scripts/postinstall"\n'
+            )
+            pkg_scripts = '--scripts "$ROOT/scripts" '
+        sign: str = ""
+        minimum: str = "sw_vers -productVersion"
+        if macos is not None:
+            if macos.signing_identity:
+                sign = f"--sign {quote(s=macos.signing_identity)} "
+            if macos.minimum_macos:
+                minimum = f"echo {quote(s=macos.minimum_macos)}"
+        return {
+            "IDENTIFIER": quote(s=project.identifier),
+            "PYZ_BUILD": pyz_build,
+            "PKG_SCRIPTS": pkg_scripts,
+            "SIGN": sign,
+            "MINIMUM": minimum,
+        }
+
+    @staticmethod
+    def _layout(
+        *,
+        session: JobSession,
+        build: PosixBuild,
+        output: Path,
+    ) -> _PosixLayout:
+        """Probe the guest and derive the artifact layout from it.
+
+        Args:
+            session: Active guest session.
+            build: Shared guest build request.
+            output: Release output root.
+
+        Returns:
+            Layout for every artifact the guest will produce.
+
+        Raises:
+            BuildError: If the guest reports no architecture.
+
+        """
+        support: ModuleType = import_module(
+            name="tools.stationer.installer_support",
+        )
+        probe: JobResult = session.run(
+            command=("sh", "-c", PosixBuildConstants.probe),
+            check=True,
+        )
+        parts: list[str] = probe.stdout.split()
+        if not parts:
+            msg: str = "The guest did not report its architecture."
+            raise BuildError(msg)
+        architecture: str = ArtifactUtilities.canonical(
+            architecture=parts[0],
+        )
+        abi: str = (
+            "musl"
+            if "musl" in parts
+            else "glibc"
+            if build.platform_name == "linux"
+            else "native"
+        )
+        project: ProjectConfig = build.project
+        tag: str = f"{build.platform_name}-{architecture}" + (
+            f"-{abi}" if build.platform_name == "linux" else ""
+        )
+        return _PosixLayout(
+            architecture=architecture,
+            abi=abi,
+            package=ArtifactUtilities.folder(
+                output=output,
+                platform_name=build.platform_name,
+                architecture=architecture,
+                project=project.name,
+                abi=abi,
+            ),
+            executable_name=f"{project.name}-{project.version}-{tag}",
+            installer_name=(
+                f"{project.name}-{project.version}-linux-"
+                f"{architecture}-musl.apk"
+                if build.platform_name == "linux" and abi == "musl"
+                else f"{project.name}_{project.version}_{architecture}.deb"
+                if build.platform_name == "linux"
+                else f"{project.name}-{project.version}-"
+                f"{build.platform_name}-{architecture}.pkg"
+            ),
+            payload=(
+                support.pyz_payload(
+                    pyz_name=build.pyz[0],
+                    version=project.version,
+                    tag=tag,
+                    bootstrap=build.pyz[1],
+                )
+                if build.pyz is not None
+                else None
+            ),
+        )
+
+    @staticmethod
+    def _stage_payload(
+        *,
+        session: JobSession,
+        temporary: Path,
+        remote: str,
+        build: PosixBuild,
+        payload: PyzPayload,
+    ) -> None:
+        """Upload the files a bundled ``.pyz`` build needs.
+
+        Args:
+            session: Active guest session.
+            temporary: Local staging directory.
+            remote: Unique remote build directory.
+            build: Shared guest build request.
+            payload: ``.pyz`` payload descriptor.
+
+        """
+        support: ModuleType = import_module(
+            name="tools.stationer.installer_support",
+        )
+        name: str = build.project.name
+        extra: tuple[tuple[str, str], ...] = (
+            (
+                ("postinst", support.deb_postinst(name=name)),
+                ("post-install", support.apk_post_install(name=name)),
+            )
+            if build.platform_name == "linux"
+            else (("postinstall", support.pkg_postinstall(name=name)),)
+        )
+        for file_name, content in (
+            ("make_pyz.py", support.make_pyz_source()),
+            ("ensure-python.sh", support.ensure_python_sh()),
+            (f"{name}-pyz", support.shim_sh(name=name, pyz=payload)),
+            *extra,
+        ):
+            staged_file: Path = temporary / file_name
+            staged_file.write_text(data=content, encoding="utf-8")
+            session.upload(
+                source=staged_file,
+                destination=f"{remote}/support/{file_name}",
+            )
+
+    @staticmethod
+    def _collect(
+        *,
+        session: JobSession,
+        temporary: Path,
+        remote: str,
+        build: PosixBuild,
+        layout: _PosixLayout,
+    ) -> tuple[Path, Path, str, str]:
+        """Download the artifacts and version floors the guest wrote.
+
+        Args:
+            session: Active guest session.
+            temporary: Local staging directory.
+            remote: Unique remote build directory.
+            build: Shared guest build request.
+            layout: Artifact layout derived from the probe.
+
+        Returns:
+            Executable path, installer path, minimum glibc and minimum
+            macOS version strings.
+
+        """
+        executable_path: Path = (
+            ArtifactUtilities.pyinstaller_folder(package=layout.package)
+            / layout.executable_name
+        )
+        installer_path: Path = (
+            ArtifactUtilities.installer_folder(package=layout.package)
+            / layout.installer_name
+        )
+        executable_path.parent.mkdir(parents=True, exist_ok=True)
+        installer_path.parent.mkdir(parents=True, exist_ok=True)
+        session.download(
+            source=f"{remote}/out/executable",
+            destination=executable_path,
+        )
+        session.download(
+            source=f"{remote}/out/installer",
+            destination=installer_path,
+        )
+        minimum_glibc: str = ""
+        minimum_macos: str = ""
+        floor: Path
+        if build.platform_name == "linux" and layout.abi == "glibc":
+            floor = temporary / "glibc"
+            session.download(
+                source=f"{remote}/out/glibc",
+                destination=floor,
+            )
+            minimum_glibc = floor.read_text(encoding="utf-8").strip()
+        if build.platform_name == "macos":
+            floor = temporary / "minimum"
+            session.download(
+                source=f"{remote}/out/minimum",
+                destination=floor,
+            )
+            minimum_macos = floor.read_text(encoding="utf-8").strip()
+        if layout.payload is not None:
+            pyz_folder: Path = ArtifactUtilities.pyz_folder(
+                package=layout.package,
+            )
+            pyz_folder.mkdir(parents=True, exist_ok=True)
+            session.download(
+                source=f"{remote}/out/pyz",
+                destination=pyz_folder / layout.payload.archive,
+            )
+        return (
+            executable_path,
+            installer_path,
+            minimum_glibc,
+            minimum_macos,
+        )
+
+    def build(self, *, build: PosixBuild, output: Path) -> BuildResult:
+        """Build POSIX guest artifacts over SSH.
+
+        The release output root is passed in ``output``; the package
+        folder, release tag and artifact names are derived from the guest's
+        own ``uname -m`` (and, on Linux, its C library) so the guest
+        describes what it built.
+
+        Args:
+            build: Shared guest build request.
+            output: Release output root.
+
+        Returns:
+            Verified POSIX build result.
+
+        Raises:
+            BuildError: If the guest, a command or a transfer fails.
+            job_failure: When a guest command or transfer fails.
+
+        """
+        started_at: float = monotonic()
+        temporary_text: str
+        with TemporaryDirectory(prefix="stationer-") as temporary_text:
+            temporary: Path = Path(temporary_text)
+            source_zip: Path = temporary / "source.zip"
+            worker: Path = temporary / "build.sh"
+            SourceArchive.create(
+                project=build.project,
+                destination=source_zip,
+            )
+            build_id: str = ArtifactUtilities.digest(path=source_zip)[:16]
+            remote: str = f"{build.config.remote_root.rstrip('/')}/{build_id}"
+            session: JobSession = self._open_session(config=build.config)
+            layout: _PosixLayout
+            executable_path: Path
+            installer_path: Path
+            minimum_glibc: str
+            minimum_macos: str
+            try:
+                session.start()
+                layout = self._layout(
+                    session=session,
+                    build=build,
+                    output=output,
+                )
+                worker.write_text(
+                    data=PosixQemuBuilder.worker_script(
+                        build=build,
+                        remote=remote,
+                        payload=layout.payload,
+                    ),
+                    encoding="utf-8",
+                )
+                _ = session.run(command=("rm", "-rf", remote), check=False)
+                _ = session.run(
+                    command=("mkdir", "-p", remote),
+                    check=True,
+                )
+                session.upload(
+                    source=source_zip,
+                    destination=f"{remote}/source.zip",
+                )
+                session.upload(
+                    source=worker,
+                    destination=f"{remote}/build.sh",
+                )
+                if layout.payload is not None:
+                    self._stage_payload(
+                        session=session,
+                        temporary=temporary,
+                        remote=remote,
+                        build=build,
+                        payload=layout.payload,
+                    )
+                _ = session.run(
+                    command=("sh", f"{remote}/build.sh"),
+                    check=True,
+                    timeout_seconds=3600,
+                )
+                (
+                    executable_path,
+                    installer_path,
+                    minimum_glibc,
+                    minimum_macos,
+                ) = self._collect(
+                    session=session,
+                    temporary=temporary,
+                    remote=remote,
+                    build=build,
+                    layout=layout,
+                )
+            except QemuRunnerError as error:
+                raise job_failure(error=error) from error
+            finally:
+                with suppress(QemuRunnerError):
+                    _ = session.run(
+                        command=("rm", "-rf", remote),
+                        check=False,
+                        timeout_seconds=60,
+                    )
+                session.close()
+        return replace(
+            ArtifactUtilities.result(
+                platform_name=build.platform_name,
+                architecture=layout.architecture,
+                executable_path=executable_path,
+                installer_path=installer_path,
+                started_at=started_at,
+            ),
+            abi=layout.abi,
+            minimum_glibc=minimum_glibc or None,
+            minimum_macos=minimum_macos or None,
+        )
+
+
 class ReleaseBuilder:
     """Orchestrate selected platform builders."""
 
@@ -2571,6 +3265,21 @@ class ReleaseBuilder:
 
         match platform_name:
             case "macos":
+                if configuration.macos.guest is not None:
+                    return (
+                        PosixQemuBuilder(
+                            open_session=self._guests,
+                        ).build(
+                            build=PosixBuild(
+                                project=project,
+                                config=configuration.macos.guest,
+                                platform_name="macos",
+                                macos=configuration.macos,
+                                pyz=configuration.pyz,
+                            ),
+                            output=output,
+                        ),
+                    )
                 return tuple(
                     MacOSBuilder(open_host=self._open_host).build(
                         project=project,
@@ -2599,6 +3308,21 @@ class ReleaseBuilder:
                 )
             case "linux":
                 linux: LinuxConfig = configuration.linux
+                if linux.guest is not None:
+                    return (
+                        PosixQemuBuilder(
+                            open_session=self._guests,
+                        ).build(
+                            build=PosixBuild(
+                                project=project,
+                                config=linux.guest,
+                                platform_name="linux",
+                                linux=linux,
+                                pyz=configuration.pyz,
+                            ),
+                            output=output,
+                        ),
+                    )
                 builder: LinuxDockerBuilder = LinuxDockerBuilder(
                     open_session=self._containers,
                     progress=self._progress,

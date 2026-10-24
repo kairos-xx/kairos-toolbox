@@ -35,7 +35,7 @@ optional table per platform. `ManifestLoader.load` validates the manifest
 into a `BuildConfiguration`; `ReleaseBuilder` dispatches each selected
 platform to its builder sequentially and finally writes `artifacts.json`.
 The implementation lives in `tools/stationer/` (with an example manifest
-and the Windows guest bootstrap), its tests in `tests/tools/stationer/`.
+and the guest bootstrap scripts), its tests in `tests/tools/stationer/`.
 Every external command flows through the `Runner` protocol — the production
 implementation is `CommandRunner` — so builds are deterministic, captured,
 and fail fast through `BuildError` on any non-zero exit.
@@ -95,9 +95,29 @@ glibc floor for glibc builds. The container is removed when the build ends.
 | `remote_root` | string | Work directory inside the guest, e.g. `C:/stationer`. |
 | `publisher` | string | `AppPublisher` in the generated Inno Setup script. |
 
-`tools/stationer/templates/stationer.example.toml` is a complete annotated
-manifest. `tools/stationer/templates/windows-guest-setup.ps1` bootstraps the
+`tools/stationer/example/stationer.example.toml` is a complete annotated
+manifest. `tools/stationer/guest/windows-guest-setup.ps1` bootstraps the
 Windows guest (Python, PyInstaller, Inno Setup prerequisites).
+
+### `[linux.guest]` / `[macos.guest]` — optional SSH guest builds
+
+When present, a `<platform>.guest` table replaces that platform's default
+builder (Docker cells for Linux, the native build for macOS) with a single
+build inside an SSH-reachable guest — typically a QEMU/UTM VM prepared
+with `tools/stationer/guest/linux-guest-setup.sh` or
+`guest/macos-guest-setup.sh`. Both tables take the `[windows]` keys except
+`publisher`: `host`, `port`, `user`, `identity_file`, `python` (the guest's
+Python launcher, default `["python3"]`) and `remote_root` (default
+`/tmp/stationer`).
+
+`PosixQemuBuilder` probes the guest over SSH — `uname -m` and, on Linux,
+`command -v apk` — so the guest's own architecture and C library decide the
+package folder, the `.pyz` release tag and the artifact names: a Debian
+guest yields `{name}_{version}_{arch}.deb`, an Alpine guest
+`{name}-{version}-linux-{arch}-musl.apk`, a macOS guest
+`{name}-{version}-macos-{arch}.pkg` built with `pkgbuild`. The worker
+script is `templates/linux_build.sh.tmpl` or `templates/macos_build.sh.tmpl`,
+rendered through the same `@@NAME@@` engine as the Windows worker.
 
 ## CLI reference
 
@@ -439,7 +459,7 @@ Inno Setup via `winget`, compiles `installer.iss`
 (`PrivilegesRequired=lowest`, ARM64-only) into `setup.exe`, and the host
 pulls back `{name}-{version}-windows-arm64-setup.exe` plus the bare
 executable. Quoting goes through `ps_quote`; the guest bootstrap lives in
-`windows-guest-setup.ps1`.
+`guest/windows-guest-setup.ps1`.
 
 ## Outputs and artifact manifest
 

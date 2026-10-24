@@ -680,9 +680,7 @@ def test_every_platform_has_its_expected_member() -> None:
     for archive_name, member in sorted(set(targets.values())):
         with ZipFile(file=payload_dir / archive_name, mode="r") as zipped:
             members: list[str] = [
-                name
-                for name in zipped.namelist()
-                if not name.endswith("/")
+                name for name in zipped.namelist() if not name.endswith("/")
             ]
         expect(actual=members, expected=[member])
 

@@ -83,7 +83,7 @@ def test_render_replaces_every_occurrence_of_each_placeholder() -> None:
 def test_template_reads_a_shipped_file() -> None:
     """A template that ships beside the package can be read by name."""
     check(
-        condition="@@NAME@@" in template(name="district-pyz.cmd"),
+        condition="@@NAME@@" in template(name="district-pyz.cmd.tmpl"),
         reason="the cmd shim keeps its placeholders until rendered",
     )
     with pytest.raises(expected_exception=FileNotFoundError):

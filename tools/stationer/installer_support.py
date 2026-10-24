@@ -115,7 +115,7 @@ def ensure_python_sh() -> str:
 
     """
     return render(
-        source=template(name="ensure-python.sh"),
+        source=template(name="ensure-python.sh.tmpl"),
         values={
             "WANT_MAJOR": str(object=InstallConstants.want_major),
             "WANT_MINOR": str(object=InstallConstants.want_minor),
@@ -133,7 +133,7 @@ def ensure_python_ps1() -> str:
 
     """
     return render(
-        source=template(name="ensure-python.ps1"),
+        source=template(name="ensure-python.ps1.tmpl"),
         values={
             "WANT_MAJOR": str(object=InstallConstants.want_major),
             "WANT_MINOR": str(object=InstallConstants.want_minor),
@@ -154,7 +154,7 @@ def shim_sh(*, name: str, pyz: PyzPayload) -> str:
 
     """
     return render(
-        source=template(name="district-pyz.sh"),
+        source=template(name="district-pyz.sh.tmpl"),
         values={
             "NAME": name,
             "PYZ": pyz.bundled,
@@ -177,7 +177,7 @@ def shim_cmd(*, name: str, pyz: PyzPayload) -> str:
 
     """
     return render(
-        source=template(name="district-pyz.cmd"),
+        source=template(name="district-pyz.cmd.tmpl"),
         values={"NAME": name, "PYZ": pyz.bundled},
     )
 

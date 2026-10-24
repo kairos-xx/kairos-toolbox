@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     )
     from tools.stationer.builder import (
         LinuxConfig,
+        PosixGuestConfig,
         WindowsConfig,
     )
     from tools.stationer.sessions import JobSession, StreamingSession
@@ -202,21 +203,30 @@ class FakeSession:
 class Opener:
     """Hand out one fake session per build and remember them."""
 
-    def __init__(self, *, fail_on: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        fail_on: str | None = None,
+        handler: Handler | None = None,
+    ) -> None:
         """Create the opener.
 
         Args:
             fail_on: Text that makes commands in every session fail.
+            handler: Fabricates each command's side effects and output.
 
         """
         self.created: Final[list[FakeSession]] = []
-        self.configs: Final[list[LinuxConfig | WindowsConfig]] = []
+        self.configs: Final[
+            list[LinuxConfig | PosixGuestConfig | WindowsConfig]
+        ] = []
         self._fail_on: Final[str | None] = fail_on
+        self._handler: Final[Handler | None] = handler
 
     def __call__(
         self,
         *,
-        config: LinuxConfig | WindowsConfig,
+        config: LinuxConfig | PosixGuestConfig | WindowsConfig,
     ) -> StreamingSession:
         """Create and record a fake session.
 
@@ -227,7 +237,10 @@ class Opener:
             The new session.
 
         """
-        session: FakeSession = FakeSession(fail_on=self._fail_on)
+        session: FakeSession = FakeSession(
+            fail_on=self._fail_on,
+            handler=self._handler,
+        )
         self.created.append(session)
         self.configs.append(config)
         return session.as_session()

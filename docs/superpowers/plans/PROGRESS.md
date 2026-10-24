@@ -165,3 +165,15 @@ blocker for Tasks 24/33; each build provisions its own.
 - Tests: 5 cases covering build, corruption detection, delta pack count,
   rollback, and selective GC. Verified `partition --help` routes.
 - Gates: ruff clean, basedpyright 0, 76 tests pass (partition + cli).
+
+### Task 5A Step 1 — naming contract reconciliation
+
+- `gh release view lake-terminal/v1.0.1`: tags are `<project>/v<version>`;
+  assets are `<name>-<version>-<platform>[.<ext>]` (`lake-1.0.1-macos-arm64`,
+  `lake_1.0.1_arm64.deb`, `BUILD.md`). No checksum asset shipped yet.
+- Checksum name conflict: stationer writes `SHA256SUMS` (build_report,
+  artifacts), district's updater reads `SHA256SUMS.txt` (update.py:72).
+  Decision: `SHA256SUMS.txt` wins — it is the name the updater contract
+  already demands; stationer's writer gains the suffix via
+  `naming.CHECKSUM_NAME` when it produces release assets (Task 21+).
+- Golden platform tags kept: `macos-arm64`, `linux-x86_64`, `windows-amd64`.

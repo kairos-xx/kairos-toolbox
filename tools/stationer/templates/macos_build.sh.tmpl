@@ -1,0 +1,35 @@
+#!/bin/sh
+# macOS QEMU guest build worker.
+# Rendered by tools.stationer.builder.PosixQemuBuilder (@@ROOT@@, @@PYTHON@@,
+# @@NAME@@, @@VERSION@@, @@ENTRYPOINT@@, @@PIP_EXTRA@@, @@PYINSTALLER_EXTRA@@,
+# @@CONSOLE@@, @@IDENTIFIER@@, @@PKG_SCRIPTS@@, @@SIGN@@, @@MINIMUM@@,
+# @@PYZ_BUILD@@). No {work}-style braces may appear here.
+set -eu
+
+ROOT=@@ROOT@@
+NAME=@@NAME@@
+VERSION=@@VERSION@@
+IDENTIFIER=@@IDENTIFIER@@
+SRC="$ROOT/src"
+
+@@PYTHON@@ -m zipfile -e "$ROOT/source.zip" "$SRC"
+@@PYTHON@@ -m venv "$ROOT/venv"
+"$ROOT/venv/bin/python" -m pip install \
+  --disable-pip-version-check --upgrade pip
+cd "$SRC"
+"$ROOT/venv/bin/python" -m pip install \
+  --disable-pip-version-check pyinstaller @@PIP_EXTRA@@ .
+"$ROOT/venv/bin/python" -m PyInstaller \
+  --noconfirm --clean --onefile @@CONSOLE@@ --name "$NAME" \
+  --distpath "$ROOT/dist" --workpath "$ROOT/build" \
+  --specpath "$ROOT/spec" @@PYINSTALLER_EXTRA@@ \
+  "$SRC/@@ENTRYPOINT@@"
+mkdir -p "$ROOT/out" "$ROOT/pkg-root/usr/local/bin"
+cp "$ROOT/dist/$NAME" "$ROOT/out/executable"
+cp "$ROOT/dist/$NAME" "$ROOT/pkg-root/usr/local/bin/$NAME"
+@@PYZ_BUILD@@
+pkgbuild --root "$ROOT/pkg-root" @@PKG_SCRIPTS@@\
+  --identifier "$IDENTIFIER" --version "$VERSION" \
+  --install-location / @@SIGN@@\
+  "$ROOT/out/installer"
+@@MINIMUM@@ > "$ROOT/out/minimum"

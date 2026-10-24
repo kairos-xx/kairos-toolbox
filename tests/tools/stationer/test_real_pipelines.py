@@ -38,6 +38,7 @@ from tools.stationer import (
     LinuxDockerBuilder,
     MacOSBuilder,
     MacOSConfig,
+    PosixGuestConfig,
     ProjectConfig,
     PypiBuilder,
     RemoteBuilder,
@@ -401,7 +402,10 @@ def test_windows_pipeline_via_qemu_worker(tmp_path: Path) -> None:
 
     """
 
-    def open_agent(*, config: WindowsConfig) -> UtmRunner:
+    def open_agent(
+        *,
+        config: WindowsConfig | PosixGuestConfig,
+    ) -> UtmRunner:
         """Hand the builder a non-owning session on the running guest.
 
         Args:

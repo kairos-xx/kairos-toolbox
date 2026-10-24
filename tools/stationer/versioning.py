@@ -148,3 +148,56 @@ def replace_version(*, text: str, old: str, new: str) -> tuple[str, int]:
         string=text,
         count=1,
     )
+
+
+def _rank(*, version: Version) -> tuple[int, int, int, tuple[object, ...]]:
+    """Order key treating a stable release above any prerelease.
+
+    Args:
+        version: Parsed semantic version.
+
+    Returns:
+        Comparable ordering key.
+
+    """
+    tail: tuple[object, ...] = (
+        (1,)
+        if version.prerelease is None
+        else (
+            0,
+            *tuple(
+                int(part) if part.isdigit() else part
+                for part in version.prerelease.split(".")
+            ),
+        )
+    )
+    return (version.major, version.minor, version.patch, tail)
+
+
+def is_newer(
+    *,
+    candidate: str,
+    current: str,
+    allow_prerelease: bool = False,
+) -> bool:
+    """Whether ``candidate`` is a newer stable release than ``current``.
+
+    Args:
+        candidate: Candidate version text.
+        current: Currently installed version text.
+        allow_prerelease: Consider prerelease candidates newer; stable
+            channels leave this off.
+
+    Returns:
+        ``True`` when candidate outranks current; malformed input and
+        ignored prereleases return ``False``.
+
+    """
+    try:
+        next_version: Version = Version.parse(value=candidate)
+        have_version: Version = Version.parse(value=current)
+    except ValueError:
+        return False
+    if next_version.prerelease is not None and not allow_prerelease:
+        return False
+    return _rank(version=next_version) > _rank(version=have_version)

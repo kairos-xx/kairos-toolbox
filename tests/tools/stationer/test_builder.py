@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from hashlib import sha256
 from json import loads
 from pathlib import Path
@@ -29,6 +30,9 @@ from tools.stationer import (
     MacOSBuilder,
     MacOSConfig,
     ManifestLoader,
+    PosixBuild,
+    PosixGuestConfig,
+    PosixQemuBuilder,
     ProjectConfig,
     ReleaseBuilder,
     WindowsConfig,
@@ -743,3 +747,258 @@ def test_cli_builds_the_selected_platform(
     )
     expect(actual=len(runners.docker), expected=1)
     expect(actual=runners.docker[0].command, expected=("sleep", "infinity"))
+
+
+def guest_config(*, identity: Path) -> PosixGuestConfig:
+    """Create a POSIX QEMU guest configuration.
+
+    Args:
+        identity: SSH key path.
+
+    Returns:
+        The configuration.
+
+    """
+    return PosixGuestConfig(
+        host="192.0.2.10",
+        port=2222,
+        user="builder",
+        identity_file=identity,
+        python=("python3",),
+        remote_root="/home/builder/stationer",
+    )
+
+
+def glibc_probe(*, arguments: tuple[str, ...]) -> str | None:
+    """Answer the guest probe as an x86_64 glibc machine.
+
+    Args:
+        arguments: Command arguments being faked.
+
+    Returns:
+        Probe output, or ``None`` for other commands.
+
+    """
+    if "uname" in arguments[-1]:
+        return "x86_64\n"
+    return None
+
+
+def musl_probe(*, arguments: tuple[str, ...]) -> str | None:
+    """Answer the guest probe as an aarch64 musl machine.
+
+    Args:
+        arguments: Command arguments being faked.
+
+    Returns:
+        Probe output, or ``None`` for other commands.
+
+    """
+    if "uname" in arguments[-1]:
+        return "aarch64\nmusl\n"
+    return None
+
+
+def test_linux_guest_builder_probes_and_pulls_artifacts(
+    tmp_path: Path,
+) -> None:
+    """A glibc guest yields a ``.deb`` named from its own probe.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+
+    """
+    identity: Path = tmp_path / "id_ed25519"
+    identity.write_text(data="key\n", encoding="utf-8")
+    opener: Opener = Opener(handler=glibc_probe)
+    result: BuildResult = PosixQemuBuilder(open_session=opener).build(
+        build=PosixBuild(
+            project=project(root=tmp_path / "src"),
+            config=guest_config(identity=identity),
+            platform_name="linux",
+            linux=linux_config(),
+        ),
+        output=tmp_path / "out",
+    )
+    expect(actual=result.platform, expected="linux")
+    expect(actual=result.architecture, expected="amd64")
+    expect(actual=result.abi, expected="glibc")
+    expect(actual=result.minimum_glibc, expected="2.36")
+    check(
+        condition=present(value=result.installer).suffix == ".deb",
+        reason=str(object=result.installer),
+    )
+    session: FakeSession = opener.created[0]
+    uploaded: list[str] = sorted(
+        destination.rsplit(sep="/", maxsplit=1)[-1]
+        for destination in session.files
+    )
+    expect(actual=uploaded, expected=["build.sh", "source.zip"])
+    check(
+        condition=any(
+            command[-1].endswith("build.sh") for command in session.commands
+        ),
+        reason="the worker script must run in the guest",
+    )
+    expect(actual=session.events[-1], expected="close")
+
+
+def test_linux_guest_musl_probe_names_the_apk(
+    tmp_path: Path,
+) -> None:
+    """A musl guest reports ``musl`` and yields an ``.apk``.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+
+    """
+    identity: Path = tmp_path / "id_ed25519"
+    identity.write_text(data="key\n", encoding="utf-8")
+    opener: Opener = Opener(handler=musl_probe)
+    result: BuildResult = PosixQemuBuilder(open_session=opener).build(
+        build=PosixBuild(
+            project=project(root=tmp_path / "src"),
+            config=guest_config(identity=identity),
+            platform_name="linux",
+            linux=linux_config(),
+        ),
+        output=tmp_path / "out",
+    )
+    expect(actual=result.architecture, expected="arm64")
+    expect(actual=result.abi, expected="musl")
+    expect(actual=result.minimum_glibc, expected=None)
+    check(
+        condition=present(value=result.installer).suffix == ".apk",
+        reason=str(object=result.installer),
+    )
+
+
+def test_macos_guest_builder_produces_a_pkg(tmp_path: Path) -> None:
+    """A macOS guest freezes the executable and packages a ``.pkg``.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+
+    """
+    identity: Path = tmp_path / "id_ed25519"
+    identity.write_text(data="key\n", encoding="utf-8")
+    opener: Opener = Opener(handler=glibc_probe)
+    result: BuildResult = PosixQemuBuilder(open_session=opener).build(
+        build=PosixBuild(
+            project=project(root=tmp_path / "src"),
+            config=guest_config(identity=identity),
+            platform_name="macos",
+            macos=MacOSConfig(python=executable, signing_identity=None),
+        ),
+        output=tmp_path / "out",
+    )
+    expect(actual=result.platform, expected="macos")
+    expect(actual=result.architecture, expected="amd64")
+    check(
+        condition=present(value=result.installer).suffix == ".pkg",
+        reason=str(object=result.installer),
+    )
+    check(
+        condition=result.minimum_macos is not None,
+        reason="the guest's sw_vers must be recorded",
+    )
+    expect(actual=opener.created[0].events[-1], expected="close")
+
+
+def test_guest_failures_keep_the_output_and_release_the_guest(
+    tmp_path: Path,
+) -> None:
+    """A failing guest command is a ``BuildError`` with its output.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+
+    """
+    identity: Path = tmp_path / "id_ed25519"
+    identity.write_text(data="key\n", encoding="utf-8")
+    opener: Opener = Opener(fail_on="build.sh", handler=glibc_probe)
+    with pytest.raises(expected_exception=BuildError, match="boom"):
+        _ = PosixQemuBuilder(open_session=opener).build(
+            build=PosixBuild(
+                project=project(root=tmp_path / "src"),
+                config=guest_config(identity=identity),
+                platform_name="linux",
+                linux=linux_config(),
+            ),
+            output=tmp_path / "out",
+        )
+    expect(actual=opener.created[0].events[-1], expected="close")
+    expect(actual=opener.created[0].downloads, expected=[])
+
+
+def test_manifest_loader_reads_guest_tables() -> None:
+    """``[linux.guest]`` and ``[macos.guest]`` parse into guest configs."""
+    with TemporaryDirectory() as directory:
+        root: Path = Path(directory)
+        (root / "app.py").write_text(data="print('ok')\n", encoding="utf-8")
+        identity: Path = root / "id_ed25519"
+        identity.write_text(data="test-key\n", encoding="utf-8")
+        manifest: Path = root / "builder.toml"
+        manifest.write_text(
+            data=(
+                '[project]\nname = "demo"\nversion = "1.0.0"\n'
+                'entrypoint = "app.py"\n\n'
+                "[linux.guest]\n"
+                'host = "192.0.2.10"\nport = 2223\nuser = "builder"\n'
+                f'identity_file = "{identity}"\n'
+                'python = ["python3"]\nremote_root = "/tmp/stationer"\n\n'
+                "[macos.guest]\n"
+                'host = "192.0.2.11"\nuser = "builder"\n'
+                f'identity_file = "{identity}"\n'
+            ),
+            encoding="utf-8",
+        )
+        configuration: BuildConfiguration = ManifestLoader.load(
+            manifest=manifest,
+            project_root=root,
+            platforms=("linux", "macos"),
+        )
+        linux_guest: PosixGuestConfig = present(
+            value=configuration.linux.guest,
+        )
+        expect(actual=linux_guest.host, expected="192.0.2.10")
+        expect(actual=linux_guest.port, expected=2223)
+        expect(actual=linux_guest.python, expected=("python3",))
+        macos_guest: PosixGuestConfig = present(
+            value=configuration.macos.guest,
+        )
+        expect(actual=macos_guest.port, expected=2222)
+
+
+def test_builder_runs_linux_in_its_guest(tmp_path: Path) -> None:
+    """A configured ``[linux.guest]`` replaces the Docker cells.
+
+    Args:
+        tmp_path: Pytest temporary directory.
+
+    """
+    identity: Path = tmp_path / "id_ed25519"
+    identity.write_text(data="key\n", encoding="utf-8")
+    containers: Opener = Opener()
+    guests: Opener = Opener(handler=glibc_probe)
+    results: tuple[BuildResult, ...] = ReleaseBuilder(
+        open_host=Hosts(handler=macos_handler),
+        containers=containers,
+        guests=guests,
+    ).build(
+        configuration=BuildConfiguration(
+            project=project(root=tmp_path / "src"),
+            linux=replace(
+                linux_config(),
+                guest=guest_config(identity=identity),
+            ),
+            macos=MacOSConfig(python=executable, signing_identity=None),
+            windows=None,
+        ),
+        output=tmp_path / "out",
+        platforms=("linux",),
+    )
+    expect(actual=len(results), expected=1)
+    expect(actual=results[0].architecture, expected="amd64")
+    expect(actual=len(guests.created), expected=1)
+    expect(actual=len(containers.created), expected=0)
