@@ -56,7 +56,7 @@ blocker for Tasks 24/33; each build provisions its own.
 | 0 | 776dcd0 | ruff 0, basedpyright 0 | baselines above |
 | 1 | 95ec727 | ruff 0, basedpyright 0, 26 tests, 96% cov | notes below |
 | 2 | 6d3a726 | ruff 0, basedpyright 0, 38 tests, 96% cov, stationer 337 pass | notes below |
-| 3 | pending | ruff 0, basedpyright 0, 45 partition tests | notes below |
+| 3 | 4da722c | ruff 0, basedpyright 0, 45 partition tests | notes below |
 
 ### Task 1 — zstd_portable port
 
@@ -149,3 +149,19 @@ blocker for Tasks 24/33; each build provisions its own.
   `test_real_pipelines.open_agent` widened to the `SshOpener` union.
 - Gates: ruff clean, basedpyright 0 on `tools/stationer` +
   `tests/tools/stationer`, 81 tests pass.
+| 4 | 6a6b3f0 | ruff 0, basedpyright 0, 10 tests, 81 suite pass | notes above |
+| 5 | pending | ruff 0, basedpyright 0, 5 CLI tests, 76 suite pass | notes below |
+
+### Task 5 — partition CLI
+
+- `tools/stationer/partition/cli.py`: `main(*, arguments) -> int` with
+  `build` (component dirs -> catalog+packs, `--cache`, `--pack-target`),
+  `verify` (`--deep`), `update --from/--to/--out` (delta packs + manifest),
+  `rollback <root> <digest>` (restores `catalogs/<digest>.json`),
+  `gc <root> [--dry-run]`.
+- Registered in `tools/stationer/cli.py` as a `partition` subcommand with
+  `nargs=REMAINDER`, dispatched inside `main()` before `load_config` so
+  partition ops need no release.toml (keeps `_run` at its return limit).
+- Tests: 5 cases covering build, corruption detection, delta pack count,
+  rollback, and selective GC. Verified `partition --help` routes.
+- Gates: ruff clean, basedpyright 0, 76 tests pass (partition + cli).

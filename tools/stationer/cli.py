@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from argparse import REMAINDER, ArgumentParser, Namespace
 from argparse import Action as ArgparseAction
-from argparse import ArgumentParser, Namespace
 from importlib import import_module
 from json import dumps
 from pathlib import Path
@@ -19,6 +19,7 @@ from tools.stationer.planner import Planner
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from types import ModuleType
 
     from tools.stationer.config import Config
     from tools.stationer.models import Action
@@ -155,6 +156,11 @@ def _parser() -> ArgumentParser:
         help="Create/update the configured GitHub repository",
     )
     _ = sync.add_argument("--dry-run", action="store_true")
+    partition: ArgumentParser = add_subparser(
+        "partition",
+        help="Content-addressed partition store operations",
+    )
+    _ = partition.add_argument("partition_args", nargs=REMAINDER)
     return parser
 
 
@@ -582,6 +588,16 @@ def main(*, arguments: tuple[str, ...] | None = None) -> int:
             )
             return 2
     args: Namespace = _parser().parse_args(args=argv)
+    if args.command == "partition":
+        partition_cli: ModuleType = import_module(
+            name="tools.stationer.partition.cli",
+        )
+        return cast(
+            typ="int",
+            val=partition_cli.main(
+                arguments=tuple(args.partition_args),
+            ),
+        )
     config_path: Path = args.config
     if args.command == "init":
         if config_path.exists():
