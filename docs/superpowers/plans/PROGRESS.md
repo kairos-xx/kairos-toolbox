@@ -123,3 +123,29 @@ blocker for Tasks 24/33; each build provisions its own.
 - Reuses `component_tree`/`publish`/`scan_recipe` from `test_store.py`
   rather than duplicating fixtures.
 - Gates: ruff clean, basedpyright 0, partition suite 45 passed.
+
+### Task 4 — generic tool model, bounded fetch, build target
+
+- Modules: `partition/model.py` (`ToolSpec`, `ComponentSpec`,
+  `resolve_components` over an injected mapping — drops Exactus
+  Node/Playwright/GROUPS coupling), `partition/fetch.py` (`FetchError`,
+  `FetchOptions(timeout_seconds, max_bytes, retries, allowed_schemes)`,
+  `fetch(*, url, destination, options)` streaming to an atomic
+  `mkstemp`+`replace` destination), `partition/target.py` (`BuildTarget`
+  os/arch/abi triple).
+- `fetch` uses the repo's `import_module("urllib.request")` +
+  `build_opener` pattern (S310-safe, matches charter/district); HTTPS
+  only by default, tests inject `{"http","https"}` for loopback servers.
+- Added `Content-Length` reconciliation: CPython `read(amt)` silently
+  returns short bodies, so a truncated stream now raises `FetchError`
+  (verified mid-body abort leaves no destination or temp file).
+- Tests: `test_model.py` (5) + `test_fetch.py` (5, scripted local
+  `ThreadingHTTPServer`): scheme rejection, size cap, retry-then-fail,
+  atomic write, transitive/tool-name resolution, frozen target.
+- Rework repair: `builder.py` `remote_root` default `.stationer`
+  (remote-home-relative; `/tmp` trips S108, `~` never expands under the
+  argv-quoted remote commands); `PosixBuild` carrier + `_PosixLayout`
+  split `build`/`worker_script` under the arg/statement limits;
+  `test_real_pipelines.open_agent` widened to the `SshOpener` union.
+- Gates: ruff clean, basedpyright 0 on `tools/stationer` +
+  `tests/tools/stationer`, 81 tests pass.
