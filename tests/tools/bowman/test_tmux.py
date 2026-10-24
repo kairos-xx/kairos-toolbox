@@ -3,9 +3,12 @@
 
 from __future__ import annotations
 
-import runpy
+from pathlib import Path
+from subprocess import CompletedProcess, run
+from sys import executable
 from typing import Final
 
+import bowman
 import pytest
 from bowman.tmux import (
     Align,
@@ -628,12 +631,17 @@ def test_executable_override_and_command_shell() -> None:
     )
 
 
-def test_main_block_renders_demo_commands(
-    capsys: pytest.CaptureFixture[str],
-) -> None:
-    """The __main__ demo prints the generated tmux commands."""
-    runpy.run_module("bowman.tmux", run_name="__main__")
-    output: str = capsys.readouterr().out
+def test_main_block_renders_demo_commands() -> None:
+    """The ``python -m bowman.tmux`` demo prints generated commands."""
+    tools_dir: Path = Path(bowman.__file__).resolve().parent.parent
+    result: CompletedProcess[str] = run(
+        args=[executable, "-m", "bowman.tmux"],
+        cwd=tools_dir,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    output: str = result.stdout
     check(
         condition="tmux set-option -t lake-main status on" in output,
         reason="demo must render status option commands",
