@@ -22,8 +22,8 @@ from bowman.tmux import (
     StatusKeys,
     StatusPosition,
     TmuxCommand,
+    TmuxDistrictState,
     TmuxFormat,
-    TmuxLakeState,
     TmuxOption,
     TmuxRange,
     TmuxShowFlags,
@@ -51,11 +51,13 @@ def test_colour_indexed_validates_range() -> None:
     expect(actual=Colour.indexed(index=0).value, expected="colour0")
     expect(actual=Colour.indexed(index=255).value, expected="colour255")
     with pytest.raises(
-        expected_exception=ValueError, match="between 0 and 255",
+        expected_exception=ValueError,
+        match="between 0 and 255",
     ):
         Colour.indexed(index=256)
     with pytest.raises(
-        expected_exception=ValueError, match="invalid tmux colour",
+        expected_exception=ValueError,
+        match="invalid tmux colour",
     ):
         Colour(value="colour256")
 
@@ -67,15 +69,18 @@ def test_colour_rgb_validates_channels() -> None:
         expected="#ff0010",
     )
     with pytest.raises(
-        expected_exception=ValueError, match="RGB channels",
+        expected_exception=ValueError,
+        match="RGB channels",
     ):
         Colour.rgb(red=256, green=0, blue=0)
     with pytest.raises(
-        expected_exception=ValueError, match="invalid tmux colour",
+        expected_exception=ValueError,
+        match="invalid tmux colour",
     ):
         Colour(value="#xyz")
     with pytest.raises(
-        expected_exception=ValueError, match="invalid tmux colour",
+        expected_exception=ValueError,
+        match="invalid tmux colour",
     ):
         Colour(value="not-a-colour")
 
@@ -87,7 +92,8 @@ def test_range_renders_marker_kinds() -> None:
         expected="range=left",
     )
     with pytest.raises(
-        expected_exception=ValueError, match="do not accept values",
+        expected_exception=ValueError,
+        match="do not accept values",
     ):
         TmuxRange(kind=RangeKind.RIGHT, value="x").render()
 
@@ -103,7 +109,8 @@ def test_range_renders_value_kinds() -> None:
         expected="range=user|tag",
     )
     with pytest.raises(
-        expected_exception=ValueError, match="requires a value",
+        expected_exception=ValueError,
+        match="requires a value",
     ):
         TmuxRange(kind=RangeKind.SESSION).render()
 
@@ -115,19 +122,23 @@ def test_range_validates_control_and_user() -> None:
         expected="range=control|4",
     )
     with pytest.raises(
-        expected_exception=ValueError, match="integer from 0 to 9",
+        expected_exception=ValueError,
+        match="integer from 0 to 9",
     ):
         TmuxRange(kind=RangeKind.CONTROL, value=10).render()
     with pytest.raises(
-        expected_exception=ValueError, match="integer from 0 to 9",
+        expected_exception=ValueError,
+        match="integer from 0 to 9",
     ):
         TmuxRange(kind=RangeKind.CONTROL, value="x").render()
     with pytest.raises(
-        expected_exception=ValueError, match="only control ranges",
+        expected_exception=ValueError,
+        match="only control ranges",
     ):
         TmuxRange(kind=RangeKind.WINDOW, value=1).render()
     with pytest.raises(
-        expected_exception=ValueError, match="at most 15 bytes",
+        expected_exception=ValueError,
+        match="at most 15 bytes",
     ):
         TmuxRange(kind=RangeKind.USER, value="x" * 16).render()
 
@@ -156,7 +167,8 @@ def test_style_render_empty_and_typed_fields() -> None:
 def test_style_render_link_and_attributes() -> None:
     """Link and attribute flags render with no-prefixed negations."""
     expect(
-        actual=TmuxStyle(link="x").render(), expected="link=x",
+        actual=TmuxStyle(link="x").render(),
+        expected="link=x",
     )
     expect(actual=TmuxStyle(link="").render(), expected="nolink")
     style: TmuxStyle = TmuxStyle(
@@ -171,8 +183,7 @@ def test_style_render_link_and_attributes() -> None:
     expect(
         actual=style.render(),
         expected=(
-            "bold,nodim,italics,noattr,"
-            "push-default,pop-default,set-default"
+            "bold,nodim,italics,noattr,push-default,pop-default,set-default"
         ),
     )
 
@@ -188,12 +199,12 @@ def test_format_composition_and_escaping() -> None:
         expected="#{pane_id}",
     )
     expect(
-        actual=TmuxFormat.user_option(name="lake_id").text,
-        expected="#{@lake_id}",
+        actual=TmuxFormat.user_option(name="district_id").text,
+        expected="#{@district_id}",
     )
     expect(
-        actual=TmuxFormat.user_option(name="@lake_id").text,
-        expected="#{@lake_id}",
+        actual=TmuxFormat.user_option(name="@district_id").text,
+        expected="#{@district_id}",
     )
     expect(
         actual=str(
@@ -252,7 +263,8 @@ def test_format_modified_time_loop_shell_styled() -> None:
     """Modifier, time, loop, shell, and styled formats render."""
     expect(
         actual=TmuxFormat.modified(
-            modifiers="b", value="pane_current_path",
+            modifiers="b",
+            value="pane_current_path",
         ).text,
         expected="#{b:pane_current_path}",
     )
@@ -305,15 +317,18 @@ def test_status_config_validates_rows_and_numbers() -> None:
     expect(actual=TmuxStatusConfig(rows=True).rows, expected=True)
     expect(actual=TmuxStatusConfig(rows=3).rows, expected=3)
     with pytest.raises(
-        expected_exception=ValueError, match="status rows",
+        expected_exception=ValueError,
+        match="status rows",
     ):
         TmuxStatusConfig(rows=6)
     with pytest.raises(
-        expected_exception=ValueError, match="cannot be negative",
+        expected_exception=ValueError,
+        match="cannot be negative",
     ):
         TmuxStatusConfig(interval_seconds=-1)
     with pytest.raises(
-        expected_exception=ValueError, match="cannot be negative",
+        expected_exception=ValueError,
+        match="cannot be negative",
     ):
         TmuxStatusConfig(right_length=-2)
 
@@ -389,7 +404,14 @@ def test_unset_and_show_option_build_argv() -> None:
             unset_panes=True,
         ).argv,
         expected=(
-            "tmux", "set-option", "-p", "-U", "-q", "-t", "%1", "status",
+            "tmux",
+            "set-option",
+            "-p",
+            "-U",
+            "-q",
+            "-t",
+            "%1",
+            "status",
         ),
     )
     expect(
@@ -442,15 +464,24 @@ def test_user_option_normalizes_prefix() -> None:
     """User options gain the @ prefix when missing."""
     expect(
         actual=MANAGER.set_user_option(
-            name="lake_state", value="ready", target="s",
+            name="district_state",
+            value="ready",
+            target="s",
         ).argv,
         expected=(
-            "tmux", "set-option", "-t", "s", "@lake_state", "ready",
+            "tmux",
+            "set-option",
+            "-t",
+            "s",
+            "@district_state",
+            "ready",
         ),
     )
     expect(
         actual=MANAGER.set_user_option(
-            name="@x", value="1", global_=True,
+            name="@x",
+            value="1",
+            global_=True,
         ).argv,
         expected=("tmux", "set-option", "-g", "@x", "1"),
     )
@@ -460,10 +491,14 @@ def test_status_format_array_commands() -> None:
     """status-format array indices are set and unset safely."""
     expect(
         actual=MANAGER.set_status_format(
-            index=1, format_="#[list=on]x",
+            index=1,
+            format_="#[list=on]x",
         ).argv,
         expected=(
-            "tmux", "set-option", "status-format[1]", "#[list=on]x",
+            "tmux",
+            "set-option",
+            "status-format[1]",
+            "#[list=on]x",
         ),
     )
     expect(
@@ -475,11 +510,13 @@ def test_status_format_array_commands() -> None:
         expected=("tmux", "set-option", "-u", "status-format"),
     )
     with pytest.raises(
-        expected_exception=ValueError, match="cannot be negative",
+        expected_exception=ValueError,
+        match="cannot be negative",
     ):
         MANAGER.set_status_format(index=-1, format_="x")
     with pytest.raises(
-        expected_exception=ValueError, match="cannot be negative",
+        expected_exception=ValueError,
+        match="cannot be negative",
     ):
         MANAGER.unset_status_format(index=-1)
 
@@ -496,7 +533,8 @@ def test_refresh_and_display_commands() -> None:
     )
     expect(
         actual=MANAGER.display(
-            format_=Formats.VERSION, target="%0",
+            format_=Formats.VERSION,
+            target="%0",
         ).argv,
         expected=(
             "tmux",
@@ -523,36 +561,33 @@ def test_config_commands_route_targets_by_scope() -> None:
             window_format="W",
             message_style=TmuxStyle(dim=True),
         ),
-        session_target="lake-main",
-        window_target="lake-main:",
+        session_target="district-main",
+        window_target="district-main:",
         global_=True,
     )
     rendered: tuple[str, ...] = MANAGER.shell_commands(commands=commands)
     expect(actual=len(commands), expected=8)
     expect(
         actual=rendered[0],
-        expected="tmux set-option -g -t lake-main status on",
+        expected="tmux set-option -g -t district-main status on",
     )
     expect(
         actual=rendered[1],
-        expected="tmux set-option -g -t lake-main status-position bottom",
+        expected="tmux set-option -g -t district-main status-position bottom",
     )
     expect(
         actual=rendered[5],
-        expected="tmux set-option -g -t lake-main status-left L",
+        expected="tmux set-option -g -t district-main status-left L",
     )
     expect(
         actual=rendered[6],
         expected=(
-            "tmux set-option -w -g -t lake-main:"
-            " window-status-format W"
+            "tmux set-option -w -g -t district-main: window-status-format W"
         ),
     )
     expect(
         actual=rendered[7],
-        expected=(
-            "tmux set-option -g -t lake-main message-style dim"
-        ),
+        expected=("tmux set-option -g -t district-main message-style dim"),
     )
     expect(
         actual=MANAGER.argv(commands=commands)[-1],
@@ -561,7 +596,7 @@ def test_config_commands_route_targets_by_scope() -> None:
             "set-option",
             "-g",
             "-t",
-            "lake-main",
+            "district-main",
             "message-style",
             "dim",
         ),
@@ -575,44 +610,61 @@ def test_config_commands_route_targets_by_scope() -> None:
     )
 
 
-def test_lake_state_commands_render_user_options() -> None:
-    """Lake state maps present values to @-option updates."""
-    commands: tuple[TmuxCommand, ...] = MANAGER.lake_state_commands(
-        target="lake-main",
-        state=TmuxLakeState(
+def test_district_state_commands_render_user_options() -> None:
+    """District state maps present values to @-option updates."""
+    commands: tuple[TmuxCommand, ...] = MANAGER.district_state_commands(
+        target="district-main",
+        state=TmuxDistrictState(
             agent="Devin",
             state="ready",
             clients=2,
-            identity="abc123",
+            id="abc123",
         ),
     )
     expect(
         actual=tuple(command.argv for command in commands),
         expected=(
             (
-                "tmux", "set-option", "-t", "lake-main",
-                "@lake_agent", "Devin",
+                "tmux",
+                "set-option",
+                "-t",
+                "district-main",
+                "@district_agent",
+                "Devin",
             ),
             (
-                "tmux", "set-option", "-t", "lake-main",
-                "@lake_state", "ready",
+                "tmux",
+                "set-option",
+                "-t",
+                "district-main",
+                "@district_state",
+                "ready",
             ),
             (
-                "tmux", "set-option", "-t", "lake-main",
-                "@lake_clients", "2",
+                "tmux",
+                "set-option",
+                "-t",
+                "district-main",
+                "@district_clients",
+                "2",
             ),
             (
-                "tmux", "set-option", "-t", "lake-main",
-                "@lake_id", "abc123",
+                "tmux",
+                "set-option",
+                "-t",
+                "district-main",
+                "@district_id",
+                "abc123",
             ),
         ),
     )
     check(
-        condition=MANAGER.lake_state_commands(
-            target="s", state=TmuxLakeState(),
+        condition=MANAGER.district_state_commands(
+            target="s",
+            state=TmuxDistrictState(),
         )
         == (),
-        reason="empty lake state emits no commands",
+        reason="empty district state emits no commands",
     )
 
 
@@ -643,12 +695,12 @@ def test_main_block_renders_demo_commands() -> None:
     )
     output: str = result.stdout
     check(
-        condition="tmux set-option -t lake-main status on" in output,
+        condition="tmux set-option -t district-main status on" in output,
         reason="demo must render status option commands",
     )
     check(
-        condition="@lake_state ready" in output,
-        reason="demo must render lake user-option commands",
+        condition="@district_state ready" in output,
+        reason="demo must render district user-option commands",
     )
     check(
         condition="tmux refresh-client -S" in output,

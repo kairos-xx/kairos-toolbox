@@ -831,7 +831,7 @@ def install_manifest(*, home: Path, mode: str, tmp: Path) -> Layout:
         home=home,
         bin_dir=tmp / "bin",
         lib_dir=tmp / "lib",
-        alias="laketest",
+        alias="districttest",
         mode=mode,
         source_root=tmp / "src",
         python=executable,

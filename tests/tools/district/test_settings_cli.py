@@ -171,7 +171,7 @@ def test_settings_reports_install_and_update_state(
         home=home,
         bin_dir=tmp_path / "bin",
         lib_dir=tmp_path / "lib",
-        alias="laketest",
+        alias="districttest",
         mode="pyz",
         source_root=tmp_path / "x.pyz",
         python=executable,
@@ -186,7 +186,7 @@ def test_settings_reports_install_and_update_state(
     document: dict[str, object] = settings.settings_document(home=home)
     install: dict[str, object] = section(value=document["install"])
     expect(actual=install["mode"], expected="pyz")
-    expect(actual=install["alias"], expected="laketest")
+    expect(actual=install["alias"], expected="districttest")
     expect(actual=install["components"], expected=["launcher", "mcp"])
     expect(actual=install["payload"], expected="district.pyz")
     expect(actual=install["launcher"], expected=str(object=layout.launcher))

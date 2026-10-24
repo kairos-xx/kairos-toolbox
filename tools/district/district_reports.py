@@ -34,7 +34,7 @@ class ReportConstants:
     """Group report constants.
 
     Attributes:
-        agent_initiator: Initiator recorded for agent-created lakes.
+        agent_initiator: Initiator recorded for agent-created sessions.
         general: Title of the group that holds top-level settings.
         empty: Text shown for a missing value.
 
@@ -57,7 +57,7 @@ class DistrictReports:
         kind: str,
         text: str,
     ) -> CommandResult:
-        """Present the lakes, split by who runs them.
+        """Present the sessions, split by who runs them.
 
         Args:
             entries: Every live district.

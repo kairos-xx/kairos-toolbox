@@ -124,8 +124,7 @@ class Colour:
             len(self.value) == _RGB_HEX_LENGTH
             and self.value.startswith("#")
             and all(
-                char in "0123456789abcdefABCDEF"
-                for char in self.value[1:]
+                char in "0123456789abcdefABCDEF" for char in self.value[1:]
             )
         )
         if self.value not in named and not valid_index and not valid_rgb:
@@ -768,14 +767,14 @@ class TmuxShowFlags:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class TmuxLakeState:
-    """Conventional Lake Terminal @-option state values."""
+class TmuxDistrictState:
+    """Conventional District Terminal @-option state values."""
 
     agent: str | None = None
     state: str | None = None
-    owner: str | None = None
+    initiator: str | None = None
     clients: int | None = None
-    identity: str | None = None
+    id: str | None = None
 
 
 class TmuxStatusManager:
@@ -1167,28 +1166,28 @@ class TmuxStatusManager:
             )
         return tuple(commands)
 
-    def lake_state_commands(
+    def district_state_commands(
         self,
         *,
         target: str,
-        state: TmuxLakeState,
+        state: TmuxDistrictState,
     ) -> tuple[TmuxCommand, ...]:
-        """Build conventional Lake Terminal @user-option updates.
+        """Build conventional District Terminal @user-option updates.
 
         Args:
             target: tmux session.
-            state: Lake Terminal status values.
+            state: District Terminal status values.
 
         Returns:
             User-option update commands.
 
         """
         values: Final[tuple[tuple[str, str | int | None], ...]] = (
-            ("lake_agent", state.agent),
-            ("lake_state", state.state),
-            ("lake_owner", state.owner),
-            ("lake_clients", state.clients),
-            ("lake_id", state.identity),
+            ("district_agent", state.agent),
+            ("district_state", state.state),
+            ("district_initiator", state.initiator),
+            ("district_clients", state.clients),
+            ("district_id", state.id),
         )
         return tuple(
             self.set_user_option(
@@ -1235,17 +1234,17 @@ class TmuxStatusManager:
 
 if __name__ == "__main__":
     manager: Final[TmuxStatusManager] = TmuxStatusManager()
-    lake_left: Final[TmuxFormat] = (
-        TmuxFormat.literal(value=" LAKE │ ")
-        .then(other=TmuxFormat.user_option(name="lake_id"))
+    district_left: Final[TmuxFormat] = (
+        TmuxFormat.literal(value=" DISTRICT │ ")
+        .then(other=TmuxFormat.user_option(name="district_id"))
         .then(other=" │ ")
-        .then(other=TmuxFormat.user_option(name="lake_agent"))
+        .then(other=TmuxFormat.user_option(name="district_agent"))
         .then(other=" ")
     )
-    lake_right: Final[TmuxFormat] = (
-        TmuxFormat.user_option(name="lake_state")
+    district_right: Final[TmuxFormat] = (
+        TmuxFormat.user_option(name="district_state")
         .then(other=" │ clients: ")
-        .then(other=TmuxFormat.user_option(name="lake_clients"))
+        .then(other=TmuxFormat.user_option(name="district_clients"))
         .then(other=" │ ")
         .then(other=Formats.PANE_COMMAND)
         .then(other=" │ %H:%M ")
@@ -1254,9 +1253,9 @@ if __name__ == "__main__":
         rows=True,
         position=StatusPosition.BOTTOM,
         interval_seconds=1,
-        left=lake_left,
+        left=district_left,
         left_length=100,
-        right=lake_right,
+        right=district_right,
         right_length=160,
         window_format=" #I:#W ",
         window_current_format="#[bold] #I:#W #[default]",
@@ -1265,16 +1264,16 @@ if __name__ == "__main__":
     commands: Final[tuple[TmuxCommand, ...]] = (
         *manager.config_commands(
             config=config,
-            session_target="lake-main",
-            window_target="lake-main:",
+            session_target="district-main",
+            window_target="district-main:",
         ),
-        *manager.lake_state_commands(
-            target="lake-main",
-            state=TmuxLakeState(
+        *manager.district_state_commands(
+            target="district-main",
+            state=TmuxDistrictState(
                 agent="Devin",
                 state="ready",
                 clients=2,
-                identity="abc123",
+                id="abc123",
             ),
         ),
         manager.refresh_status(),

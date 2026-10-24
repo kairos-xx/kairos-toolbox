@@ -75,7 +75,7 @@ class Group(StrEnum):
     """Group commands for the palette.
 
     Attributes:
-        observe: Look at lakes and what they did.
+        observe: Look at sessions and what they did.
         act: Create, drive or stop a district.
         system: Inspect or maintain the installation.
 
@@ -206,7 +206,7 @@ class CommandConstants:
         timeout: Status for a command that ran too long.
         history_limit: Rows shown when the caller does not choose.
         limit_maximum: Most rows a caller may ask for.
-        kinds: Which lakes ``sessions`` can show.
+        kinds: Which sessions to show.
 
     """
 
@@ -326,7 +326,7 @@ class DistrictCommands:
             CommandSpec(
                 name="events",
                 title="Activity",
-                summary="What lakes and agents did, newest first.",
+                summary="What sessions and agents did, newest first.",
                 group=Group.observe,
                 params=(text, limit),
             ),
@@ -402,7 +402,7 @@ class DistrictCommands:
             CommandSpec(
                 name="kill-all",
                 title="Stop every district",
-                summary="End all lakes, agent-run and your own.",
+                summary="End all sessions, agent-run and your own.",
                 group=Group.act,
                 danger=Danger.destructive,
             ),
@@ -624,7 +624,7 @@ class DistrictCommands:
         return found
 
     def _run_sessions(self, *, values: Mapping[str, str]) -> CommandResult:
-        """List the live lakes.
+        """List the live sessions.
 
         Args:
             values: Validated input.

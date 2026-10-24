@@ -80,7 +80,7 @@ class _Service(District):
     """Record the district operations a ticket performs.
 
     Attributes:
-        killed: Ids of the lakes that were stopped.
+        killed: Ids of the sessions that were stopped.
 
     """
 
