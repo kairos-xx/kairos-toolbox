@@ -161,6 +161,9 @@ release_config = "release.toml"
 # macos | linux | windows ("windows" also needs the [windows] worker table
 # in the manifest).
 platforms = ["macos", "linux"]
+# native | arm64 | amd64 | all — build both macOS architectures; amd64 runs
+# through the [macos] python_amd64 interpreter under Rosetta.
+arch = "all"
 # native | pyz | pypi
 formats = ["native", "pyz", "pypi"]
 # GitHub release target: a project name from release.toml. Remove the key

@@ -1188,7 +1188,15 @@ class RemoteBuilder:
         """
         if port == 0 or cls._port_is_free(bind=bind, port=port):
             return
+        probe_deadline: float = (
+            monotonic() + RemoteConstants.process_wait_seconds
+        )
         pid: int | None = cls._listener_pid(port=port)
+        while pid is None and monotonic() < probe_deadline:
+            sleep(RemoteConstants.process_poll_seconds)
+            if cls._port_is_free(bind=bind, port=port):
+                return
+            pid = cls._listener_pid(port=port)
         if pid is None:
             msg: str = (
                 f"Port {port} is occupied, but its listener "
