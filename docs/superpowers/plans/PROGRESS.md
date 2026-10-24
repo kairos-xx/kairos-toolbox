@@ -150,7 +150,7 @@ blocker for Tasks 24/33; each build provisions its own.
 - Gates: ruff clean, basedpyright 0 on `tools/stationer` +
   `tests/tools/stationer`, 81 tests pass.
 | 4 | 6a6b3f0 | ruff 0, basedpyright 0, 10 tests, 81 suite pass | notes above |
-| 5 | pending | ruff 0, basedpyright 0, 5 CLI tests, 76 suite pass | notes below |
+| 5 | 194e285 | ruff 0, basedpyright 0, 5 CLI tests, 76 suite pass | notes below |
 
 ### Task 5 — partition CLI
 
@@ -177,3 +177,41 @@ blocker for Tasks 24/33; each build provisions its own.
   already demands; stationer's writer gains the suffix via
   `naming.CHECKSUM_NAME` when it produces release assets (Task 21+).
 - Golden platform tags kept: `macos-arm64`, `linux-x86_64`, `windows-amd64`.
+
+### Task 5A — shared foundation, lazy package, architecture guard
+
+- New modules: `partition/checksums.py` (sha256 manifest read/write/
+  verify, `write_sums/parse_sums/expected_digest/verify_file/file_digest`),
+  `partition/json_types.py` (`JsonValue`, `JsonObject`),
+  `tools/stationer/naming.py` (`Constants.checksum_name`,
+  `asset_name`, `tag_name`, `parse_tag` for `<project>/v<version>`).
+- `target.py`: `Platform` dataclass, `host_platform` (injected ambient
+  values), `release_tag` — golden tags `macos-arm64`, `linux-x86_64`,
+  `windows-amd64` verified.
+- `versioning.is_newer`: semver ordering, stable > prerelease,
+  `allow_prerelease` opt-in, malformed → False, `rc` suffix normalized.
+- `store.atomic_bytes(private=True)`: 0o600 on POSIX.
+- `fetch.fetch_bytes`/`fetch_json` wrappers.
+- Lazy `tools/stationer/__init__.py`: `__getattr__` + `_SOURCES` map +
+  `_PublicAttribute` union; `import tools.stationer.partition` verified
+  builder-free in a subprocess.
+- Repointed owners: `artifacts.checksum_directory` -> `checksums.write_sums`;
+  `pyz_builder.archive_name` -> `naming.asset_name`; `builder.py` uses
+  `remote_exposure.ExposureConstants` (charter seam) instead of a direct
+  charter import.
+- `tools/stationer/architecture_allowlist.toml` + AST guard
+  `test_architecture.py`: partition-layer purity, no sibling-product
+  imports outside sanctioned seams, execution-boundary allowlist
+  (remote_builder/upload subprocess sites tagged with retiring phase).
+- Style: repo-wide UPPER_CASE -> lower_case:Final inside @final classes
+  (153 defs + call sites); stdlib-mirroring Protocols (`_PosixLock`,
+  `_WindowsLock`, `_Termios`) intentionally keep real attribute names.
+- Gates: ruff 0, basedpyright 0, stationer suite 393 passed / 1
+  environmental failure (test_windows_pipeline_via_qemu_worker —
+  baseline, needs a real Windows UTM guest).
+
+### Phase 1 gate
+
+- Stationer suite: 393 passed, 1 known environmental failure.
+- Partition CLI round trip: 5 test_cli cases + architecture guard green.
+- Tag: checkpoint/phase-1 on ae35eb0.
