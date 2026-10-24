@@ -768,13 +768,23 @@ class TmuxShowFlags:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class TmuxDistrictState:
-    """Conventional District Terminal @-option state values."""
+    """District Terminal session state for @-option updates.
+
+    Attributes:
+        agent: ``SessionEntry.agent`` — provider such as claude, codex or
+            devin.
+        agent_state: ``SessionEntry.agent_state`` — normalized provider
+            state such as IDLE, THINKING, EXECUTING, WAITING_FOR_USER or
+            DEAD.
+        id: ``SessionEntry.id`` — short public session identifier.
+        initiator: ``SessionEntry.initiator`` — who started the session.
+
+    """
 
     agent: str | None = None
-    state: str | None = None
-    initiator: str | None = None
-    clients: int | None = None
+    agent_state: str | None = None
     id: str | None = None
+    initiator: str | None = None
 
 
 class TmuxStatusManager:
@@ -1174,6 +1184,9 @@ class TmuxStatusManager:
     ) -> tuple[TmuxCommand, ...]:
         """Build conventional District Terminal @user-option updates.
 
+        Attached-client count is intentionally absent: tmux already
+        exposes it natively as ``#{session_attached}``.
+
         Args:
             target: tmux session.
             state: District Terminal status values.
@@ -1184,10 +1197,9 @@ class TmuxStatusManager:
         """
         values: Final[tuple[tuple[str, str | int | None], ...]] = (
             ("district_agent", state.agent),
-            ("district_state", state.state),
-            ("district_initiator", state.initiator),
-            ("district_clients", state.clients),
+            ("district_state", state.agent_state),
             ("district_id", state.id),
+            ("district_initiator", state.initiator),
         )
         return tuple(
             self.set_user_option(
@@ -1243,8 +1255,8 @@ if __name__ == "__main__":
     )
     district_right: Final[TmuxFormat] = (
         TmuxFormat.user_option(name="district_state")
-        .then(other=" │ clients: ")
-        .then(other=TmuxFormat.user_option(name="district_clients"))
+        .then(other=" │ attached: ")
+        .then(other=Formats.SESSION_ATTACHED)
         .then(other=" │ ")
         .then(other=Formats.PANE_COMMAND)
         .then(other=" │ %H:%M ")
@@ -1270,10 +1282,10 @@ if __name__ == "__main__":
         *manager.district_state_commands(
             target="district-main",
             state=TmuxDistrictState(
-                agent="Devin",
-                state="ready",
-                clients=2,
+                agent="devin",
+                agent_state="EXECUTING",
                 id="abc123",
+                initiator="joaolopes",
             ),
         ),
         manager.refresh_status(),

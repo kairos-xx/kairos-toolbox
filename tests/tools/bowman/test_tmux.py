@@ -611,14 +611,14 @@ def test_config_commands_route_targets_by_scope() -> None:
 
 
 def test_district_state_commands_render_user_options() -> None:
-    """District state maps present values to @-option updates."""
+    """District session fields map present values to @-options."""
     commands: tuple[TmuxCommand, ...] = MANAGER.district_state_commands(
         target="district-main",
         state=TmuxDistrictState(
-            agent="Devin",
-            state="ready",
-            clients=2,
+            agent="devin",
+            agent_state="EXECUTING",
             id="abc123",
+            initiator="joaolopes",
         ),
     )
     expect(
@@ -630,7 +630,7 @@ def test_district_state_commands_render_user_options() -> None:
                 "-t",
                 "district-main",
                 "@district_agent",
-                "Devin",
+                "devin",
             ),
             (
                 "tmux",
@@ -638,15 +638,7 @@ def test_district_state_commands_render_user_options() -> None:
                 "-t",
                 "district-main",
                 "@district_state",
-                "ready",
-            ),
-            (
-                "tmux",
-                "set-option",
-                "-t",
-                "district-main",
-                "@district_clients",
-                "2",
+                "EXECUTING",
             ),
             (
                 "tmux",
@@ -655,6 +647,14 @@ def test_district_state_commands_render_user_options() -> None:
                 "district-main",
                 "@district_id",
                 "abc123",
+            ),
+            (
+                "tmux",
+                "set-option",
+                "-t",
+                "district-main",
+                "@district_initiator",
+                "joaolopes",
             ),
         ),
     )
@@ -699,7 +699,7 @@ def test_main_block_renders_demo_commands() -> None:
         reason="demo must render status option commands",
     )
     check(
-        condition="@district_state ready" in output,
+        condition="@district_state EXECUTING" in output,
         reason="demo must render district user-option commands",
     )
     check(
