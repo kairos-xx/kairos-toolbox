@@ -32,6 +32,7 @@ Bowman contains no District Terminal storage or session-management logic.
 - [`revocation.py`](revocation.py) — Generic revocation registry.
 - [`secrets.py`](secrets.py) — Secret storage and refresh-token vault.
 - [`security.py`](security.py) — Security policies, OAuth bearer validation, and signed local sessions.
+- [`tmux.py`](tmux.py) — Typed tmux status-line configuration, format DSL, and CLI renderer.
 - [`trace.py`](trace.py) — Structured trace spans.
 - [`trust.py`](trust.py) — Trust, authentication strength, and caller provenance.
 - [`uri.py`](uri.py) — Signed, expiring, optionally one-use local URI envelopes.
