@@ -53,4 +53,25 @@ blocker for Tasks 24/33; each build provisions its own.
 
 | Task | Commit | Gate summary | Notes |
 |---|---|---|---|
-| 0 | (this file) | ruff 0, basedpyright 0 | baselines above |
+| 0 | 776dcd0 | ruff 0, basedpyright 0 | baselines above |
+| 1 | pending | ruff 0, basedpyright 0, 26 tests, 96% cov | notes below |
+
+### Task 1 — zstd_portable port
+
+- Module: `tools/stationer/partition/zstd_portable/__init__.py` (~700 lines)
+  ported from `/Users/joaolopes/Exactus/exactus/packages/zstd_portable/`.
+- Dropped: `export_package` / `directory_inventory` dependency (per plan;
+  installer staging now belongs to maire).
+- Dropped: `Path.parents[3]` fallback payload lookup — payloads only resolve
+  from `zstd_portable/bin/` inside the package.
+- Added: `bin/SHA256SUMS` (pinned digests from plan) verified before any
+  extraction or export; missing manifest / missing entry / digest mismatch
+  all raise `RuntimeError` before the archive is opened.
+- Payloads: six zips in `bin/` — `shasum -a 256 -c SHA256SUMS` → all `OK`.
+- Tests: `tests/tools/stationer/partition/test_zstd_portable.py`, 26 cases —
+  normalization, validation, round-trips (incl. 1 MiB random on host),
+  cache/digest-marker behavior, invalid/tampered payloads, manifest tests,
+  export staging. Fake-package tests write their own matching `SHA256SUMS`.
+- Gates: ruff clean, basedpyright 0 errors, coverage 96% on the module.
+- Deviation: helper `_call` uses `helper=` kwarg (source `name=` collides
+  when forwarding `name=` to `_expected_digest`).
