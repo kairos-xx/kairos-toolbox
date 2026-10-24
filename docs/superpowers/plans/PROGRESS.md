@@ -54,7 +54,8 @@ blocker for Tasks 24/33; each build provisions its own.
 | Task | Commit | Gate summary | Notes |
 |---|---|---|---|
 | 0 | 776dcd0 | ruff 0, basedpyright 0 | baselines above |
-| 1 | pending | ruff 0, basedpyright 0, 26 tests, 96% cov | notes below |
+| 1 | 95ec727 | ruff 0, basedpyright 0, 26 tests, 96% cov | notes below |
+| 2 | pending | ruff 0, basedpyright 0, 38 tests, 96% cov, stationer 337 pass | notes below |
 
 ### Task 1 — zstd_portable port
 
@@ -75,3 +76,24 @@ blocker for Tasks 24/33; each build provisions its own.
 - Gates: ruff clean, basedpyright 0 errors, coverage 96% on the module.
 - Deviation: helper `_call` uses `helper=` kwarg (source `name=` collides
   when forwarding `name=` to `_expected_digest`).
+
+### Task 2 — content-addressed store port
+
+- Module: `tools/stationer/partition/store.py` (2,277 lines) ported from
+  `Exactus/exactus/packages/package/partition_fs.py`.
+- The conditional `portable_name`/`import_module` zstd resolution replaced
+  with one top-level `from .zstd_portable import Zstd, ZstdOptions`;
+  `ZstdType`/`ZstdOptionsType` aliases collapsed to the real classes;
+  `ModuleType`/`import_module` imports dropped. Zero `exactus` strings left.
+- Tests: `tests/tools/stationer/partition/test_store.py` (1,739 lines, 38
+  cases) ported from `test_partition_fs.py`. Helper mapping:
+  `expect_equal`→`expect`, `expect_true`→`check` (7 call sites needed a
+  `reason` added — kairos `check` requires it), `fail`→local `_fail`,
+  `private_result`→local `_private_result` (getattr + isinstance + cast).
+- Added `test_catalog_has_no_exactus_strings` per Step 5.
+- Known warning: `test_partition_zip_update_rejections` emits
+  `UserWarning: Duplicate name: 'catalog.json'` — inherent to building the
+  intentionally malformed duplicate-member zip fixture; same warning exists
+  upstream in Exactus. Not suppressed.
+- Gates: ruff clean, basedpyright 0, coverage 96% on `store.py`, full
+  `tests/tools/stationer` suite 337 passed in 6m06s (no regressions).
