@@ -267,6 +267,9 @@ def _materialize(*, args: Namespace) -> int:
     Returns:
         Process exit code.
 
+    Raises:
+        ValueError: If the specified component is not found in the catalog.
+
     """
     catalog: Catalog = load_catalog(path=args.catalog)
     root: Path = args.store_root or args.catalog.parent

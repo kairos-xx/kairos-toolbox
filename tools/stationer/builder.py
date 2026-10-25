@@ -3065,7 +3065,6 @@ class PosixQemuBuilder:
             ),
         )
 
-
     @staticmethod
     def _sync_remote_store(
         *,

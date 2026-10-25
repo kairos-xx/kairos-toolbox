@@ -893,9 +893,7 @@ def test_guest_build_uploads_only_missing_packs(tmp_path: Path) -> None:
             packs: dict[str, Path] = SourcePacks.packs(
                 store=output / ".partition",
             )
-            names: str = "".join(
-                f"./{name}\n" for name in sorted(packs)
-            )
+            names: str = "".join(f"./{name}\n" for name in sorted(packs))
             return names + "./partition-runtime.zip\n"
         return None
 

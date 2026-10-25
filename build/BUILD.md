@@ -5,59 +5,62 @@
 | | |
 | --- | --- |
 | Project | district 1.0.1 |
-| Commit | `2be0d2b` |
-| Generated | 2026-10-24T23:00:16Z |
+| Commit | `97c8797` |
+| Generated | 2026-10-25T00:05:28Z |
 | Generated on | macOS-26.3.2-arm64-arm-64bit-Mach-O · Python 3.13.9 |
 
 ## Executables and installers
 
 | Platform | Architecture | ABI | Executable | Installer | Built | Duration |
 | --- | --- | --- | --- | --- | --- | --- |
-| linux | amd64 | glibc | `linux/amd64/glibc/district/pyinstaller/district-1.0.1-linux-amd64` | `linux/amd64/glibc/district/installer/district_1.0.1_amd64.deb` | 2026-10-24T22:55:48Z | 58.8 s |
-| linux | amd64 | musl | `linux/amd64/musl/district/pyinstaller/district-1.0.1-linux-amd64-musl` | `linux/amd64/musl/district/installer/district-1.0.1-linux-amd64-musl.apk` | 2026-10-24T22:55:48Z | 46.6 s |
-| linux | arm64 | glibc | `linux/arm64/glibc/district/pyinstaller/district-1.0.1-linux-arm64` | `linux/arm64/glibc/district/installer/district_1.0.1_arm64.deb` | 2026-10-24T22:55:48Z | 40.7 s |
-| linux | arm64 | musl | `linux/arm64/musl/district/pyinstaller/district-1.0.1-linux-arm64-musl` | `linux/arm64/musl/district/installer/district-1.0.1-linux-arm64-musl.apk` | 2026-10-24T22:55:48Z | 32.5 s |
-| macos | arm64 | native | `macos/arm64/native/district/pyinstaller/district-1.0.1-macos-arm64` | `macos/arm64/native/district/installer/district-1.0.1-macos-arm64.pkg` | 2026-10-24T22:55:48Z | 20.2 s |
-| windows | arm64 | native | `windows/arm64/native/district/pyinstaller/district-1.0.1-windows-arm64.exe` | `windows/arm64/native/district/installer/district-1.0.1-windows-arm64-setup.exe` | 2026-10-24T23:00:16Z | 224.7 s |
+| linux | amd64 | glibc | `linux/amd64/glibc/district/pyinstaller/district-1.0.1-linux-amd64` | `linux/amd64/glibc/district/installer/district_1.0.1_amd64.deb` | 2026-10-25T00:00:11Z | 58.0 s |
+| linux | amd64 | musl | `linux/amd64/musl/district/pyinstaller/district-1.0.1-linux-amd64-musl` | `linux/amd64/musl/district/installer/district-1.0.1-linux-amd64-musl.apk` | 2026-10-25T00:00:11Z | 46.7 s |
+| linux | arm64 | glibc | `linux/arm64/glibc/district/pyinstaller/district-1.0.1-linux-arm64` | `linux/arm64/glibc/district/installer/district_1.0.1_arm64.deb` | 2026-10-25T00:00:11Z | 38.7 s |
+| linux | arm64 | musl | `linux/arm64/musl/district/pyinstaller/district-1.0.1-linux-arm64-musl` | `linux/arm64/musl/district/installer/district-1.0.1-linux-arm64-musl.apk` | 2026-10-25T00:00:11Z | 33.0 s |
+| macos | amd64 | native | `macos/amd64/native/district/pyinstaller/district-1.0.1-macos-amd64` | `macos/amd64/native/district/installer/district-1.0.1-macos-amd64.pkg` | 2026-10-25T00:00:11Z | 27.2 s |
+| macos | arm64 | native | `macos/arm64/native/district/pyinstaller/district-1.0.1-macos-arm64` | `macos/arm64/native/district/installer/district-1.0.1-macos-arm64.pkg` | 2026-10-25T00:00:11Z | 22.2 s |
+| windows | arm64 | native | `windows/arm64/native/district/pyinstaller/district-1.0.1-windows-arm64.exe` | `windows/arm64/native/district/installer/district-1.0.1-windows-arm64-setup.exe` | 2026-10-25T00:05:28Z | 273.6 s |
 
 ## Archives (`.pyz`)
 
 | File | Size | Built |
 | --- | ---: | --- |
-| `linux/amd64/glibc/district/pyz/district-1.0.1-linux-amd64-glibc.pyz` | 4144857 bytes | 2026-10-24T22:56:12Z |
-| `linux/amd64/musl/district/pyz/district-1.0.1-linux-amd64-musl.pyz` | 4446046 bytes | 2026-10-24T22:56:17Z |
-| `linux/arm64/glibc/district/pyz/district-1.0.1-linux-arm64-glibc.pyz` | 4010830 bytes | 2026-10-24T22:56:02Z |
-| `linux/arm64/musl/district/pyz/district-1.0.1-linux-arm64-musl.pyz` | 4231458 bytes | 2026-10-24T22:56:07Z |
-| `macos/amd64/native/district/pyz/district-1.0.1-macos-amd64.pyz` | 4177655 bytes | 2026-10-24T22:55:58Z |
-| `macos/arm64/native/district/pyz/district-1.0.1-macos-arm64.pyz` | 3952211 bytes | 2026-10-24T22:55:52Z |
-| `windows/amd64/native/district/pyz/district-1.0.1-windows-amd64.pyz` | 4108083 bytes | 2026-10-24T22:56:26Z |
-| `windows/arm64/native/district/pyz/district-1.0.1-windows-arm64.pyz` | 4085600 bytes | 2026-10-24T23:00:09Z |
+| `linux/amd64/glibc/district/pyz/district-1.0.1-linux-amd64-glibc.pyz` | 4145436 bytes | 2026-10-25T00:00:36Z |
+| `linux/amd64/musl/district/pyz/district-1.0.1-linux-amd64-musl.pyz` | 4446620 bytes | 2026-10-25T00:00:40Z |
+| `linux/arm64/glibc/district/pyz/district-1.0.1-linux-arm64-glibc.pyz` | 4011410 bytes | 2026-10-25T00:00:27Z |
+| `linux/arm64/musl/district/pyz/district-1.0.1-linux-arm64-musl.pyz` | 4232038 bytes | 2026-10-25T00:00:31Z |
+| `macos/amd64/native/district/pyz/district-1.0.1-macos-amd64.pyz` | 4178240 bytes | 2026-10-25T00:00:22Z |
+| `macos/arm64/native/district/pyz/district-1.0.1-macos-arm64.pyz` | 3952789 bytes | 2026-10-25T00:00:16Z |
+| `windows/amd64/native/district/pyz/district-1.0.1-windows-amd64.pyz` | 4108666 bytes | 2026-10-25T00:00:50Z |
+| `windows/arm64/native/district/pyz/district-1.0.1-windows-arm64.pyz` | 4086181 bytes | 2026-10-25T00:05:19Z |
 
 ## SHA-256
 
 Run from this directory: `shasum -a 256 -c SHA256SUMS`.
 
 ```text
-48964cb256bbdfcdaae073c70dafff1b279bb14f13fdf9221ddca3ef787f0708  linux/amd64/glibc/district/pyinstaller/district-1.0.1-linux-amd64
-90c1a0eee61ddd70c1565a122638fa0baf5c08e608462012717ea81670ca8ea8  linux/amd64/glibc/district/installer/district_1.0.1_amd64.deb
-6f809121ca977437e11c53dcafbfb4cf86ef1d4045313d5c38bf0386d49379a6  linux/amd64/musl/district/pyinstaller/district-1.0.1-linux-amd64-musl
+d04ac9b9937c07425bc24a01287fb8a62a31b38cd96d83aa58bca3a6f96f519a  linux/amd64/glibc/district/pyinstaller/district-1.0.1-linux-amd64
+5820747217f2325e0b3b3dbf8592b912399ba04f00b99cf56245438c257487fc  linux/amd64/glibc/district/installer/district_1.0.1_amd64.deb
+874f541a2332f308e4de4d6d6822d828347d3e4380a122339544e75fa81dd5c2  linux/amd64/musl/district/pyinstaller/district-1.0.1-linux-amd64-musl
 6d15ad55ab8af3c6b96f599667a369d93497abdf0513a0a0cfc1460cb2fbb5a0  linux/amd64/musl/district/installer/district-1.0.1-linux-amd64-musl.apk
-6c60ddc89b242ff320db38116561169d4e48b312ca278f92f7ada3c61c282f25  linux/arm64/glibc/district/pyinstaller/district-1.0.1-linux-arm64
-2e4e19b99b277b4aeeb2c9ac8cb7153c308b45e719516e98840a910cb56a1582  linux/arm64/glibc/district/installer/district_1.0.1_arm64.deb
-ae68070168c62718b79d7a8bf2706b6f3e620bb1d6c494f88dc94a5e3d6cad73  linux/arm64/musl/district/pyinstaller/district-1.0.1-linux-arm64-musl
+8739378036d4b1e3c1c55427018dcfba5dece84f4c243e05a55c8bf5793c973f  linux/arm64/glibc/district/pyinstaller/district-1.0.1-linux-arm64
+96bec7863de6377527fda5f2614bd834427e49afa5ca58e33fb7ada0951cf8b3  linux/arm64/glibc/district/installer/district_1.0.1_arm64.deb
+1859a5fbafb3a9a90d0ea1866cebb665fa752da763263bf1eec531065faac64d  linux/arm64/musl/district/pyinstaller/district-1.0.1-linux-arm64-musl
 f50d4fe7b73f96b1d83c2ef346caa6a344b33204d38067e5f87c9f3dbb6190b2  linux/arm64/musl/district/installer/district-1.0.1-linux-arm64-musl.apk
-141f13914aa7e42b5905d56dd286afc97b933962817aa18344f975e7d774cf12  macos/arm64/native/district/pyinstaller/district-1.0.1-macos-arm64
-3c849541ba516eff463700057bab895928aee2b2c97d54fceedca6339a3e60ad  macos/arm64/native/district/installer/district-1.0.1-macos-arm64.pkg
-2c0b4143ba97fa06febd735a8f2de4f7dd0ccd5e7aa132c255412fee87db54f6  windows/arm64/native/district/pyinstaller/district-1.0.1-windows-arm64.exe
-a44efc69ec5f6fc32f677507508b5b7f732e4827dd0c2844f839b158c51daadc  windows/arm64/native/district/installer/district-1.0.1-windows-arm64-setup.exe
-759794254e47b3c522f9e6003972c06c96369c2ac0f3f9b8b5920e17a0de4900  linux/amd64/glibc/district/pyz/district-1.0.1-linux-amd64-glibc.pyz
-acb6af163b6f52372c849204625a6690baa999f3a89f9e2fb85f70f8730cd46d  linux/amd64/musl/district/pyz/district-1.0.1-linux-amd64-musl.pyz
-3aa1c5bab0e4169189c672a2f1355db4113ac735b1f5585f199d91b05ac28d30  linux/arm64/glibc/district/pyz/district-1.0.1-linux-arm64-glibc.pyz
-b24db97f812f49bd2425931d90a583ab87f6fa82814d579fe9af2a3c91a5572f  linux/arm64/musl/district/pyz/district-1.0.1-linux-arm64-musl.pyz
-2069d629d20a4c23efc7cd34f2fe1572dbd9949656a850b9cdfef29f5b68a704  macos/amd64/native/district/pyz/district-1.0.1-macos-amd64.pyz
-e05b5c0ae4242601242ef27c1e8d7e0291e7c059375215a3cb2e998da3923836  macos/arm64/native/district/pyz/district-1.0.1-macos-arm64.pyz
-1d7eec0ccd65102a81f1a5090042734b56ad292e2d1cd0696bbe9074043d9397  windows/amd64/native/district/pyz/district-1.0.1-windows-amd64.pyz
-72694b165c9c015e3df166dfb7a1394f82a52a0536116afa36fea68c9f4645b6  windows/arm64/native/district/pyz/district-1.0.1-windows-arm64.pyz
+539bbd46e36c325f926429e1be426b3d7ab476cc361432708e47a4ef604043f1  macos/amd64/native/district/pyinstaller/district-1.0.1-macos-amd64
+725f4722fd4875881bbfaead65b870f287c51c24b043a9cefb4c1949b6259ef5  macos/amd64/native/district/installer/district-1.0.1-macos-amd64.pkg
+14c6bd082cdf15a52d93d3f63931c76063a59f8ac4033ed1195e9403c9ff96f2  macos/arm64/native/district/pyinstaller/district-1.0.1-macos-arm64
+2ebde0b3555de78f04e2f1c979c23753d75742f3dc3e707015e1e7781776d4c2  macos/arm64/native/district/installer/district-1.0.1-macos-arm64.pkg
+cc92a3dc35efa15909f4bc89b41611e744c83c625b6ba40a3a740a3ed93f9acf  windows/arm64/native/district/pyinstaller/district-1.0.1-windows-arm64.exe
+1055e40210161e81cdfad09fea2e828e8eabb58114854ffb351aae1d69944eaa  windows/arm64/native/district/installer/district-1.0.1-windows-arm64-setup.exe
+84bd0d3c4585bd75e2727c5a86c7492d0adb5cead5a8f32f7f0fab86f37fc6b3  linux/amd64/glibc/district/pyz/district-1.0.1-linux-amd64-glibc.pyz
+05c8b13ca8cdfa7a08ff2f7e44beb73d64a285e66b91ac4d78b8aae339ccc2e6  linux/amd64/musl/district/pyz/district-1.0.1-linux-amd64-musl.pyz
+ac72b5ffe1a73a7e2cd8d67038bd43674395527231a25c459bbb64cbd02d9424  linux/arm64/glibc/district/pyz/district-1.0.1-linux-arm64-glibc.pyz
+af431de197b51e7be2d05a56cd5af2f6c0121d57a1f1fc9841a81354ea8d19a2  linux/arm64/musl/district/pyz/district-1.0.1-linux-arm64-musl.pyz
+3f4d55abf186f627137479a71aca2ba9bfbe1c6448a01e777d9c2d26ed6f2c88  macos/amd64/native/district/pyz/district-1.0.1-macos-amd64.pyz
+1b99f312b9a2b715d53c507338dd3451eec046419dbcd0d5bd8e32772b155d62  macos/arm64/native/district/pyz/district-1.0.1-macos-arm64.pyz
+02fce8a67d393fbc54820daaaffc54f07f13d57772fce6922449eec94f2632e6  windows/amd64/native/district/pyz/district-1.0.1-windows-amd64.pyz
+a2369921c6de4fb35ea782f22e0cf520c647617efbccd8cbeba40765354c727e  windows/arm64/native/district/pyz/district-1.0.1-windows-arm64.pyz
 ```
 
 ## Rebuild

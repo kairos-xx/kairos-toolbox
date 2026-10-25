@@ -17,7 +17,14 @@ from pathlib import Path
 from secrets import token_hex
 from shutil import move, rmtree
 from signal import SIGTERM
-from socket import AF_INET, AF_INET6, SOCK_STREAM, socket
+from socket import (
+    AF_INET,
+    AF_INET6,
+    SO_REUSEADDR,
+    SOCK_STREAM,
+    SOL_SOCKET,
+    socket,
+)
 from subprocess import CompletedProcess, TimeoutExpired
 from subprocess import run as subprocess_run
 from sys import platform as sys_platform
@@ -1489,6 +1496,7 @@ class RemoteBuilder:
         if ":" in bind:
             family = AF_INET6
         probe: socket = socket(family=family, type=SOCK_STREAM)
+        probe.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         try:
             probe.bind((host, port))
         except OSError:

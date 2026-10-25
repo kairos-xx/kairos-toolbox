@@ -109,7 +109,7 @@ def _stationer_sources() -> list[Path]:
         Every Python file under ``tools/stationer``.
 
     """
-    return sorted((_root() / "tools" / "stationer").rglob("*.py"))
+    return sorted((_root() / "tools" / "stationer").rglob(pattern="*.py"))
 
 
 def test_partition_layer_imports_nothing_heavy() -> None:
@@ -133,7 +133,7 @@ def test_partition_layer_imports_nothing_heavy() -> None:
         "stationer.remote",
     )
     for path in sorted(
-        (_root() / "tools" / "stationer" / "partition").rglob("*.py"),
+        (_root() / "tools" / "stationer" / "partition").rglob(pattern="*.py"),
     ):
         for module in _imported_modules(path=path):
             for bad in forbidden:
@@ -156,9 +156,9 @@ def test_stationer_does_not_import_sibling_products() -> None:
     )
     allowed: dict[str, set[str]] = _allowed_imports()
     for path in _stationer_sources():
-        file: str = str(path.relative_to(_root()))
+        file: str = str(object=path.relative_to(_root()))
         for module in _imported_modules(path=path):
-            parts: list[str] = module.split(".")
+            parts: list[str] = module.split(sep=".")
             head: str = (
                 parts[0]
                 if parts[0] != "tools"
@@ -192,7 +192,7 @@ def test_execution_boundary_matches_allowlist() -> None:
         text: str = path.read_text(encoding="utf-8")
         marks: set[str] = {mark for mark in execution_marks if mark in text}
         if marks:
-            seen[str(path.relative_to(_root()))] = marks
+            seen[str(object=path.relative_to(_root()))] = marks
     expect(actual=seen.keys(), expected=allowed.keys())
     for file, marks in seen.items():
         for mark in marks:

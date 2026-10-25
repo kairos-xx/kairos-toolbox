@@ -35,11 +35,10 @@ class Constants:
     """Group module-level constants.
 
     Attributes:
-        component: Name the staged project source scans as.
-        runtime: Bootstrap archive that carries the partition package to
-            a builder.
-        ignored: Tree members excluded from the catalog.
-        pack_target: Target compressed size of one pack in bytes.
+        component: Grouped module constant.
+        runtime: Grouped module constant.
+        ignored: Grouped module constant.
+        pack_target: Grouped module constant.
 
     """
 
@@ -61,8 +60,8 @@ class Constants:
 class SourcePacks:
     """Catalog project source into a reusable content-addressed store."""
 
-    @classmethod
-    def create(cls, *, project: ProjectConfig, store: Path) -> Path:
+    @staticmethod
+    def create(*, project: ProjectConfig, store: Path) -> Path:
         """Stage, scan and pack the project source into ``store``.
 
         Args:
@@ -87,9 +86,7 @@ class SourcePacks:
                     dst=staged / ".local-deps" / dependency.name,
                     ignore=ignore_patterns(*Constants.ignored),
                 )
-            partition: PartitionStore = PartitionStore(
-                cache=store / "cache",
-            )
+            partition: PartitionStore = PartitionStore(cache=store / "cache")
             objects: ObjectStore = partition.objects
             scanner: RecipeScanner = RecipeScanner(objects=objects)
             recipe: Recipe = scanner.scan(
@@ -105,8 +102,8 @@ class SourcePacks:
             )
         return store / "dist" / "catalog.json"
 
-    @classmethod
-    def packs(cls, *, store: Path) -> dict[str, Path]:
+    @staticmethod
+    def packs(*, store: Path) -> dict[str, Path]:
         """Map every pack's store-relative path to its file.
 
         Args:
@@ -123,8 +120,8 @@ class SourcePacks:
             for record in catalog["packs"].values()
         }
 
-    @classmethod
-    def bootstrap(cls, *, destination: Path) -> None:
+    @staticmethod
+    def bootstrap(*, destination: Path) -> None:
         """Write a self-contained ``stationer.partition`` runtime zip.
 
         A builder only needs the package itself plus its vendored zstd
